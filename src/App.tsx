@@ -193,7 +193,7 @@ export default function App() {
           <div className="app-grid">
             {appDefs.map(app=>(
               <div key={app.id} className="app-item" onClick={()=>setPage(app.id)} onContextMenu={(e)=>{e.preventDefault();setEditingIcon(app.id);setIconUrl(theme.customIcons[app.id]||'')}}>
-                <div className="app-icon-box" style={{background:theme.customIcons[app.id]?'transparent':app.color, backgroundImage:theme.customIcons[app.id]?`url(${theme.customIcons[app.id]})`:'none', backgroundSize:'cover',backgroundPosition:'center'}}>
+                <div className="app-icon-box" style={theme.customIcons[app.id] ? {background:`url(${theme.customIcons[app.id]}) center/cover no-repeat`} : {background:app.color}}>
                   {!theme.customIcons[app.id] && <app.Icon size={24} weight="bold" />}
                 </div>
                 <span className="app-label">{app.name}</span>
