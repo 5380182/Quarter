@@ -11,37 +11,19 @@ const load = (k: string, fb: any = []) => {
 }
 const save = (k: string, v: any) => localStorage.setItem(K(k), JSON.stringify(v))
 
-// ===== Supabase =====
-const SUPABASE_URL = 'https://ifkspfuxcitlgfwrniek.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_w2htI0LmYCJAO-H2uBmI8w_-3XtW_Q_'
-const sbHeaders = {
-  'apikey': SUPABASE_KEY,
-  'Authorization': `Bearer ${SUPABASE_KEY}`,
-  'Content-Type': 'application/json',
-}
-
-async function sbFetch(table: string) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=created_at.desc`, { headers: sbHeaders })
-  return res.json()
-}
-
-async function sbInsert(table: string, data: any) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: { ...sbHeaders, 'Prefer': 'return=representation' },
-    body: JSON.stringify(data)
-  })
-  return res.json()
-}
-
-async function sbDelete(table: string, id: string) {
-  await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-    method: 'DELETE',
-    headers: sbHeaders
-  })
-}
+// Supabase
+const SB_URL = 'https://ifkspfuxcitlgfwrniek.supabase.co/rest/v1'
+const SB_KEY = 'sb_publishable_w2htI0LmYCJAO-H2uBmI8w_-3XtW_Q_'
+const SB_H = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
 
 
+// Supabase
+const SB_URL = 'https://ifkspfuxcitlgfwrniek.supabase.co/rest/v1'
+const SB_KEY = 'sb_publishable_w2htI0LmYCJAO-H2uBmI8w_-3XtW_Q_'
+const SB_H = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
+
+
+interface JournalEntry { id: string; author: 'yy'|'kk'; text: string; date: string }
 interface ThemeConfig { wallpaper: string; accentColor: string; cardOpacity: number; customIcons: Record<string,string> }
 
 const defaultTheme: ThemeConfig = { wallpaper: '', accentColor: '#7d9a8c', cardOpacity: 0.72, customIcons: {} }
@@ -162,7 +144,6 @@ export default function App() {
   const [editingIcon, setEditingIcon] = useState<string|null>(null)
   const [iconUrl, setIconUrl] = useState('')
   const iconFileRef = useRef<HTMLInputElement>(null)
-  const editorRef = useRef<HTMLDivElement>(null)
 
   const handleIconFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -201,10 +182,11 @@ export default function App() {
   },[theme])
 
   const addJournal = () => {
-    if(!journalText.trim()) return;
-    
+    if(!journalText.trim()) return
     const e:JournalEntry = {id:Date.now().toString(),author:'yy',text:journalText.trim(),date:dateStr()}
     const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('')
+    fetch(SB_URL+'/journal',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(e)}).catch(()=>{})
+    fetch(SB_URL+'/journal',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(e)}).catch(()=>{})
   }
 
   const wpStyle = theme.wallpaper ? {backgroundImage:`url(${theme.wallpaper})`,backgroundSize:'cover',backgroundPosition:'center'} : {}
@@ -253,8 +235,9 @@ export default function App() {
                 <span className="jp-author" style={{color:theme.accentColor}}>{journalTab==='kk'?'写给厌厌':'写给kk'}</span>
                 <span className="jp-date">{dateStr()}</span>
               </div>
-              <div
               <textarea className="input" rows={4} placeholder="今天想对kk说什么..." value={journalText} onChange={e=>setJournalText(e.target.value)} style={{background:'transparent',border:'none',lineHeight:'28px',textIndent:'2em',fontSize:14}} />
+              <div style={{marginTop:8,textAlign:'right'}}><button className="btn btn-accent" onClick={addJournal}>写好了</button></div>
+            </div>
             {entries.filter(e=>journalTab==='all'||e.author===journalTab).length===0 ? (
               <div style={{textAlign:'center',padding:'40px 20px',color:'#b0a898',fontSize:13}}>还没有日记</div>
             ) : entries.filter(e=>journalTab==='all'||e.author===journalTab).map(e=>(
@@ -263,8 +246,8 @@ export default function App() {
                   <span className="jp-author" style={{color:e.author==='kk'?theme.accentColor:'#b07d9a'}}>{e.author==='kk'?'kk':'厌厌'}</span>
                   <span className="jp-date">{e.date}</span>
                 </div>
-                <div className="jp-body">{e.text.split("\n").map((p,i)=><p key={i} style={{textIndent:"2em",margin:0,lineHeight:"28px"}}>{p}</p>)}</div>
-                <div style={{marginTop:8,textAlign:'right'}}><button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);sbDelete('journal',e.id).catch(()=>{})}}}>&times; 删除</button></div>
+                <div className="jp-body">{e.text.split("\n").map((p,i)=><p key={i}>{p}</p>)}</div>
+                <div style={{marginTop:8,textAlign:'right'}}><button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);save('journal',next);fetch(SB_URL+'/journal?id=eq.'+e.id,{method:'DELETE',headers:SB_H}).catch(()=>{});fetch(SB_URL+'/journal?id=eq.'+e.id,{method:'DELETE',headers:SB_H}).catch(()=>{})}}}>&times; 删除</button></div>
               </div>
             ))}
           </div>
