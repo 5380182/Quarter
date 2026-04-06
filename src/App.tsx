@@ -24,7 +24,7 @@ interface JournalEntry {
 // ===== Countdown helper =====
 function getCountdowns() {
   const now = new Date()
-  const together = new Date('2026-03-10')
+  const together = new Date('2026-03-30')
   const daysTogether = Math.floor((now.getTime() - together.getTime()) / 86400000)
 
   let bday = new Date(now.getFullYear(), 4, 3)
