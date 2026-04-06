@@ -126,7 +126,6 @@ export default function App() {
   const [theme, setTheme] = useState<ThemeConfig>(()=>load('theme',defaultTheme))
   const [entries, setEntries] = useState<JournalEntry[]>(()=>load('journal'))
   const [journalText, setJournalText] = useState('')
-  const [journalTab, setJournalTab] = useState<'all'|'yy'|'kk'>('all')
 
   // Icon editor
   const [editingIcon, setEditingIcon] = useState<string|null>(null)
@@ -211,30 +210,14 @@ export default function App() {
         <div className="page-overlay">
           <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">交换日记</span></div>
           <div className="page-body">
-            <div className="journal-tabs">
-              <button className={`journal-tab ${journalTab==='all'?'active':''}`} onClick={()=>setJournalTab('all')}>全部</button>
-              <button className={`journal-tab ${journalTab==='yy'?'active':''}`} onClick={()=>setJournalTab('yy')}>厌厌</button>
-              <button className={`journal-tab ${journalTab==='kk'?'active':''}`} onClick={()=>setJournalTab('kk')}>kk</button>
+            <div className="glass" style={{padding:16,marginBottom:16}}>
+              <textarea className="input" rows={4} placeholder="写点什么给kk看..." value={journalText} onChange={e=>setJournalText(e.target.value)} />
+              <div style={{marginTop:10,textAlign:'right'}}><button className="btn btn-accent" onClick={addJournal}>写好了</button></div>
             </div>
-            <div className="journal-paper">
-              <div className="jp-header">
-                <span className="jp-author" style={{color:theme.accentColor}}>写给kk</span>
-                <span className="jp-date">{dateStr()}</span>
-              </div>
-              <textarea className="input" rows={4} placeholder="今天想对kk说什么..." value={journalText} onChange={e=>setJournalText(e.target.value)} style={{background:'transparent',border:'none',lineHeight:'28px'}} />
-              <div style={{marginTop:8,textAlign:'right'}}><button className="btn btn-accent" onClick={addJournal}>写好了</button></div>
+            <div className="glass" style={{padding:16}}>
+              {entries.length===0 ? <div className="empty"><div className="empty-icon">📓</div><div className="empty-text">还没有日记</div></div>
+              : entries.map(e=>(<div key={e.id} className="entry"><div className="entry-meta"><span className="entry-author" style={{color:theme.accentColor}}>{e.author==='kk'?'kk':'厌厌'}</span><span className="entry-date">{e.date}</span></div><div className="entry-text">{e.text}</div></div>))}
             </div>
-            {entries.filter(e=>journalTab==='all'||e.author===journalTab).length===0 ? (
-              <div style={{textAlign:'center',padding:'40px 20px',color:'#b0a898',fontSize:13}}>还没有日记</div>
-            ) : entries.filter(e=>journalTab==='all'||e.author===journalTab).map(e=>(
-              <div key={e.id} className="journal-paper">
-                <div className="jp-header">
-                  <span className="jp-author" style={{color:e.author==='kk'?theme.accentColor:'#b07d9a'}}>{e.author==='kk'?'kk':'厌厌'}</span>
-                  <span className="jp-date">{e.date}</span>
-                </div>
-                <div className="jp-body">{e.text}</div>
-              </div>
-            ))}
           </div>
         </div>
       )}
