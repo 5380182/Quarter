@@ -133,7 +133,6 @@ export default function App() {
   const [iconUrl, setIconUrl] = useState('')
   const iconFileRef = useRef<HTMLInputElement>(null)
   const editorRef = useRef<HTMLDivElement>(null)
-  const editorRef = useRef<HTMLDivElement>(null)
 
   const handleIconFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -174,9 +173,8 @@ export default function App() {
   const addJournal = () => {
     if(!journalText.trim()) return;
     const htmlContent = editorRef.current ? editorRef.current.innerHTML : journalText;
-    const htmlContent = editorRef.current ? editorRef.current.innerHTML : journalText
     const e:JournalEntry = {id:Date.now().toString(),author:'yy',text:htmlContent||journalText.trim(),date:dateStr()}
-    const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('');if(editorRef.current)editorRef.current.innerHTML='';if(editorRef.current)editorRef.current.innerHTML=''
+    const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('');if(editorRef.current)editorRef.current.innerHTML=''
   }
 
   const wpStyle = theme.wallpaper ? {backgroundImage:`url(${theme.wallpaper})`,backgroundSize:'cover',backgroundPosition:'center'} : {}
