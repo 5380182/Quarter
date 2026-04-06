@@ -11,6 +11,68 @@ const load = (k: string, fb: any = []) => {
 }
 const save = (k: string, v: any) => localStorage.setItem(K(k), JSON.stringify(v))
 
+// ===== Supabase =====
+const SUPABASE_URL = 'https://ifkspfuxcitlgfwrniek.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_w2htI0LmYCJAO-H2uBmI8w_-3XtW_Q_'
+const sbHeaders = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+  'Content-Type': 'application/json',
+}
+
+async function sbFetch(table: string) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=created_at.desc`, { headers: sbHeaders })
+  return res.json()
+}
+
+async function sbInsert(table: string, data: any) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { ...sbHeaders, 'Prefer': 'return=representation' },
+    body: JSON.stringify(data)
+  })
+  return res.json()
+}
+
+async function sbDelete(table: string, id: string) {
+  await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: sbHeaders
+  })
+}
+
+
+// ===== Supabase =====
+const SUPABASE_URL = 'https://ifkspfuxcitlgfwrniek.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_w2htI0LmYCJAO-H2uBmI8w_-3XtW_Q_'
+const sbHeaders = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+  'Content-Type': 'application/json',
+}
+
+async function sbFetch(table: string) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=created_at.desc`, { headers: sbHeaders })
+  return res.json()
+}
+
+async function sbInsert(table: string, data: any) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { ...sbHeaders, 'Prefer': 'return=representation' },
+    body: JSON.stringify(data)
+  })
+  return res.json()
+}
+
+async function sbDelete(table: string, id: string) {
+  await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: sbHeaders
+  })
+}
+
+
 interface JournalEntry { id: string; author: 'yy'|'kk'; text: string; date: string }
 interface ThemeConfig { wallpaper: string; accentColor: string; cardOpacity: number; customIcons: Record<string,string> }
 
@@ -234,7 +296,7 @@ export default function App() {
                   <span className="jp-date">{e.date}</span>
                 </div>
                 <div className="jp-body">{e.text.split("\n").map((p,i)=><p key={i} style={{textIndent:"2em",margin:0,lineHeight:"28px"}}>{p}</p>)}</div>
-                <div style={{marginTop:8,textAlign:'right'}}><button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);save('journal',next)}}}>&times; 删除</button></div>
+                <div style={{marginTop:8,textAlign:'right'}}><button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);sbDelete('journal',e.id).catch(()=>{})}}}>&times; 删除</button></div>
               </div>
             ))}
           </div>
