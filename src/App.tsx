@@ -218,7 +218,7 @@ export default function App() {
             </div>
             <div className="journal-paper">
               <div className="jp-header">
-                <span className="jp-author" style={{color:theme.accentColor}}>写给kk</span>
+                <span className="jp-author" style={{color:theme.accentColor}}>{journalTab==='kk'?'写给厌厌':'写给kk'}</span>
                 <span className="jp-date">{dateStr()}</span>
               </div>
               <textarea className="input" rows={4} placeholder="今天想对kk说什么..." value={journalText} onChange={e=>setJournalText(e.target.value)} style={{background:'transparent',border:'none',lineHeight:'28px'}} />
@@ -233,6 +233,7 @@ export default function App() {
                   <span className="jp-date">{e.date}</span>
                 </div>
                 <div className="jp-body">{e.text}</div>
+                <div style={{marginTop:8,textAlign:'right'}}><button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);save('journal',next)}}}>&times; 删除</button></div>
               </div>
             ))}
           </div>
