@@ -225,12 +225,13 @@ export default function App() {
                 <span className="jp-author" style={{color:theme.accentColor}}>{journalTab==='kk'?'写给厌厌':'写给kk'}</span>
                 <span className="jp-date">{dateStr()}</span>
               </div>
-              <div className="format-bar">
-                <button className="format-btn" onClick={()=>document.execCommand("underline")}><span style={{textDecoration:"underline"}}>下划线</span></button>
-                <button className="format-btn" onClick={()=>{const s=window.getSelection();if(s&&s.rangeCount){const r=s.getRangeAt(0);const span=document.createElement("span");span.style.textDecoration="underline wavy #c4a35a";span.style.textUnderlineOffset="3px";r.surroundContents(span)}}}><span style={{textDecoration:"underline wavy",textDecorationColor:"#c4a35a"}}>波浪线</span></button>
-                <button className="format-btn" onClick={()=>{const s=window.getSelection();if(s&&s.rangeCount){const r=s.getRangeAt(0);const span=document.createElement("span");span.style.background="rgba(255,230,0,0.4)";r.surroundContents(span)}}}><span style={{background:"rgba(255,230,0,0.4)",padding:"0 2px",borderRadius:2}}>黄色</span></button>
-                <button className="format-btn" onClick={()=>{const s=window.getSelection();if(s&&s.rangeCount){const r=s.getRangeAt(0);const span=document.createElement("span");span.style.background="rgba(255,150,200,0.3)";r.surroundContents(span)}}}><span style={{background:"rgba(255,150,200,0.3)",padding:"0 2px",borderRadius:2}}>粉色</span></button>
-                <button className="format-btn" onClick={()=>{const s=window.getSelection();if(s&&s.rangeCount){const r=s.getRangeAt(0);const span=document.createElement("span");span.style.background="rgba(150,220,150,0.35)";r.surroundContents(span)}}}><span style={{background:"rgba(150,220,150,0.35)",padding:"0 2px",borderRadius:2}}>绿色</span></button>
+              <div style={{display:"flex",gap:6,marginBottom:8,flexWrap:"wrap"}}>
+                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"#fff",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("underline")}><u>下划线</u></button>
+                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"#fff",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("bold")}><b>加粗</b></button>
+                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"#fff",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("italic")}><i>斜体</i></button>
+                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"rgba(255,230,0,0.4)",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("hiliteColor",false,"rgba(255,230,0,0.4)")}>黄色</button>
+                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"rgba(255,150,200,0.3)",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("hiliteColor",false,"rgba(255,150,200,0.3)")}>粉色</button>
+                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"rgba(150,220,150,0.35)",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("hiliteColor",false,"rgba(150,220,150,0.35)")}>绿色</button>
               </div>
               <div
                 ref={editorRef}
