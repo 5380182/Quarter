@@ -42,38 +42,6 @@ async function sbDelete(table: string, id: string) {
 }
 
 
-// ===== Supabase =====
-const SUPABASE_URL = 'https://ifkspfuxcitlgfwrniek.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_w2htI0LmYCJAO-H2uBmI8w_-3XtW_Q_'
-const sbHeaders = {
-  'apikey': SUPABASE_KEY,
-  'Authorization': `Bearer ${SUPABASE_KEY}`,
-  'Content-Type': 'application/json',
-}
-
-async function sbFetch(table: string) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=created_at.desc`, { headers: sbHeaders })
-  return res.json()
-}
-
-async function sbInsert(table: string, data: any) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: { ...sbHeaders, 'Prefer': 'return=representation' },
-    body: JSON.stringify(data)
-  })
-  return res.json()
-}
-
-async function sbDelete(table: string, id: string) {
-  await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-    method: 'DELETE',
-    headers: sbHeaders
-  })
-}
-
-
-interface JournalEntry { id: string; author: 'yy'|'kk'; text: string; date: string }
 interface ThemeConfig { wallpaper: string; accentColor: string; cardOpacity: number; customIcons: Record<string,string> }
 
 const defaultTheme: ThemeConfig = { wallpaper: '', accentColor: '#7d9a8c', cardOpacity: 0.72, customIcons: {} }
