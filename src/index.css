@@ -370,7 +370,7 @@ body {
     #e8e4d8 27px,
     #e8e4d8 28px
   );
-  background-position-y: 8px;
+  background-position-y: 19px;
   line-height: 28px;
 }
 .journal-paper .jp-header {
@@ -395,6 +395,7 @@ body {
   color: #3a3a3a;
   white-space: pre-wrap;
   word-break: break-word;
+  text-indent: 2em;
 }
 
 /* Journal tabs */
