@@ -127,6 +127,40 @@ export default function App() {
   const [entries, setEntries] = useState<JournalEntry[]>(()=>load('journal'))
   const [journalText, setJournalText] = useState('')
 
+  // Icon editor
+  const [editingIcon, setEditingIcon] = useState<string|null>(null)
+  const [iconUrl, setIconUrl] = useState('')
+  const iconFileRef = useRef<HTMLInputElement>(null)
+
+  const handleIconFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !editingIcon) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const url = reader.result as string
+      const next = {...theme, customIcons: {...theme.customIcons, [editingIcon]: url}}
+      setTheme(next); save('theme', next)
+      setEditingIcon(null); setIconUrl('')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const applyIconUrl = () => {
+    if (!editingIcon || !iconUrl.trim()) return
+    const next = {...theme, customIcons: {...theme.customIcons, [editingIcon]: iconUrl.trim()}}
+    setTheme(next); save('theme', next)
+    setEditingIcon(null); setIconUrl('')
+  }
+
+  const resetIcon = () => {
+    if (!editingIcon) return
+    const ci = {...theme.customIcons}; delete ci[editingIcon]
+    const next = {...theme, customIcons: ci}
+    setTheme(next); save('theme', next)
+    setEditingIcon(null); setIconUrl('')
+  }
+
+
   useEffect(()=>{const t=setInterval(()=>setTime(timeStr()),30000);return()=>clearInterval(t)},[])
   useEffect(()=>{
     document.documentElement.style.setProperty('--accent',theme.accentColor)
@@ -158,7 +192,7 @@ export default function App() {
           </div>
           <div className="app-grid">
             {appDefs.map(app=>(
-              <div key={app.id} className="app-item" onClick={()=>setPage(app.id)}>
+              <div key={app.id} className="app-item" onClick={()=>setPage(app.id)} onContextMenu={(e)=>{e.preventDefault();setEditingIcon(app.id);setIconUrl(theme.customIcons[app.id]||'')}}>
                 <div className="app-icon-box" style={{background:theme.customIcons[app.id]?'transparent':app.color, backgroundImage:theme.customIcons[app.id]?`url(${theme.customIcons[app.id]})`:'none', backgroundSize:'cover',backgroundPosition:'center'}}>
                   {!theme.customIcons[app.id] && <app.Icon size={24} weight="bold" />}
                 </div>
@@ -191,6 +225,22 @@ export default function App() {
         <div className="page-overlay">
           <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">{appDefs.find(a=>a.id===page)?.name||page}</span></div>
           <div className="page-body"><div className="empty"><div className="empty-icon">✨</div><div className="empty-text">即将上线...</div></div></div>
+        </div>
+      )}
+
+      {/* Icon Editor Modal */}
+      {editingIcon && (
+        <div style={{position:'fixed',inset:0,zIndex:999,background:'rgba(0,0,0,0.4)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={()=>setEditingIcon(null)}>
+          <div className="glass" style={{padding:20,width:'100%',maxWidth:320,borderRadius:16}} onClick={e=>e.stopPropagation()}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>编辑图标: {appDefs.find(a=>a.id===editingIcon)?.name}</div>
+            <input className="input" placeholder="粘贴图片URL..." value={iconUrl} onChange={e=>setIconUrl(e.target.value)} style={{marginBottom:8}} />
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              <button className="btn btn-accent" onClick={applyIconUrl}>应用URL</button>
+              <button className="btn btn-accent" onClick={()=>iconFileRef.current?.click()}>上传图片</button>
+              {theme.customIcons[editingIcon] && <button className="btn" style={{background:'#ddd',color:'#666'}} onClick={resetIcon}>恢复默认</button>}
+            </div>
+            <input ref={iconFileRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleIconFile} />
+          </div>
         </div>
       )}
     </>
