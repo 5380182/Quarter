@@ -232,7 +232,7 @@ export default function App() {
                   <span className="jp-author" style={{color:e.author==='kk'?theme.accentColor:'#b07d9a'}}>{e.author==='kk'?'kk':'厌厌'}</span>
                   <span className="jp-date">{e.date}</span>
                 </div>
-                <div className="jp-body">{e.text}</div>
+                <div className="jp-body">{e.text.split("\n").map((p,i)=><p key={i}>{p}</p>)}</div>
                 <div style={{marginTop:8,textAlign:'right'}}><button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);save('journal',next)}}}>&times; 删除</button></div>
               </div>
             ))}

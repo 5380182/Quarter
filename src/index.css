@@ -393,9 +393,12 @@ body {
   font-size: 14px;
   line-height: 28px;
   color: #3a3a3a;
-  white-space: pre-wrap;
   word-break: break-word;
+}
+.journal-paper .jp-body p {
   text-indent: 2em;
+  margin: 0;
+  line-height: 28px;
 }
 
 /* Journal tabs */
