@@ -226,6 +226,13 @@ export default function App() {
                 <span className="jp-date">{dateStr()}</span>
               </div>
               <div
+              <div className="format-bar">
+                <button className="format-btn" onClick={()=>document.execCommand("underline")}><span style={{textDecoration:"underline"}}>u4e0bu5212u7ebf</span></button>
+                <button className="format-btn" onClick={()=>{const s=window.getSelection();if(s&&s.rangeCount){const r=s.getRangeAt(0);const span=document.createElement("span");span.style.textDecoration="underline wavy #c4a35a";span.style.textUnderlineOffset="3px";r.surroundContents(span)}}}><span style={{textDecoration:"underline wavy",textDecorationColor:"#c4a35a"}}>u6ce2u6d6au7ebf</span></button>
+                <button className="format-btn" onClick={()=>{const s=window.getSelection();if(s&&s.rangeCount){const r=s.getRangeAt(0);const span=document.createElement("span");span.style.background="rgba(255,230,0,0.4)";r.surroundContents(span)}}}><span style={{background:"rgba(255,230,0,0.4)",padding:"0 2px",borderRadius:2}}>u9ec4u8272</span></button>
+                <button className="format-btn" onClick={()=>{const s=window.getSelection();if(s&&s.rangeCount){const r=s.getRangeAt(0);const span=document.createElement("span");span.style.background="rgba(255,150,200,0.3)";r.surroundContents(span)}}}><span style={{background:"rgba(255,150,200,0.3)",padding:"0 2px",borderRadius:2}}>u7c89u8272</span></button>
+                <button className="format-btn" onClick={()=>{const s=window.getSelection();if(s&&s.rangeCount){const r=s.getRangeAt(0);const span=document.createElement("span");span.style.background="rgba(150,220,150,0.35)";r.surroundContents(span)}}}><span style={{background:"rgba(150,220,150,0.35)",padding:"0 2px",borderRadius:2}}>u7effu8272</span></button>
+              </div>
                 ref={editorRef}
                 contentEditable
                 className="jp-editor"
