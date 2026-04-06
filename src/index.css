@@ -398,7 +398,9 @@ body {
 .journal-paper .jp-body p {
   text-indent: 2em;
   margin: 0;
+  padding: 0;
   line-height: 28px;
+  font-size: 14px;
 }
 
 /* Journal tabs */
@@ -473,4 +475,10 @@ body {
 }
 .format-btn .bold-demo {
   font-weight: 700;
+}
+
+.journal-textarea-styled {
+  text-indent: 2em;
+  line-height: 28px;
+  font-size: 14px;
 }
