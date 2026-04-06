@@ -17,12 +17,6 @@ const SB_KEY = 'sb_publishable_w2htI0LmYCJAO-H2uBmI8w_-3XtW_Q_'
 const SB_H = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
 
 
-// Supabase
-const SB_URL = 'https://ifkspfuxcitlgfwrniek.supabase.co/rest/v1'
-const SB_KEY = 'sb_publishable_w2htI0LmYCJAO-H2uBmI8w_-3XtW_Q_'
-const SB_H = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
-
-
 interface JournalEntry { id: string; author: 'yy'|'kk'; text: string; date: string }
 interface ThemeConfig { wallpaper: string; accentColor: string; cardOpacity: number; customIcons: Record<string,string> }
 
