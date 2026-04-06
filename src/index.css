@@ -482,3 +482,35 @@ body {
   line-height: 28px;
   font-size: 14px;
 }
+
+.jp-editor {
+  min-height: 84px;
+  cursor: text;
+}
+.jp-editor p,
+.jp-editor div {
+  text-indent: 2em;
+  margin: 0;
+  padding: 0;
+  line-height: 28px;
+  font-size: 14px;
+}
+.jp-editor br + br {
+  display: none;
+}
+
+.jp-editor {
+  min-height: 84px;
+  cursor: text;
+}
+.jp-editor p,
+.jp-editor div {
+  text-indent: 2em;
+  margin: 0;
+  padding: 0;
+  line-height: 28px;
+  font-size: 14px;
+}
+.jp-editor br + br {
+  display: none;
+}

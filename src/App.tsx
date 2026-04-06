@@ -132,6 +132,8 @@ export default function App() {
   const [editingIcon, setEditingIcon] = useState<string|null>(null)
   const [iconUrl, setIconUrl] = useState('')
   const iconFileRef = useRef<HTMLInputElement>(null)
+  const editorRef = useRef<HTMLDivElement>(null)
+  const editorRef = useRef<HTMLDivElement>(null)
 
   const handleIconFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -172,7 +174,7 @@ export default function App() {
   const addJournal = () => {
     if(!journalText.trim()) return
     const e:JournalEntry = {id:Date.now().toString(),author:'yy',text:journalText.trim(),date:dateStr()}
-    const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('')
+    const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('');if(editorRef.current)editorRef.current.innerHTML='';if(editorRef.current)editorRef.current.innerHTML=''
   }
 
   const wpStyle = theme.wallpaper ? {backgroundImage:`url(${theme.wallpaper})`,backgroundSize:'cover',backgroundPosition:'center'} : {}
@@ -221,7 +223,15 @@ export default function App() {
                 <span className="jp-author" style={{color:theme.accentColor}}>{journalTab==='kk'?'写给厌厌':'写给kk'}</span>
                 <span className="jp-date">{dateStr()}</span>
               </div>
-              <textarea className="input" rows={4} placeholder="今天想对kk说什么..." value={journalText} onChange={e=>setJournalText(e.target.value)} style={{background:'transparent',border:'none',lineHeight:'28px',textIndent:'2em',fontSize:14}} />
+              <div
+                ref={editorRef}
+                contentEditable
+                className="jp-editor"
+                onInput={()=>setJournalText(editorRef.current?.innerText||'')}
+                style={{background:'transparent',border:'none',lineHeight:'28px',fontSize:14,outline:'none',minHeight:84,color:'#3a3a3a'}}
+                suppressContentEditableWarning
+              />
+              {!journalText && <div style={{position:'absolute',pointerEvents:'none',color:'#c8c0b0',fontSize:14,lineHeight:'28px',textIndent:'2em'}}>今天想对kk说什么...</div>}
               <div style={{marginTop:8,textAlign:'right'}}><button className="btn btn-accent" onClick={addJournal}>写好了</button></div>
             </div>
             {entries.filter(e=>journalTab==='all'||e.author===journalTab).length===0 ? (
