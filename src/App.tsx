@@ -175,12 +175,19 @@ export default function App() {
     document.documentElement.style.setProperty('--card',`rgba(255,255,255,${theme.cardOpacity})`)
   },[theme])
 
+  // Load journal from Supabase
+  useEffect(() => {
+    fetch(SB_URL+'/journal?select=*&order=created_at.desc',{headers:SB_H})
+      .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setEntries(data);save('journal',data)}})
+      .catch(()=>{})
+  }, [])
+
   const addJournal = () => {
     if(!journalText.trim()) return
     const e:JournalEntry = {id:Date.now().toString(),author:'yy',text:journalText.trim(),date:dateStr()}
     const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('')
     fetch(SB_URL+'/journal',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(e)}).catch(()=>{})
-    fetch(SB_URL+'/journal',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(e)}).catch(()=>{})
+    
   }
 
   const wpStyle = theme.wallpaper ? {backgroundImage:`url(${theme.wallpaper})`,backgroundSize:'cover',backgroundPosition:'center'} : {}
@@ -241,7 +248,7 @@ export default function App() {
                   <span className="jp-date">{e.date}</span>
                 </div>
                 <div className="jp-body">{e.text.split("\n").map((p,i)=><p key={i}>{p}</p>)}</div>
-                <div style={{marginTop:8,textAlign:'right'}}><button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);save('journal',next);fetch(SB_URL+'/journal?id=eq.'+e.id,{method:'DELETE',headers:SB_H}).catch(()=>{});fetch(SB_URL+'/journal?id=eq.'+e.id,{method:'DELETE',headers:SB_H}).catch(()=>{})}}}>&times; 删除</button></div>
+                <div style={{marginTop:8,textAlign:'right'}}><button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);save('journal',next);fetch(SB_URL+'/journal?id=eq.'+e.id,{method:'DELETE',headers:SB_H}).catch(()=>{})}}}>&times; 删除</button></div>
               </div>
             ))}
           </div>
