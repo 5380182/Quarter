@@ -172,9 +172,9 @@ export default function App() {
 
   const addJournal = () => {
     if(!journalText.trim()) return;
-    const htmlContent = editorRef.current ? editorRef.current.innerHTML : journalText;
-    const e:JournalEntry = {id:Date.now().toString(),author:'yy',text:htmlContent||journalText.trim(),date:dateStr()}
-    const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('');if(editorRef.current)editorRef.current.innerHTML=''
+    
+    const e:JournalEntry = {id:Date.now().toString(),author:'yy',text:journalText.trim(),date:dateStr()}
+    const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('')
   }
 
   const wpStyle = theme.wallpaper ? {backgroundImage:`url(${theme.wallpaper})`,backgroundSize:'cover',backgroundPosition:'center'} : {}
@@ -223,25 +223,8 @@ export default function App() {
                 <span className="jp-author" style={{color:theme.accentColor}}>{journalTab==='kk'?'写给厌厌':'写给kk'}</span>
                 <span className="jp-date">{dateStr()}</span>
               </div>
-              <div style={{display:"flex",gap:6,marginBottom:8,flexWrap:"wrap"}}>
-                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"#fff",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("underline")}><u>下划线</u></button>
-                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"#fff",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("bold")}><b>加粗</b></button>
-                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"#fff",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("italic")}><i>斜体</i></button>
-                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"rgba(255,230,0,0.4)",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("hiliteColor",false,"rgba(255,230,0,0.4)")}>黄色</button>
-                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"rgba(255,150,200,0.3)",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("hiliteColor",false,"rgba(255,150,200,0.3)")}>粉色</button>
-                <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,0.1)",background:"rgba(150,220,150,0.35)",fontSize:12,cursor:"pointer"}} onClick={()=>document.execCommand("hiliteColor",false,"rgba(150,220,150,0.35)")}>绿色</button>
-              </div>
               <div
-                ref={editorRef}
-                contentEditable
-                className="jp-editor"
-                onInput={()=>setJournalText(editorRef.current?.innerText||'')}
-                style={{background:'transparent',border:'none',lineHeight:'28px',fontSize:14,outline:'none',minHeight:84,color:'#3a3a3a'}}
-                suppressContentEditableWarning
-              />
-              {!journalText && <div style={{position:'absolute',pointerEvents:'none',color:'#c8c0b0',fontSize:14,lineHeight:'28px',textIndent:'2em'}}>今天想对kk说什么...</div>}
-              <div style={{marginTop:8,textAlign:'right'}}><button className="btn btn-accent" onClick={addJournal}>写好了</button></div>
-            </div>
+              <textarea className="input" rows={4} placeholder="今天想对kk说什么..." value={journalText} onChange={e=>setJournalText(e.target.value)} style={{background:'transparent',border:'none',lineHeight:'28px',textIndent:'2em',fontSize:14}} />
             {entries.filter(e=>journalTab==='all'||e.author===journalTab).length===0 ? (
               <div style={{textAlign:'center',padding:'40px 20px',color:'#b0a898',fontSize:13}}>还没有日记</div>
             ) : entries.filter(e=>journalTab==='all'||e.author===journalTab).map(e=>(
@@ -250,7 +233,7 @@ export default function App() {
                   <span className="jp-author" style={{color:e.author==='kk'?theme.accentColor:'#b07d9a'}}>{e.author==='kk'?'kk':'厌厌'}</span>
                   <span className="jp-date">{e.date}</span>
                 </div>
-                <div className="jp-body" dangerouslySetInnerHTML={{__html:e.text}} />
+                <div className="jp-body">{e.text.split("\n").map((p,i)=><p key={i} style={{textIndent:"2em",margin:0,lineHeight:"28px"}}>{p}</p>)}</div>
                 <div style={{marginTop:8,textAlign:'right'}}><button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);save('journal',next)}}}>&times; 删除</button></div>
               </div>
             ))}
