@@ -145,6 +145,8 @@ export default function App() {
   const [clInput, setClInput] = useState('')
   const [clBgYy, setClBgYy] = useState<string>(()=>load('cl_bg_yy',''))
   const [clBgKk, setClBgKk] = useState<string>(()=>load('cl_bg_kk',''))
+  const [clBgModal, setClBgModal] = useState(false)
+  const clBgRef = useRef<HTMLInputElement>(null)
 
   // Icon editor
   const [editingIcon, setEditingIcon] = useState<string|null>(null)
@@ -231,6 +233,12 @@ export default function App() {
   const deleteClItem = (id: string) => {
     const next = clItems.filter(i=>i.id!==id); setClItems(next); save('checklist', next)
     fetch(SB_URL+'/checklist?id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{})
+  }
+  const handleClBgFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if(!file) return
+    const reader = new FileReader()
+    reader.onload = () => { const u = reader.result as string; if(clTab==='yy'){setClBgYy(u);save('cl_bg_yy',u)}else{setClBgKk(u);save('cl_bg_kk',u)} }
+    reader.readAsDataURL(file)
   }
 
   const addJournal = () => {
@@ -327,13 +335,32 @@ export default function App() {
         </div>
       )}
       {page==='checklist' && (
-        <div className="page-overlay">
-          <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">清单</span></div>
-          <div className="page-body" style={clTab==='yy'&&clBgYy?{backgroundImage:`url(${clBgYy})`,backgroundSize:'cover',backgroundPosition:'center'}:clTab==='kk'&&clBgKk?{backgroundImage:`url(${clBgKk})`,backgroundSize:'cover',backgroundPosition:'center'}:{}}>
-            <div style={{display:'flex',gap:0,marginBottom:16,borderRadius:10,overflow:'hidden',border:'1px solid rgba(0,0,0,0.08)'}}>
-              <button onClick={()=>setClTab('yy')} style={{flex:1,padding:'10px 0',textAlign:'center',fontSize:13,fontWeight:500,cursor:'pointer',border:'none',background:clTab==='yy'?'var(--accent)':'rgba(255,255,255,0.5)',color:clTab==='yy'?'white':'#888',transition:'all 0.2s',fontFamily:'var(--font)'}}>厌厌的清单</button>
-              <button onClick={()=>setClTab('kk')} style={{flex:1,padding:'10px 0',textAlign:'center',fontSize:13,fontWeight:500,cursor:'pointer',border:'none',background:clTab==='kk'?'var(--accent)':'rgba(255,255,255,0.5)',color:clTab==='kk'?'white':'#888',transition:'all 0.2s',fontFamily:'var(--font)'}}>kk的清单</button>
+        <div className="page-overlay" style={clTab==='yy'&&clBgYy?{backgroundImage:`url(${clBgYy})`,backgroundSize:'cover',backgroundPosition:'center'}:clTab==='kk'&&clBgKk?{backgroundImage:`url(${clBgKk})`,backgroundSize:'cover',backgroundPosition:'center'}:{}}>
+          <div className="page-header" style={{background:'rgba(255,255,255,0.85)'}}>
+            <button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button>
+            <span className="page-title">{clTab==='yy'?'厌厌的清单':'kk的清单'}</span>
+            <button onClick={()=>setClBgModal(true)} style={{marginLeft:'auto',background:'none',border:'none',cursor:'pointer',fontSize:16,color:'var(--accent)',fontFamily:'var(--font)',fontWeight:600}}>⚙</button>
+          </div>
+          <div className="page-body">
+            <div style={{display:'flex',gap:0,marginBottom:12,borderRadius:10,overflow:'hidden',border:'1px solid rgba(0,0,0,0.08)'}}>
+              <button onClick={()=>setClTab('yy')} style={{flex:1,padding:'10px 0',textAlign:'center',fontSize:13,fontWeight:500,cursor:'pointer',border:'none',background:clTab==='yy'?'var(--accent)':'rgba(255,255,255,0.5)',color:clTab==='yy'?'white':'#888',transition:'all 0.2s',fontFamily:'var(--font)'}}>厌厌</button>
+              <button onClick={()=>setClTab('kk')} style={{flex:1,padding:'10px 0',textAlign:'center',fontSize:13,fontWeight:500,cursor:'pointer',border:'none',background:clTab==='kk'?'var(--accent)':'rgba(255,255,255,0.5)',color:clTab==='kk'?'white':'#888',transition:'all 0.2s',fontFamily:'var(--font)'}}>kk</button>
             </div>
+            {(()=>{
+              const mine=clItems.filter(i=>i.owner===clTab)
+              const total=mine.length, doneC=mine.filter(i=>i.done).length
+              const pct=total>0?Math.round(doneC/total*100):0
+              return total>0?(
+                <div style={{marginBottom:16}}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#999',marginBottom:4}}>
+                    <span>{doneC}/{total} 已完成</span><span>{pct}%</span>
+                  </div>
+                  <div style={{height:4,borderRadius:2,background:'rgba(0,0,0,0.06)',overflow:'hidden'}}>
+                    <div style={{height:'100%',width:`${pct}%`,background:'var(--accent)',borderRadius:2,transition:'width 0.3s ease'}} />
+                  </div>
+                </div>
+              ):null
+            })()}
             <div className="glass" style={{padding:16,marginBottom:16,borderRadius:12}}>
               <div style={{display:'flex',gap:8}}>
                 <input className="input" placeholder={clTab==='yy'?'厌厌想做什么...':'kk想做什么...'} value={clInput} onChange={e=>setClInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')addClItem()}} style={{flex:1}} />
@@ -363,14 +390,7 @@ export default function App() {
                 ))}
               </>)
             })()}
-            <div style={{marginTop:24,padding:16}} className="glass">
-              <div style={{fontSize:12,fontWeight:600,marginBottom:8,color:'#666'}}>清单背景 ({clTab==='yy'?'厌厌':'kk'})</div>
-              <input className="input" placeholder="粘贴图片URL..." value={clTab==='yy'?clBgYy:clBgKk} onChange={e=>{if(clTab==='yy'){setClBgYy(e.target.value);save('cl_bg_yy',e.target.value)}else{setClBgKk(e.target.value);save('cl_bg_kk',e.target.value)}}} style={{marginBottom:8}} />
-              <div style={{display:'flex',gap:8}}>
-                <button className="btn btn-accent" style={{fontSize:12}} onClick={()=>{if(clTab==='yy'){save('cl_bg_yy',clBgYy)}else{save('cl_bg_kk',clBgKk)}}}>应用</button>
-                {(clTab==='yy'?clBgYy:clBgKk)&&<button className="btn" style={{background:'#ddd',color:'#666',fontSize:12}} onClick={()=>{if(clTab==='yy'){setClBgYy('');save('cl_bg_yy','')}else{setClBgKk('');save('cl_bg_kk','')}}}>清除</button>}
-              </div>
-            </div>
+
           </div>
         </div>
       )}
@@ -378,6 +398,23 @@ export default function App() {
         <div className="page-overlay">
           <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">{appDefs.find(a=>a.id===page)?.name||page}</span></div>
           <div className="page-body"><div className="empty"><div className="empty-icon">✨</div><div className="empty-text">即将上线...</div></div></div>
+        </div>
+      )}
+
+      {/* Checklist Background Modal */}
+      {clBgModal && (
+        <div style={{position:'fixed',inset:0,zIndex:999,background:'rgba(0,0,0,0.4)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={()=>setClBgModal(false)}>
+          <div className="glass" style={{padding:20,width:'100%',maxWidth:320,borderRadius:16}} onClick={e=>e.stopPropagation()}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>清单背景 ({clTab==='yy'?'厌厌':'kk'})</div>
+            {(clTab==='yy'?clBgYy:clBgKk)&&<div style={{marginBottom:12,borderRadius:10,overflow:'hidden',height:100}}><img src={clTab==='yy'?clBgYy:clBgKk} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} /></div>}
+            <input className="input" placeholder="粘贴图片URL..." value={clTab==='yy'?clBgYy:clBgKk} onChange={e=>{if(clTab==='yy'){setClBgYy(e.target.value);save('cl_bg_yy',e.target.value)}else{setClBgKk(e.target.value);save('cl_bg_kk',e.target.value)}}} style={{marginBottom:8}} />
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              <button className="btn btn-accent" style={{fontSize:12}} onClick={()=>setClBgModal(false)}>应用</button>
+              <button className="btn btn-accent" style={{fontSize:12}} onClick={()=>clBgRef.current?.click()}>上传图片</button>
+              {(clTab==='yy'?clBgYy:clBgKk)&&<button className="btn" style={{background:'#ddd',color:'#666',fontSize:12}} onClick={()=>{if(clTab==='yy'){setClBgYy('');save('cl_bg_yy','')}else{setClBgKk('');save('cl_bg_kk','')};setClBgModal(false)}}>清除</button>}
+            </div>
+            <input ref={clBgRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleClBgFile} />
+          </div>
         </div>
       )}
 
