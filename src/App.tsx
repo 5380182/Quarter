@@ -18,8 +18,7 @@ const SB_H = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'a
 
 
 interface JournalEntry { id: string; author: 'yy'|'kk'; text: string; date: string }
-interface ChecklistItem { id: string; text: string; done: boolean; owner: 'yy'|'kk'; created_at: string }
-interface ChecklistItem { id: string; text: string; done: boolean; owner: 'yy'|'kk'; created_at: string }
+interface ChecklistItem { id: string; text: string; done: boolean; owner: 'yy'|'kk'; nudge: number; comment: string; created_at: string }
 interface ThemeConfig { wallpaper: string; accentColor: string; cardOpacity: number; customIcons: Record<string,string> }
 
 const defaultTheme: ThemeConfig = { wallpaper: '', accentColor: '#7d9a8c', cardOpacity: 0.72, customIcons: {} }
@@ -221,7 +220,7 @@ export default function App() {
 
   const addClItem = () => {
     if(!clInput.trim()) return
-    const item: ChecklistItem = { id: Date.now().toString(), text: clInput.trim(), done: false, owner: clTab, created_at: new Date().toISOString() }
+    const item: ChecklistItem = { id: Date.now().toString(), text: clInput.trim(), done: false, owner: clTab, nudge: 0, comment: '', created_at: new Date().toISOString() }
     const next = [item, ...clItems]; setClItems(next); save('checklist', next); setClInput('')
     fetch(SB_URL+'/checklist',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(item)}).catch(()=>{})
   }
@@ -233,6 +232,19 @@ export default function App() {
   const deleteClItem = (id: string) => {
     const next = clItems.filter(i=>i.id!==id); setClItems(next); save('checklist', next)
     fetch(SB_URL+'/checklist?id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{})
+  }
+  const nudgeClItem = (id: string) => {
+    const next = clItems.map(i=>i.id===id?{...i,nudge:(i.nudge||0)+1}:i); setClItems(next); save('checklist', next)
+    const item = next.find(i=>i.id===id)
+    if(item) fetch(SB_URL+'/checklist?id=eq.'+id,{method:'PATCH',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify({nudge:item.nudge})}).catch(()=>{})
+  }
+  const [commentingId, setCommentingId] = useState<string|null>(null)
+  const [commentText, setCommentText] = useState('')
+  const saveComment = () => {
+    if(!commentingId) return
+    const next = clItems.map(i=>i.id===commentingId?{...i,comment:commentText.trim()}:i); setClItems(next); save('checklist', next)
+    fetch(SB_URL+'/checklist?id=eq.'+commentingId,{method:'PATCH',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify({comment:commentText.trim()})}).catch(()=>{})
+    setCommentingId(null); setCommentText('')
   }
   const handleClBgFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if(!file) return
@@ -374,10 +386,16 @@ export default function App() {
               return (<>
                 {pending.length===0&&done.length===0&&<div style={{textAlign:'center',padding:'40px 20px',color:'#b0a898',fontSize:13}}>还没有清单项</div>}
                 {pending.map(item=>(
-                  <div key={item.id} className="glass" style={{padding:'12px 16px',marginBottom:8,borderRadius:10,display:'flex',alignItems:'center',gap:12}}>
-                    <div onClick={()=>toggleClItem(item.id)} style={{width:20,height:20,borderRadius:6,border:'2px solid var(--accent)',cursor:'pointer',flexShrink:0,transition:'all 0.2s'}} />
-                    <span style={{flex:1,fontSize:14,color:'#2c2c2c',lineHeight:'1.5'}}>{item.text}</span>
-                    <button onClick={()=>deleteClItem(item.id)} style={{background:'none',border:'none',color:'#ccc',fontSize:14,cursor:'pointer',padding:4}}>×</button>
+                  <div key={item.id} className="glass" style={{padding:'12px 16px',marginBottom:8,borderRadius:10}}>
+                    <div style={{display:'flex',alignItems:'center',gap:12}}>
+                      <div onClick={()=>toggleClItem(item.id)} style={{width:20,height:20,borderRadius:6,border:'2px solid var(--accent)',cursor:'pointer',flexShrink:0,transition:'all 0.2s'}} />
+                      <span style={{flex:1,fontSize:14,color:'#2c2c2c',lineHeight:'1.5'}}>{item.text}</span>
+                      {clTab!==identity&&<button onClick={()=>nudgeClItem(item.id)} style={{background:'none',border:'1px solid var(--accent)',borderRadius:6,color:'var(--accent)',fontSize:11,cursor:'pointer',padding:'2px 8px',fontFamily:'var(--font)',whiteSpace:'nowrap'}}>催</button>}
+                      {clTab!==identity&&<button onClick={()=>{setCommentingId(item.id);setCommentText(item.comment||'')}} style={{background:'none',border:'1px solid #ccc',borderRadius:6,color:'#999',fontSize:11,cursor:'pointer',padding:'2px 8px',fontFamily:'var(--font)',whiteSpace:'nowrap'}}>评</button>}
+                      <button onClick={()=>deleteClItem(item.id)} style={{background:'none',border:'none',color:'#ccc',fontSize:14,cursor:'pointer',padding:4}}>×</button>
+                    </div>
+                    {(item.nudge||0)>0&&<div style={{marginTop:6,fontSize:11,color:'var(--accent)',fontWeight:500}}>被催了{item.nudge}次</div>}
+                    {item.comment&&<div style={{marginTop:6,padding:'6px 10px',background:'rgba(0,0,0,0.03)',borderRadius:8,fontSize:12,color:'#666',lineHeight:'1.4'}}>{clTab==='yy'?'kk':'厌厌'}说: {item.comment}</div>}
                   </div>
                 ))}
                 {done.length>0&&<div style={{fontSize:12,color:'#aaa',margin:'16px 0 8px',fontWeight:500}}>已完成 ({done.length})</div>}
@@ -398,6 +416,20 @@ export default function App() {
         <div className="page-overlay">
           <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">{appDefs.find(a=>a.id===page)?.name||page}</span></div>
           <div className="page-body"><div className="empty"><div className="empty-icon">✨</div><div className="empty-text">即将上线...</div></div></div>
+        </div>
+      )}
+
+      {/* Checklist Comment Modal */}
+      {commentingId && (
+        <div style={{position:'fixed',inset:0,zIndex:999,background:'rgba(0,0,0,0.4)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={()=>{setCommentingId(null);setCommentText('')}}>
+          <div className="glass" style={{padding:20,width:'100%',maxWidth:320,borderRadius:16}} onClick={e=>e.stopPropagation()}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>留个小纸条</div>
+            <input className="input" placeholder="想对ta说什么..." value={commentText} onChange={e=>setCommentText(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')saveComment()}} style={{marginBottom:12}} autoFocus />
+            <div style={{display:'flex',gap:8}}>
+              <button className="btn btn-accent" style={{fontSize:12}} onClick={saveComment}>贴上去</button>
+              <button className="btn" style={{background:'#ddd',color:'#666',fontSize:12}} onClick={()=>{setCommentingId(null);setCommentText('')}}>算了</button>
+            </div>
+          </div>
         </div>
       )}
 
