@@ -18,8 +18,6 @@ const SB_H = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'a
 
 
 interface JournalEntry { id: string; author: 'yy'|'kk'; text: string; date: string }
-interface ChecklistItem { id: string; text: string; done: boolean; owner: 'yy'|'kk'; created_at: string }
-interface ChecklistItem { id: string; text: string; done: boolean; owner: 'yy'|'kk'; created_at: string }
 interface ThemeConfig { wallpaper: string; accentColor: string; cardOpacity: number; customIcons: Record<string,string> }
 
 const defaultTheme: ThemeConfig = { wallpaper: '', accentColor: '#7d9a8c', cardOpacity: 0.72, customIcons: {} }
@@ -139,13 +137,6 @@ export default function App() {
   const [editingId, setEditingId] = useState<string|null>(null)
   const [editText, setEditText] = useState('')
 
-  // Checklist
-  const [clTab, setClTab] = useState<'yy'|'kk'>(()=>load('identity','yy') as 'yy'|'kk')
-  const [clItems, setClItems] = useState<ChecklistItem[]>(()=>load('checklist',[]))
-  const [clInput, setClInput] = useState('')
-  const [clBgYy, setClBgYy] = useState<string>(()=>load('cl_bg_yy',''))
-  const [clBgKk, setClBgKk] = useState<string>(()=>load('cl_bg_kk',''))
-
   // Icon editor
   const [editingIcon, setEditingIcon] = useState<string|null>(null)
   const [iconUrl, setIconUrl] = useState('')
@@ -194,20 +185,6 @@ export default function App() {
       .catch(()=>{})
   }, [])
 
-  // Load checklist from Supabase
-  useEffect(() => {
-    fetch(SB_URL+'/checklist?select=*&order=created_at.desc',{headers:SB_H})
-      .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setClItems(data);save('checklist',data)}})
-      .catch(()=>{})
-  }, [])
-
-  // Load checklist from Supabase
-  useEffect(() => {
-    fetch(SB_URL+'/checklist?select=*&order=created_at.desc',{headers:SB_H})
-      .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setClItems(data);save('checklist',data)}})
-      .catch(()=>{})
-  }, [])
-
   const startEdit = (e: JournalEntry) => { setEditingId(e.id); setEditText(e.text) }
   const saveEdit = () => {
     if(!editingId) return
@@ -216,22 +193,6 @@ export default function App() {
     fetch(SB_URL+'/journal?id=eq.'+editingId,{method:'PATCH',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify({text:editText.trim()})}).catch(()=>{})
   }
   const cancelEdit = () => { setEditingId(null); setEditText('') }
-
-  const addClItem = () => {
-    if(!clInput.trim()) return
-    const item: ChecklistItem = { id: Date.now().toString(), text: clInput.trim(), done: false, owner: clTab, created_at: new Date().toISOString() }
-    const next = [item, ...clItems]; setClItems(next); save('checklist', next); setClInput('')
-    fetch(SB_URL+'/checklist',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(item)}).catch(()=>{})
-  }
-  const toggleClItem = (id: string) => {
-    const next = clItems.map(i=>i.id===id?{...i,done:!i.done}:i); setClItems(next); save('checklist', next)
-    const item = next.find(i=>i.id===id)
-    if(item) fetch(SB_URL+'/checklist?id=eq.'+id,{method:'PATCH',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify({done:item.done})}).catch(()=>{})
-  }
-  const deleteClItem = (id: string) => {
-    const next = clItems.filter(i=>i.id!==id); setClItems(next); save('checklist', next)
-    fetch(SB_URL+'/checklist?id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{})
-  }
 
   const addJournal = () => {
     if(!journalText.trim()) return
@@ -326,55 +287,7 @@ export default function App() {
           </div>
         </div>
       )}
-      {page==='checklist' && (
-        <div className="page-overlay">
-          <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">清单</span></div>
-          <div className="page-body" style={clTab==='yy'&&clBgYy?{backgroundImage:`url(${clBgYy})`,backgroundSize:'cover',backgroundPosition:'center'}:clTab==='kk'&&clBgKk?{backgroundImage:`url(${clBgKk})`,backgroundSize:'cover',backgroundPosition:'center'}:{}}>
-            <div style={{display:'flex',gap:0,marginBottom:16,borderRadius:10,overflow:'hidden',border:'1px solid rgba(0,0,0,0.08)'}}>
-              <button onClick={()=>setClTab('yy')} style={{flex:1,padding:'10px 0',textAlign:'center',fontSize:13,fontWeight:500,cursor:'pointer',border:'none',background:clTab==='yy'?'var(--accent)':'rgba(255,255,255,0.5)',color:clTab==='yy'?'white':'#888',transition:'all 0.2s',fontFamily:'var(--font)'}}>厌厌的清单</button>
-              <button onClick={()=>setClTab('kk')} style={{flex:1,padding:'10px 0',textAlign:'center',fontSize:13,fontWeight:500,cursor:'pointer',border:'none',background:clTab==='kk'?'var(--accent)':'rgba(255,255,255,0.5)',color:clTab==='kk'?'white':'#888',transition:'all 0.2s',fontFamily:'var(--font)'}}>kk的清单</button>
-            </div>
-            <div className="glass" style={{padding:16,marginBottom:16,borderRadius:12}}>
-              <div style={{display:'flex',gap:8}}>
-                <input className="input" placeholder={clTab==='yy'?'厌厌想做什么...':'kk想做什么...'} value={clInput} onChange={e=>setClInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')addClItem()}} style={{flex:1}} />
-                <button className="btn btn-accent" onClick={addClItem} style={{whiteSpace:'nowrap'}}>添加</button>
-              </div>
-            </div>
-            {(()=>{
-              const mine = clItems.filter(i=>i.owner===clTab)
-              const pending = mine.filter(i=>!i.done)
-              const done = mine.filter(i=>i.done)
-              return (<>
-                {pending.length===0&&done.length===0&&<div style={{textAlign:'center',padding:'40px 20px',color:'#b0a898',fontSize:13}}>还没有清单项</div>}
-                {pending.map(item=>(
-                  <div key={item.id} className="glass" style={{padding:'12px 16px',marginBottom:8,borderRadius:10,display:'flex',alignItems:'center',gap:12}}>
-                    <div onClick={()=>toggleClItem(item.id)} style={{width:20,height:20,borderRadius:6,border:'2px solid var(--accent)',cursor:'pointer',flexShrink:0,transition:'all 0.2s'}} />
-                    <span style={{flex:1,fontSize:14,color:'#2c2c2c',lineHeight:'1.5'}}>{item.text}</span>
-                    <button onClick={()=>deleteClItem(item.id)} style={{background:'none',border:'none',color:'#ccc',fontSize:14,cursor:'pointer',padding:4}}>×</button>
-                  </div>
-                ))}
-                {done.length>0&&<div style={{fontSize:12,color:'#aaa',margin:'16px 0 8px',fontWeight:500}}>已完成 ({done.length})</div>}
-                {done.map(item=>(
-                  <div key={item.id} className="glass" style={{padding:'12px 16px',marginBottom:8,borderRadius:10,display:'flex',alignItems:'center',gap:12,opacity:0.6}}>
-                    <div onClick={()=>toggleClItem(item.id)} style={{width:20,height:20,borderRadius:6,background:'var(--accent)',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.2s'}}><span style={{color:'white',fontSize:12,fontWeight:700}}>✓</span></div>
-                    <span style={{flex:1,fontSize:14,color:'#999',lineHeight:'1.5',textDecoration:'line-through'}}>{item.text}</span>
-                    <button onClick={()=>deleteClItem(item.id)} style={{background:'none',border:'none',color:'#ccc',fontSize:14,cursor:'pointer',padding:4}}>×</button>
-                  </div>
-                ))}
-              </>)
-            })()}
-            <div style={{marginTop:24,padding:16}} className="glass">
-              <div style={{fontSize:12,fontWeight:600,marginBottom:8,color:'#666'}}>清单背景 ({clTab==='yy'?'厌厌':'kk'})</div>
-              <input className="input" placeholder="粘贴图片URL..." value={clTab==='yy'?clBgYy:clBgKk} onChange={e=>{if(clTab==='yy'){setClBgYy(e.target.value);save('cl_bg_yy',e.target.value)}else{setClBgKk(e.target.value);save('cl_bg_kk',e.target.value)}}} style={{marginBottom:8}} />
-              <div style={{display:'flex',gap:8}}>
-                <button className="btn btn-accent" style={{fontSize:12}} onClick={()=>{if(clTab==='yy'){save('cl_bg_yy',clBgYy)}else{save('cl_bg_kk',clBgKk)}}}>应用</button>
-                {(clTab==='yy'?clBgYy:clBgKk)&&<button className="btn" style={{background:'#ddd',color:'#666',fontSize:12}} onClick={()=>{if(clTab==='yy'){setClBgYy('');save('cl_bg_yy','')}else{setClBgKk('');save('cl_bg_kk','')}}}>清除</button>}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      {page && !['journal','settings','checklist'].includes(page) && (
+      {page && !['journal','settings'].includes(page) && (
         <div className="page-overlay">
           <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">{appDefs.find(a=>a.id===page)?.name||page}</span></div>
           <div className="page-body"><div className="empty"><div className="empty-icon">✨</div><div className="empty-text">即将上线...</div></div></div>
