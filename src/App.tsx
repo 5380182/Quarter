@@ -412,7 +412,7 @@ export default function App() {
                       <span style={{flex:1,fontSize:14,color:'#999',lineHeight:'1.5',textDecoration:'line-through'}}>{item.text}</span>
                       <button onClick={()=>deleteClItem(item.id)} style={{background:'none',border:'none',color:'#ccc',fontSize:14,cursor:'pointer',padding:4}}>×</button>
                     </div>
-                    {item.done_at&&<div style={{marginTop:4,fontSize:10,color:'#bbb'}}>{new Date(item.done_at).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'})} 完成</div>}
+                    {item.done_at&&<div style={{marginTop:4,fontSize:10,color:'#bbb'}}>{new Date(item.done_at).toLocaleDateString('zh-CN',{year:'numeric',month:'numeric',day:'numeric'})} 完成</div>}
                     {(item.nudge||0)>0&&<div style={{marginTop:4,fontSize:11,color:'var(--accent)',fontWeight:500}}>被催了{item.nudge}次</div>}
                     {item.comment&&<div style={{marginTop:4,padding:'6px 10px',background:'rgba(0,0,0,0.03)',borderRadius:8,fontSize:12,color:'#666',lineHeight:'1.4'}}>{clTab==='yy'?'kk':'厌厌'}说: {item.comment}</div>}
                   </div>
