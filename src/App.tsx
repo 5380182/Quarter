@@ -522,36 +522,60 @@ export default function App() {
         <div className="page-overlay bill-page">
           <div className="page-header">
             <button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button>
-            <span className="page-title" style={{fontFamily:"'Caveat',cursive",fontSize:20,color:'#5a4a3a'}}>My Account Book</span>
+            <span className="page-title" style={{fontFamily:"'Space Mono',monospace",fontSize:13,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'#222'}}>Receipt</span>
           </div>
           <div className="page-body">
-            <div className="bill-date-nav">
-              <button onClick={()=>shiftBillDate(-1)}>◀</button>
-              <div className="bill-date-center">
-                <div className="bill-date-main">{formatDateCN(billDate)}</div>
-                <div className="bill-date-sub">{billDate===todayStr()?'today':billDate}</div>
+            <div className="receipt">
+              <div className="receipt-header">
+                <div className="receipt-shop">Quarter</div>
+                <div className="bill-date-nav">
+                  <button onClick={()=>shiftBillDate(-1)}>{'<'}</button>
+                  <div style={{textAlign:'center'}}>
+                    <div className="receipt-date">{billDate===todayStr()?'TODAY':''} {formatDateCN(billDate)}</div>
+                  </div>
+                  <button onClick={()=>shiftBillDate(1)} disabled={billDate>=todayStr()}>{'>'}</button>
+                </div>
               </div>
-              <button onClick={()=>shiftBillDate(1)} disabled={billDate>=todayStr()}>▶</button>
+
+              {dayBills.length===0 ? (
+                <div className="bill-empty">- no items -</div>
+              ) : (
+                <>
+                  {dayBills.map(b => {
+                    const cat = billCategories.find(cc=>cc.id===b.category)
+                    return (
+                      <div key={b.id} className="bill-list-item">
+                        <div className="bill-list-icon">
+                          <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{__html:billSvgs[(cat as any)?.icon]||billSvgs.other}} />
+                        </div>
+                        <div className="bill-list-info">
+                          <div className="bill-list-name">{cat?.name||b.category}{b.note?' / '+b.note:''}</div>
+                        </div>
+                        <div className={`bill-list-amount ${b.type}`}>{b.type==='expense'?'-':'+'}{b.amount.toFixed(2)}</div>
+                        <button className="bill-list-del" onClick={()=>{if(confirm('删除?'))deleteBill(b.id)}}>x</button>
+                      </div>
+                    )
+                  })}
+                </>
+              )}
+
+              <hr className="receipt-double-divider" />
+              <div className="receipt-row"><span>SUBTOTAL</span><span className="receipt-amount expense">-{dayExpense.toFixed(2)}</span></div>
+              <div className="receipt-row"><span>INCOME</span><span className="receipt-amount income">+{dayIncome.toFixed(2)}</span></div>
+              <hr className="receipt-divider" />
+              <div className="receipt-row total"><span>BALANCE</span><span>{(dayIncome-dayExpense).toFixed(2)}</span></div>
+
+              <div className="receipt-footer">
+                <div className="receipt-footer-text">thank you, have a nice day</div>
+                <div className="receipt-barcode">
+                  {[2,1,3,1,2,3,1,2,1,3,2,1,1,3,2,1,2,1,3,1,2,3,1,2].map((w,i)=>(
+                    <span key={i} style={{width:w}} />
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="bill-summary">
-              <div className="bill-summary-title">- daily summary -</div>
-              <div className="bill-summary-row">
-                <span className="bill-summary-label">支出</span>
-                <span className="bill-summary-amount expense">-{dayExpense.toFixed(2)}</span>
-              </div>
-              <div className="bill-summary-row">
-                <span className="bill-summary-label">收入</span>
-                <span className="bill-summary-amount income">+{dayIncome.toFixed(2)}</span>
-              </div>
-              <hr className="bill-summary-divider" />
-              <div className="bill-summary-row">
-                <span className="bill-summary-label">结余</span>
-                <span className="bill-summary-amount balance">{(dayIncome-dayExpense).toFixed(2)}</span>
-              </div>
-            </div>
-
-            <div className="bill-input-card">
+            <div className="receipt-input">
               <div className="bill-type-toggle">
                 <button className={`bill-type-btn ${billType==='expense'?'expense-active':'expense-inactive'}`} onClick={()=>setBillType('expense')}>支出</button>
                 <button className={`bill-type-btn ${billType==='income'?'income-active':'income-inactive'}`} onClick={()=>setBillType('income')}>收入</button>
@@ -561,37 +585,15 @@ export default function App() {
                   <div key={cat.id} className={`bill-cat-tag ${billCat===cat.id?'active':''}`} onClick={()=>setBillCat(cat.id)}>
                     <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{__html:billSvgs[cat.icon]||billSvgs.other}} />
                     <span>{cat.name}</span>
-                    {cat.id.startsWith('custom_') && <span onClick={(e)=>{e.stopPropagation();if(confirm('删除这个分类？'))deleteCustomCat(cat.id)}} style={{marginLeft:2,fontSize:10,color:'#ccc'}}>×</span>}
+                    {cat.id.startsWith('custom_') && <span onClick={(e)=>{e.stopPropagation();if(confirm('删除分类?'))deleteCustomCat(cat.id)}} style={{marginLeft:2,fontSize:10,color:billCat===cat.id?'#999':'#ccc'}}>x</span>}
                   </div>
                 ))}
                 <button className="bill-cat-add" onClick={()=>setShowCatModal(true)}>+</button>
               </div>
               <input className="bill-amount-input" type="number" inputMode="decimal" placeholder="0.00" value={billAmount} onChange={e=>setBillAmount(e.target.value)} />
-              <input className="bill-note-input" placeholder="备注..." value={billNote} onChange={e=>setBillNote(e.target.value)} />
-              <button className="bill-submit-btn" onClick={addBill}>记  一  笔</button>
+              <input className="bill-note-input" placeholder="memo..." value={billNote} onChange={e=>setBillNote(e.target.value)} />
+              <button className="bill-submit-btn" onClick={addBill}>Add</button>
             </div>
-
-            {dayBills.length===0 ? (
-              <div className="bill-empty">nothing here yet ~</div>
-            ) : (
-              <div style={{background:'#fffef8',border:'1.5px solid #e8dcc8',borderRadius:8,padding:'4px 16px',marginBottom:16}}>
-                {dayBills.map(b => {
-                  const cat = billCategories.find(cc=>cc.id===b.category)
-                  return (
-                    <div key={b.id} className="bill-list-item">
-                      <div className="bill-list-icon">
-                        <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{__html:billSvgs[(cat as any)?.icon]||billSvgs.other}} />
-                      </div>
-                      <div className="bill-list-info">
-                        <div className="bill-list-name">{cat?.name||b.category}{b.note?' · '+b.note:''}</div>
-                      </div>
-                      <div className={`bill-list-amount ${b.type}`}>{b.type==='expense'?'-':'+'}{b.amount.toFixed(2)}</div>
-                      <button className="bill-list-del" onClick={()=>{if(confirm('删除？'))deleteBill(b.id)}}>×</button>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
           </div>
         </div>
       )}
