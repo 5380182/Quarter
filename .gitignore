@@ -1,3 +1,5 @@
 node_modules
 dist
 .env
+*.py
+src/App.tsx.pre-bill

@@ -21,6 +21,20 @@ interface JournalEntry { id: string; author: 'yy'|'kk'; text: string; date: stri
 interface ChecklistItem { id: string; text: string; done: boolean; owner: 'yy'|'kk'; nudge: number; comment: string; done_at?: string; created_at: string }
 interface ThemeConfig { wallpaper: string; accentColor: string; cardOpacity: number; customIcons: Record<string,string> }
 
+interface BillItem { id: string; amount: number; category: string; note: string; type: 'income'|'expense'; date: string; owner: 'yy'|'kk'; created_at: string }
+
+const billCategories = [
+  { id: 'food', name: '餐饮', emoji: '🍜' },
+  { id: 'drink', name: '饮品', emoji: '☕' },
+  { id: 'transport', name: '交通', emoji: '🚌' },
+  { id: 'shopping', name: '购物', emoji: '🛍' },
+  { id: 'fun', name: '娱乐', emoji: '🎮' },
+  { id: 'study', name: '学习', emoji: '📚' },
+  { id: 'life', name: '生活', emoji: '🏠' },
+  { id: 'medical', name: '医疗', emoji: '💊' },
+  { id: 'other', name: '其他', emoji: '🎁' },
+]
+
 const defaultTheme: ThemeConfig = { wallpaper: '', accentColor: '#7d9a8c', cardOpacity: 0.72, customIcons: {} }
 
 function getCountdowns() {
@@ -44,6 +58,16 @@ function timeStr() {
 function dateStr() {
   const d = new Date()
   return `${d.getFullYear()}.${(d.getMonth()+1).toString().padStart(2,'0')}.${d.getDate().toString().padStart(2,'0')}`
+}
+
+function todayStr() {
+  const d = new Date()
+  return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0')
+}
+
+function formatDateCN(ds: string) {
+  const d = new Date(ds)
+  return (d.getMonth()+1)+'月'+d.getDate()+'日'
 }
 
 const colorPresets = [
@@ -148,6 +172,14 @@ export default function App() {
   const clBgRef = useRef<HTMLInputElement>(null)
   const [clDoneOpen, setClDoneOpen] = useState(false)
 
+  // Bill
+  const [bills, setBills] = useState<BillItem[]>(() => load('bills', []))
+  const [billDate, setBillDate] = useState(todayStr())
+  const [billAmount, setBillAmount] = useState('')
+  const [billCat, setBillCat] = useState('food')
+  const [billNote, setBillNote] = useState('')
+  const [billType, setBillType] = useState<'expense'|'income'>('expense')
+
   // Icon editor
   const [editingIcon, setEditingIcon] = useState<string|null>(null)
   const [iconUrl, setIconUrl] = useState('')
@@ -210,6 +242,13 @@ export default function App() {
       .catch(()=>{})
   }, [])
 
+  // Load bills from Supabase
+  useEffect(() => {
+    fetch(SB_URL+'/bill?select=*&order=created_at.desc',{headers:SB_H})
+      .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setBills(data);save('bills',data)}})
+      .catch(()=>{})
+  }, [])
+
   const startEdit = (e: JournalEntry) => { setEditingId(e.id); setEditText(e.text) }
   const saveEdit = () => {
     if(!editingId) return
@@ -266,6 +305,30 @@ export default function App() {
     fetch(SB_URL+'/journal',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(e)}).catch(()=>{})
     
   }
+
+  const shiftBillDate = (delta: number) => {
+    const d = new Date(billDate)
+    d.setDate(d.getDate() + delta)
+    setBillDate(d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0'))
+  }
+
+  const addBill = () => {
+    const amt = parseFloat(billAmount)
+    if (!billAmount || isNaN(amt) || amt <= 0) return
+    const item: BillItem = { id: Date.now().toString(), amount: amt, category: billCat, note: billNote.trim(), type: billType, date: billDate, owner: identity, created_at: new Date().toISOString() }
+    const next = [item, ...bills]; setBills(next); save('bills', next)
+    setBillAmount(''); setBillNote('')
+    fetch(SB_URL+'/bill',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(item)}).catch(()=>{})
+  }
+
+  const deleteBill = (id: string) => {
+    const next = bills.filter(b => b.id !== id); setBills(next); save('bills', next)
+    fetch(SB_URL+'/bill?id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{})
+  }
+
+  const dayBills = bills.filter(b => b.date === billDate)
+  const dayExpense = dayBills.filter(b => b.type === 'expense').reduce((s, b) => s + b.amount, 0)
+  const dayIncome = dayBills.filter(b => b.type === 'income').reduce((s, b) => s + b.amount, 0)
 
   const wpStyle = theme.wallpaper ? {backgroundImage:`url(${theme.wallpaper})`,backgroundSize:'cover',backgroundPosition:'center'} : {}
 
@@ -423,7 +486,69 @@ export default function App() {
           </div>
         </div>
       )}
-      {page && !['journal','settings','checklist'].includes(page) && (
+      {page==='bill' && (
+        <div className="page-overlay">
+          <div className="page-header">
+            <button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button>
+            <span className="page-title">每日账单</span>
+          </div>
+          <div className="page-body">
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:16,marginBottom:16}}>
+              <button onClick={()=>shiftBillDate(-1)} style={{background:'none',border:'none',fontSize:20,color:'var(--accent)',cursor:'pointer'}}>◀</button>
+              <div style={{textAlign:'center'}}>
+                <div style={{fontSize:16,fontWeight:600,color:'#2c2c2c'}}>{formatDateCN(billDate)}</div>
+                <div style={{fontSize:11,color:'#999'}}>{billDate===todayStr()?'今天':billDate}</div>
+              </div>
+              <button onClick={()=>shiftBillDate(1)} style={{background:'none',border:'none',fontSize:20,color:billDate>=todayStr()?'#ddd':'var(--accent)',cursor:'pointer'}} disabled={billDate>=todayStr()}>▶</button>
+            </div>
+            <div className="glass" style={{padding:16,marginBottom:16,borderRadius:12}}>
+              <div style={{display:'flex',justifyContent:'space-around',marginBottom:4}}>
+                <div style={{textAlign:'center'}}><div style={{fontSize:11,color:'#999'}}>支出</div><div style={{fontSize:20,fontWeight:600,color:'#e67373'}}>{dayExpense.toFixed(2)}</div></div>
+                <div style={{textAlign:'center'}}><div style={{fontSize:11,color:'#999'}}>收入</div><div style={{fontSize:20,fontWeight:600,color:'var(--accent)'}}>{dayIncome.toFixed(2)}</div></div>
+                <div style={{textAlign:'center'}}><div style={{fontSize:11,color:'#999'}}>结余</div><div style={{fontSize:20,fontWeight:600,color:'#2c2c2c'}}>{(dayIncome-dayExpense).toFixed(2)}</div></div>
+              </div>
+            </div>
+            <div className="glass" style={{padding:16,marginBottom:16,borderRadius:12}}>
+              <div style={{display:'flex',gap:0,marginBottom:12,borderRadius:8,overflow:'hidden',border:'1px solid rgba(0,0,0,0.08)'}}>
+                <button onClick={()=>setBillType('expense')} style={{flex:1,padding:'8px 0',textAlign:'center',fontSize:13,fontWeight:500,cursor:'pointer',border:'none',background:billType==='expense'?'#e67373':'rgba(255,255,255,0.5)',color:billType==='expense'?'white':'#888',transition:'all 0.2s',fontFamily:'var(--font)'}}>支出</button>
+                <button onClick={()=>setBillType('income')} style={{flex:1,padding:'8px 0',textAlign:'center',fontSize:13,fontWeight:500,cursor:'pointer',border:'none',background:billType==='income'?'var(--accent)':'rgba(255,255,255,0.5)',color:billType==='income'?'white':'#888',transition:'all 0.2s',fontFamily:'var(--font)'}}>收入</button>
+              </div>
+              <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap',justifyContent:'center'}}>
+                {billCategories.map(cat=>(
+                  <div key={cat.id} onClick={()=>setBillCat(cat.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,cursor:'pointer',padding:'6px 8px',borderRadius:10,background:billCat===cat.id?'rgba(125,154,140,0.15)':'transparent',transition:'all 0.2s',minWidth:48}}>
+                    <span style={{fontSize:20}}>{cat.emoji}</span>
+                    <span style={{fontSize:10,color:billCat===cat.id?'var(--accent)':'#999'}}>{cat.name}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:'flex',gap:8,marginBottom:8}}>
+                <input className="input" type="number" placeholder="金额" value={billAmount} onChange={e=>setBillAmount(e.target.value)} style={{flex:1,fontSize:18,textAlign:'center'}} />
+              </div>
+              <input className="input" placeholder="备注（可选）" value={billNote} onChange={e=>setBillNote(e.target.value)} style={{marginBottom:10}} />
+              <button className="btn btn-accent" onClick={addBill} style={{width:'100%'}}>记一笔</button>
+            </div>
+            {dayBills.length===0 ? (
+              <div style={{textAlign:'center',padding:'30px 20px',color:'#b0a898',fontSize:13}}>这天还没有账单 ~</div>
+            ) : dayBills.map(b => {
+              const cat = billCategories.find(c=>c.id===b.category)
+              return (
+                <div key={b.id} className="glass" style={{padding:'12px 16px',marginBottom:8,borderRadius:10}}>
+                  <div style={{display:'flex',alignItems:'center',gap:12}}>
+                    <span style={{fontSize:22}}>{cat?.emoji||'$'}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:14,fontWeight:500,color:'#2c2c2c'}}>{cat?.name||b.category}{b.note?' · '+b.note:''}</div>
+                      <div style={{fontSize:11,color:'#999'}}>{b.owner==='yy'?'厌厌':'kk'}</div>
+                    </div>
+                    <div style={{fontSize:16,fontWeight:600,color:b.type==='expense'?'#e67373':'var(--accent)'}}>{b.type==='expense'?'-':'+'}{b.amount.toFixed(2)}</div>
+                    <button onClick={()=>{if(confirm('删除这笔账单？'))deleteBill(b.id)}} style={{background:'none',border:'none',color:'#ccc',fontSize:14,cursor:'pointer',padding:4}}>×</button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+      {page && !['journal','settings','checklist','bill'].includes(page) && (
         <div className="page-overlay">
           <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">{appDefs.find(a=>a.id===page)?.name||page}</span></div>
           <div className="page-body"><div className="empty"><div className="empty-icon">✨</div><div className="empty-text">即将上线...</div></div></div>
