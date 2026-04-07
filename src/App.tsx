@@ -23,17 +23,31 @@ interface ThemeConfig { wallpaper: string; accentColor: string; cardOpacity: num
 
 interface BillItem { id: string; amount: number; category: string; note: string; type: 'income'|'expense'; date: string; owner: 'yy'|'kk'; created_at: string }
 
-const billCategories = [
-  { id: 'food', name: '餐饮', emoji: '🍜' },
-  { id: 'drink', name: '饮品', emoji: '☕' },
-  { id: 'transport', name: '交通', emoji: '🚌' },
-  { id: 'shopping', name: '购物', emoji: '🛍' },
-  { id: 'fun', name: '娱乐', emoji: '🎮' },
-  { id: 'study', name: '学习', emoji: '📚' },
-  { id: 'life', name: '生活', emoji: '🏠' },
-  { id: 'medical', name: '医疗', emoji: '💊' },
-  { id: 'other', name: '其他', emoji: '🎁' },
+const defaultBillCats = [
+  { id: 'food', name: '餐饮', icon: 'food' },
+  { id: 'drink', name: '饮品', icon: 'drink' },
+  { id: 'transport', name: '交通', icon: 'transport' },
+  { id: 'shopping', name: '购物', icon: 'shopping' },
+  { id: 'snack', name: '零食', icon: 'snack' },
+  { id: 'fun', name: '娱乐', icon: 'fun' },
+  { id: 'study', name: '学习', icon: 'study' },
+  { id: 'life', name: '生活', icon: 'life' },
+  { id: 'medical', name: '医疗', icon: 'medical' },
+  { id: 'other', name: '其他', icon: 'other' },
 ]
+
+const billSvgs: Record<string, string> = {
+  food: '<path d="M12 3v5m0 0c-3 0-5 2-5 4v1h10v-1c0-2-2-4-5-4zm-5 8l1 6h8l1-6"/>',
+  drink: '<path d="M8 2h8l-1 10a3 3 0 01-3 3 3 3 0 01-3-3L8 2zm0 0H6m10 0h2"/><path d="M12 15v4m-3 0h6"/>',
+  transport: '<rect x="3" y="8" width="18" height="9" rx="2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M3 12h18m-12-4v4m6-4v4"/>',
+  shopping: '<path d="M5 7h14l-1.5 8H6.5L5 7zm0 0L4 4H2"/><circle cx="9" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/>',
+  snack: '<path d="M12 2c-3 0-5 3-5 6 0 4 2 6 5 8 3-2 5-4 5-8 0-3-2-6-5-6z"/><path d="M12 16v5m-2 0h4"/>',
+  fun: '<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M10 4v16m-4 0h12"/><circle cx="14" cy="9" r="1"/><circle cx="14" cy="13" r="1"/>',
+  study: '<path d="M4 19V6a2 2 0 012-2h12a2 2 0 012 2v13"/><path d="M4 19h16"/><path d="M8 4v15m0 0h8"/>',
+  life: '<path d="M3 10l9-7 9 7"/><rect x="5" y="10" width="14" height="10" rx="1"/><rect x="9" y="14" width="6" height="6"/>',
+  medical: '<path d="M12 4v16m-8-8h16"/><rect x="5" y="5" width="14" height="14" rx="3" stroke-dasharray="3 2"/>',
+  other: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/>',
+}
 
 const defaultTheme: ThemeConfig = { wallpaper: '', accentColor: '#7d9a8c', cardOpacity: 0.72, customIcons: {} }
 
@@ -179,6 +193,10 @@ export default function App() {
   const [billCat, setBillCat] = useState('food')
   const [billNote, setBillNote] = useState('')
   const [billType, setBillType] = useState<'expense'|'income'>('expense')
+  const [customBillCats, setCustomBillCats] = useState<{id:string,name:string,icon:string}[]>(() => load('customBillCats', []))
+  const [showCatModal, setShowCatModal] = useState(false)
+  const [newCatName, setNewCatName] = useState('')
+  const billCategories = [...defaultBillCats, ...customBillCats]
 
   // Icon editor
   const [editingIcon, setEditingIcon] = useState<string|null>(null)
@@ -304,6 +322,20 @@ export default function App() {
     const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('')
     fetch(SB_URL+'/journal',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(e)}).catch(()=>{})
     
+  }
+
+  const addCustomCat = () => {
+    if (!newCatName.trim()) return
+    const id = 'custom_' + Date.now()
+    const next = [...customBillCats, {id, name: newCatName.trim(), icon: 'other'}]
+    setCustomBillCats(next); save('customBillCats', next)
+    setNewCatName(''); setShowCatModal(false); setBillCat(id)
+  }
+
+  const deleteCustomCat = (catId: string) => {
+    const next = customBillCats.filter(c => c.id !== catId)
+    setCustomBillCats(next); save('customBillCats', next)
+    if (billCat === catId) setBillCat('food')
   }
 
   const shiftBillDate = (delta: number) => {
@@ -487,64 +519,91 @@ export default function App() {
         </div>
       )}
       {page==='bill' && (
-        <div className="page-overlay">
+        <div className="page-overlay bill-page">
           <div className="page-header">
             <button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button>
-            <span className="page-title">每日账单</span>
+            <span className="page-title" style={{fontFamily:"'Caveat',cursive",fontSize:20,color:'#5a4a3a'}}>My Account Book</span>
           </div>
           <div className="page-body">
-            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:16,marginBottom:16}}>
-              <button onClick={()=>shiftBillDate(-1)} style={{background:'none',border:'none',fontSize:20,color:'var(--accent)',cursor:'pointer'}}>◀</button>
-              <div style={{textAlign:'center'}}>
-                <div style={{fontSize:16,fontWeight:600,color:'#2c2c2c'}}>{formatDateCN(billDate)}</div>
-                <div style={{fontSize:11,color:'#999'}}>{billDate===todayStr()?'今天':billDate}</div>
+            <div className="bill-date-nav">
+              <button onClick={()=>shiftBillDate(-1)}>◀</button>
+              <div className="bill-date-center">
+                <div className="bill-date-main">{formatDateCN(billDate)}</div>
+                <div className="bill-date-sub">{billDate===todayStr()?'today':billDate}</div>
               </div>
-              <button onClick={()=>shiftBillDate(1)} style={{background:'none',border:'none',fontSize:20,color:billDate>=todayStr()?'#ddd':'var(--accent)',cursor:'pointer'}} disabled={billDate>=todayStr()}>▶</button>
+              <button onClick={()=>shiftBillDate(1)} disabled={billDate>=todayStr()}>▶</button>
             </div>
-            <div className="glass" style={{padding:16,marginBottom:16,borderRadius:12}}>
-              <div style={{display:'flex',justifyContent:'space-around',marginBottom:4}}>
-                <div style={{textAlign:'center'}}><div style={{fontSize:11,color:'#999'}}>支出</div><div style={{fontSize:20,fontWeight:600,color:'#e67373'}}>{dayExpense.toFixed(2)}</div></div>
-                <div style={{textAlign:'center'}}><div style={{fontSize:11,color:'#999'}}>收入</div><div style={{fontSize:20,fontWeight:600,color:'var(--accent)'}}>{dayIncome.toFixed(2)}</div></div>
-                <div style={{textAlign:'center'}}><div style={{fontSize:11,color:'#999'}}>结余</div><div style={{fontSize:20,fontWeight:600,color:'#2c2c2c'}}>{(dayIncome-dayExpense).toFixed(2)}</div></div>
+
+            <div className="bill-summary">
+              <div className="bill-summary-title">- daily summary -</div>
+              <div className="bill-summary-row">
+                <span className="bill-summary-label">支出</span>
+                <span className="bill-summary-amount expense">-{dayExpense.toFixed(2)}</span>
+              </div>
+              <div className="bill-summary-row">
+                <span className="bill-summary-label">收入</span>
+                <span className="bill-summary-amount income">+{dayIncome.toFixed(2)}</span>
+              </div>
+              <hr className="bill-summary-divider" />
+              <div className="bill-summary-row">
+                <span className="bill-summary-label">结余</span>
+                <span className="bill-summary-amount balance">{(dayIncome-dayExpense).toFixed(2)}</span>
               </div>
             </div>
-            <div className="glass" style={{padding:16,marginBottom:16,borderRadius:12}}>
-              <div style={{display:'flex',gap:0,marginBottom:12,borderRadius:8,overflow:'hidden',border:'1px solid rgba(0,0,0,0.08)'}}>
-                <button onClick={()=>setBillType('expense')} style={{flex:1,padding:'8px 0',textAlign:'center',fontSize:13,fontWeight:500,cursor:'pointer',border:'none',background:billType==='expense'?'#e67373':'rgba(255,255,255,0.5)',color:billType==='expense'?'white':'#888',transition:'all 0.2s',fontFamily:'var(--font)'}}>支出</button>
-                <button onClick={()=>setBillType('income')} style={{flex:1,padding:'8px 0',textAlign:'center',fontSize:13,fontWeight:500,cursor:'pointer',border:'none',background:billType==='income'?'var(--accent)':'rgba(255,255,255,0.5)',color:billType==='income'?'white':'#888',transition:'all 0.2s',fontFamily:'var(--font)'}}>收入</button>
+
+            <div className="bill-input-card">
+              <div className="bill-type-toggle">
+                <button className={`bill-type-btn ${billType==='expense'?'expense-active':'expense-inactive'}`} onClick={()=>setBillType('expense')}>支出</button>
+                <button className={`bill-type-btn ${billType==='income'?'income-active':'income-inactive'}`} onClick={()=>setBillType('income')}>收入</button>
               </div>
-              <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap',justifyContent:'center'}}>
+              <div className="bill-cat-strip">
                 {billCategories.map(cat=>(
-                  <div key={cat.id} onClick={()=>setBillCat(cat.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,cursor:'pointer',padding:'6px 8px',borderRadius:10,background:billCat===cat.id?'rgba(125,154,140,0.15)':'transparent',transition:'all 0.2s',minWidth:48}}>
-                    <span style={{fontSize:20}}>{cat.emoji}</span>
-                    <span style={{fontSize:10,color:billCat===cat.id?'var(--accent)':'#999'}}>{cat.name}</span>
+                  <div key={cat.id} className={`bill-cat-tag ${billCat===cat.id?'active':''}`} onClick={()=>setBillCat(cat.id)}>
+                    <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{__html:billSvgs[cat.icon]||billSvgs.other}} />
+                    <span>{cat.name}</span>
+                    {cat.id.startsWith('custom_') && <span onClick={(e)=>{e.stopPropagation();if(confirm('删除这个分类？'))deleteCustomCat(cat.id)}} style={{marginLeft:2,fontSize:10,color:'#ccc'}}>×</span>}
                   </div>
                 ))}
+                <button className="bill-cat-add" onClick={()=>setShowCatModal(true)}>+</button>
               </div>
-              <div style={{display:'flex',gap:8,marginBottom:8}}>
-                <input className="input" type="number" placeholder="金额" value={billAmount} onChange={e=>setBillAmount(e.target.value)} style={{flex:1,fontSize:18,textAlign:'center'}} />
-              </div>
-              <input className="input" placeholder="备注（可选）" value={billNote} onChange={e=>setBillNote(e.target.value)} style={{marginBottom:10}} />
-              <button className="btn btn-accent" onClick={addBill} style={{width:'100%'}}>记一笔</button>
+              <input className="bill-amount-input" type="number" inputMode="decimal" placeholder="0.00" value={billAmount} onChange={e=>setBillAmount(e.target.value)} />
+              <input className="bill-note-input" placeholder="备注..." value={billNote} onChange={e=>setBillNote(e.target.value)} />
+              <button className="bill-submit-btn" onClick={addBill}>记  一  笔</button>
             </div>
+
             {dayBills.length===0 ? (
-              <div style={{textAlign:'center',padding:'30px 20px',color:'#b0a898',fontSize:13}}>这天还没有账单 ~</div>
-            ) : dayBills.map(b => {
-              const cat = billCategories.find(c=>c.id===b.category)
-              return (
-                <div key={b.id} className="glass" style={{padding:'12px 16px',marginBottom:8,borderRadius:10}}>
-                  <div style={{display:'flex',alignItems:'center',gap:12}}>
-                    <span style={{fontSize:22}}>{cat?.emoji||'$'}</span>
-                    <div style={{flex:1}}>
-                      <div style={{fontSize:14,fontWeight:500,color:'#2c2c2c'}}>{cat?.name||b.category}{b.note?' · '+b.note:''}</div>
-                      <div style={{fontSize:11,color:'#999'}}>{b.owner==='yy'?'厌厌':'kk'}</div>
+              <div className="bill-empty">nothing here yet ~</div>
+            ) : (
+              <div style={{background:'#fffef8',border:'1.5px solid #e8dcc8',borderRadius:8,padding:'4px 16px',marginBottom:16}}>
+                {dayBills.map(b => {
+                  const cat = billCategories.find(cc=>cc.id===b.category)
+                  return (
+                    <div key={b.id} className="bill-list-item">
+                      <div className="bill-list-icon">
+                        <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{__html:billSvgs[(cat as any)?.icon]||billSvgs.other}} />
+                      </div>
+                      <div className="bill-list-info">
+                        <div className="bill-list-name">{cat?.name||b.category}{b.note?' · '+b.note:''}</div>
+                      </div>
+                      <div className={`bill-list-amount ${b.type}`}>{b.type==='expense'?'-':'+'}{b.amount.toFixed(2)}</div>
+                      <button className="bill-list-del" onClick={()=>{if(confirm('删除？'))deleteBill(b.id)}}>×</button>
                     </div>
-                    <div style={{fontSize:16,fontWeight:600,color:b.type==='expense'?'#e67373':'var(--accent)'}}>{b.type==='expense'?'-':'+'}{b.amount.toFixed(2)}</div>
-                    <button onClick={()=>{if(confirm('删除这笔账单？'))deleteBill(b.id)}} style={{background:'none',border:'none',color:'#ccc',fontSize:14,cursor:'pointer',padding:4}}>×</button>
-                  </div>
-                </div>
-              )
-            })}
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {showCatModal && (
+        <div className="bill-modal-overlay" onClick={()=>{setShowCatModal(false);setNewCatName('')}}>
+          <div className="bill-modal" onClick={e=>e.stopPropagation()}>
+            <div className="bill-modal-title">New Category</div>
+            <input className="bill-note-input" placeholder="分类名称" value={newCatName} onChange={e=>setNewCatName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')addCustomCat()}} autoFocus style={{borderBottom:'2px dashed #e0d5c3',marginBottom:14}} />
+            <div style={{display:'flex',gap:8}}>
+              <button className="bill-submit-btn" onClick={addCustomCat} style={{flex:1}}>添加</button>
+              <button className="bill-submit-btn" onClick={()=>{setShowCatModal(false);setNewCatName('')}} style={{flex:1,background:'rgba(200,200,200,0.2)',color:'#aaa'}}>取消</button>
+            </div>
           </div>
         </div>
       )}

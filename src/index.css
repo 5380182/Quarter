@@ -514,3 +514,388 @@ body {
 .jp-editor br + br {
   display: none;
 }
+
+/* ===== Bill - Handcraft Journal Style ===== */
+.bill-page {
+  background: #faf6ee;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(255,235,205,0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255,228,225,0.2) 0%, transparent 50%);
+}
+.bill-page .page-header {
+  background: rgba(250,246,238,0.95);
+  border-bottom: 2px dashed #e0d5c3;
+}
+.bill-page .page-body {
+  padding: 12px 16px;
+}
+
+/* Date navigator - washi tape style */
+.bill-date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 10px 0;
+}
+.bill-date-nav button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #c4a882;
+  padding: 4px 8px;
+  transition: transform 0.15s;
+}
+.bill-date-nav button:active { transform: scale(0.85); }
+.bill-date-nav button:disabled { color: #e0d5c3; }
+.bill-date-center {
+  text-align: center;
+  position: relative;
+}
+.bill-date-center::before {
+  content: '';
+  position: absolute;
+  top: -4px; left: -16px; right: -16px; bottom: -4px;
+  background: rgba(255,228,196,0.35);
+  border-radius: 4px;
+  transform: rotate(-1deg);
+  z-index: -1;
+}
+.bill-date-main {
+  font-family: 'Caveat', cursive;
+  font-size: 26px;
+  font-weight: 600;
+  color: #5a4a3a;
+  line-height: 1.2;
+}
+.bill-date-sub {
+  font-size: 11px;
+  color: #b5a48a;
+  font-style: italic;
+}
+
+/* Summary sticky note */
+.bill-summary {
+  background: #fffcf0;
+  border: 1.5px solid #e8dcc8;
+  border-radius: 3px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  position: relative;
+  box-shadow: 2px 3px 8px rgba(0,0,0,0.06);
+  transform: rotate(-0.5deg);
+}
+.bill-summary::before {
+  content: '';
+  position: absolute;
+  top: -6px; left: 50%; transform: translateX(-50%);
+  width: 48px; height: 12px;
+  background: rgba(255,183,130,0.45);
+  border-radius: 2px;
+}
+.bill-summary-title {
+  font-family: 'Caveat', cursive;
+  font-size: 16px;
+  color: #b5a48a;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.bill-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 4px 0;
+}
+.bill-summary-label {
+  font-size: 12px;
+  color: #b5a48a;
+}
+.bill-summary-amount {
+  font-family: 'Caveat', cursive;
+  font-size: 24px;
+  font-weight: 600;
+}
+.bill-summary-amount.expense { color: #e07070; }
+.bill-summary-amount.income { color: #7daa7d; }
+.bill-summary-amount.balance { color: #5a4a3a; }
+.bill-summary-divider {
+  border: none;
+  border-top: 1.5px dashed #e0d5c3;
+  margin: 6px 0;
+}
+
+/* Input card - notebook page */
+.bill-input-card {
+  background: #fffef8;
+  border: 1.5px solid #e8dcc8;
+  border-left: 3px solid #e8a0a0;
+  border-radius: 2px 8px 8px 2px;
+  padding: 16px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+/* Type toggle - highlighter style */
+.bill-type-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.bill-type-btn {
+  flex: 1;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  font-family: var(--font);
+  transition: all 0.2s;
+  position: relative;
+}
+.bill-type-btn.expense-active {
+  background: rgba(224,112,112,0.18);
+  color: #d06060;
+}
+.bill-type-btn.expense-inactive {
+  background: transparent;
+  color: #ccc;
+}
+.bill-type-btn.income-active {
+  background: rgba(125,170,125,0.18);
+  color: #5a8a5a;
+}
+.bill-type-btn.income-inactive {
+  background: transparent;
+  color: #ccc;
+}
+
+/* Category scroll strip */
+.bill-cat-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 6px 0 10px;
+  margin-bottom: 10px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.bill-cat-strip::-webkit-scrollbar { display: none; }
+.bill-cat-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #e8dcc8;
+  background: #fffef8;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.bill-cat-tag.active {
+  background: rgba(255,228,196,0.5);
+  border-color: #dab88a;
+}
+.bill-cat-tag svg {
+  width: 18px;
+  height: 18px;
+  stroke: #8a7a66;
+  stroke-width: 1.8;
+  fill: none;
+}
+.bill-cat-tag.active svg { stroke: #7a6040; }
+.bill-cat-tag span {
+  font-size: 12px;
+  color: #8a7a66;
+}
+.bill-cat-tag.active span {
+  color: #5a4a3a;
+  font-weight: 500;
+}
+.bill-cat-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px dashed #d5c8b0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  color: #c4a882;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.bill-cat-add:hover { border-color: #b5986a; color: #8a7040; }
+
+/* Amount input */
+.bill-amount-input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px dashed #e0d5c3;
+  background: transparent;
+  font-family: 'Caveat', cursive;
+  font-size: 32px;
+  font-weight: 600;
+  text-align: center;
+  color: #5a4a3a;
+  padding: 8px 0;
+  outline: none;
+  margin-bottom: 10px;
+}
+.bill-amount-input::placeholder {
+  color: #d5c8b0;
+  font-size: 24px;
+}
+.bill-note-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #ede6d8;
+  background: transparent;
+  font-size: 13px;
+  color: #5a4a3a;
+  padding: 8px 0;
+  outline: none;
+  font-family: var(--font);
+  margin-bottom: 12px;
+}
+.bill-note-input::placeholder { color: #d5c8b0; }
+.bill-submit-btn {
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  border-radius: 20px;
+  background: rgba(200,170,130,0.25);
+  color: #8a7040;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all 0.15s;
+  letter-spacing: 2px;
+}
+.bill-submit-btn:active {
+  background: rgba(200,170,130,0.45);
+  transform: scale(0.98);
+}
+
+/* Bill list items */
+.bill-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px dashed #e8dcc8;
+}
+.bill-list-item:last-child { border-bottom: none; }
+.bill-list-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255,228,196,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.bill-list-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: #8a7a66;
+  stroke-width: 1.8;
+  fill: none;
+}
+.bill-list-info { flex: 1; }
+.bill-list-name {
+  font-size: 14px;
+  color: #3a3a3a;
+  font-weight: 500;
+}
+.bill-list-note {
+  font-size: 11px;
+  color: #b5a48a;
+  margin-top: 2px;
+}
+.bill-list-amount {
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.bill-list-amount.expense { color: #e07070; }
+.bill-list-amount.income { color: #7daa7d; }
+.bill-list-del {
+  background: none;
+  border: none;
+  color: #ddd;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.15s;
+}
+.bill-list-del:active { color: #e07070; }
+
+/* Empty state */
+.bill-empty {
+  text-align: center;
+  padding: 40px 20px;
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: #d5c8b0;
+}
+
+/* kk note */
+.bill-kk-note {
+  background: rgba(255,250,230,0.6);
+  border: 1px dashed #e0d5c3;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 16px;
+  transform: rotate(0.3deg);
+}
+.bill-kk-note-label {
+  font-size: 11px;
+  color: #c4a882;
+  margin-bottom: 4px;
+  font-style: italic;
+}
+.bill-kk-note-text {
+  font-family: 'Caveat', cursive;
+  font-size: 16px;
+  color: #7a6a50;
+  line-height: 1.5;
+}
+
+/* Custom category modal */
+.bill-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.bill-modal {
+  background: #fffcf0;
+  border: 1.5px solid #e8dcc8;
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 4px 6px 20px rgba(0,0,0,0.1);
+}
+.bill-modal-title {
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: #5a4a3a;
+  margin-bottom: 14px;
+  text-align: center;
+}
