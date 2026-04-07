@@ -133,12 +133,6 @@ export default function App() {
   const [entries, setEntries] = useState<JournalEntry[]>(()=>load('journal'))
   const [journalText, setJournalText] = useState('')
   const [journalTab, setJournalTab] = useState<'all'|'yy'|'kk'>('all')
-  const [identity, setIdentity] = useState<'yy'|'kk'>(()=>load('identity','yy') as 'yy'|'kk')
-  const [editingId, setEditingId] = useState<string|null>(null)
-  const [editText, setEditText] = useState('')
-  const [identity, setIdentity] = useState<'yy'|'kk'>(()=>load('identity','yy') as 'yy'|'kk')
-  const [editingId, setEditingId] = useState<string|null>(null)
-  const [editText, setEditText] = useState('')
 
   // Icon editor
   const [editingIcon, setEditingIcon] = useState<string|null>(null)
@@ -188,18 +182,9 @@ export default function App() {
       .catch(()=>{})
   }, [])
 
-  const startEdit = (e: JournalEntry) => { setEditingId(e.id); setEditText(e.text) }
-  const saveEdit = () => {
-    if(!editingId) return
-    const next = entries.map(e=>e.id===editingId?{...e,text:editText.trim()}:e)
-    setEntries(next); save('journal',next); setEditingId(null); setEditText('')
-    fetch(SB_URL+'/journal?id=eq.'+editingId,{method:'PATCH',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify({text:editText.trim()})}).catch(()=>{})
-  }
-  const cancelEdit = () => { setEditingId(null); setEditText('') }
-
   const addJournal = () => {
     if(!journalText.trim()) return
-    const e:JournalEntry = {id:Date.now().toString(),author:identity,text:journalText.trim(),date:dateStr()}
+    const e:JournalEntry = {id:Date.now().toString(),author:'yy',text:journalText.trim(),date:dateStr()}
     const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('')
     fetch(SB_URL+'/journal',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(e)}).catch(()=>{})
     
@@ -246,18 +231,12 @@ export default function App() {
               <button className={`journal-tab ${journalTab==='yy'?'active':''}`} onClick={()=>setJournalTab('yy')}>厌厌</button>
               <button className={`journal-tab ${journalTab==='kk'?'active':''}`} onClick={()=>setJournalTab('kk')}>kk</button>
             </div>
-            <div style={{display:'flex',justifyContent:'flex-end',marginBottom:8}}>
-              <div style={{display:'flex',gap:0,borderRadius:8,overflow:'hidden',border:'1px solid rgba(0,0,0,0.08)',fontSize:12}}>
-                <button onClick={()=>{setIdentity('yy');save('identity','yy')}} style={{padding:'5px 12px',border:'none',cursor:'pointer',fontFamily:'var(--font)',background:identity==='yy'?'var(--accent)':'rgba(255,255,255,0.5)',color:identity==='yy'?'white':'#888',transition:'all 0.2s'}}>我是厌厌</button>
-                <button onClick={()=>{setIdentity('kk');save('identity','kk')}} style={{padding:'5px 12px',border:'none',cursor:'pointer',fontFamily:'var(--font)',background:identity==='kk'?'var(--accent)':'rgba(255,255,255,0.5)',color:identity==='kk'?'white':'#888',transition:'all 0.2s'}}>我是kk</button>
-              </div>
-            </div>
             <div className="journal-paper">
               <div className="jp-header">
-                <span className="jp-author" style={{color:theme.accentColor}}>{identity==='yy'?'写给kk':'写给厌厌'}</span>
+                <span className="jp-author" style={{color:theme.accentColor}}>{journalTab==='kk'?'写给厌厌':'写给kk'}</span>
                 <span className="jp-date">{dateStr()}</span>
               </div>
-              <textarea className="input" rows={4} placeholder={identity==='yy'?'今天想对kk说什么...':'今天想对厌厌说什么...'} value={journalText} onChange={e=>setJournalText(e.target.value)} style={{background:'transparent',border:'none',lineHeight:'28px',textIndent:'2em',fontSize:14}} />
+              <textarea className="input" rows={4} placeholder="今天想对kk说什么..." value={journalText} onChange={e=>setJournalText(e.target.value)} style={{background:'transparent',border:'none',lineHeight:'28px',textIndent:'2em',fontSize:14}} />
               <div style={{marginTop:8,textAlign:'right'}}><button className="btn btn-accent" onClick={addJournal}>写好了</button></div>
             </div>
             {entries.filter(e=>journalTab==='all'||e.author===journalTab).length===0 ? (
@@ -268,23 +247,8 @@ export default function App() {
                   <span className="jp-author" style={{color:e.author==='kk'?theme.accentColor:'#b07d9a'}}>{e.author==='kk'?'kk':'厌厌'}</span>
                   <span className="jp-date">{e.date}</span>
                 </div>
-                {editingId===e.id?(
-                  <div>
-                    <textarea className="input" rows={6} value={editText} onChange={ev=>setEditText(ev.target.value)} style={{background:'transparent',border:'1px solid var(--accent)',lineHeight:'28px',textIndent:'2em',fontSize:14,marginBottom:8}} />
-                    <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
-                      <button className="btn" style={{background:'#ddd',color:'#666',fontSize:12,padding:'6px 14px'}} onClick={cancelEdit}>取消</button>
-                      <button className="btn btn-accent" style={{fontSize:12,padding:'6px 14px'}} onClick={saveEdit}>保存</button>
-                    </div>
-                  </div>
-                ):(
-                  <div>
-                    <div className="jp-body">{e.text.split("\n").map((p,i)=><p key={i}>{p}</p>)}</div>
-                    <div style={{marginTop:8,display:'flex',gap:12,justifyContent:'flex-end'}}>
-                      {e.author===identity&&<button style={{background:'none',border:'none',color:'#aaa',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>startEdit(e)}>✎ 编辑</button>}
-                      {e.author===identity&&<button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);save('journal',next);fetch(SB_URL+'/journal?id=eq.'+e.id,{method:'DELETE',headers:SB_H}).catch(()=>{})}}}>× 删除</button>}
-                    </div>
-                  </div>
-                )}
+                <div className="jp-body">{e.text.split("\n").map((p,i)=><p key={i}>{p}</p>)}</div>
+                <div style={{marginTop:8,textAlign:'right'}}><button style={{background:'none',border:'none',color:'#ccc',fontSize:12,cursor:'pointer',fontFamily:'var(--font)'}} onClick={()=>{if(confirm('删除这篇日记？')){const next=entries.filter(x=>x.id!==e.id);setEntries(next);save('journal',next);fetch(SB_URL+'/journal?id=eq.'+e.id,{method:'DELETE',headers:SB_H}).catch(()=>{})}}}>&times; 删除</button></div>
               </div>
             ))}
           </div>
