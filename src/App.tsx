@@ -197,6 +197,8 @@ export default function App() {
   const [showCatModal, setShowCatModal] = useState(false)
   const [newCatName, setNewCatName] = useState('')
   const billCategories = [...defaultBillCats, ...customBillCats]
+  const [billNotes, setBillNotes] = useState<Record<string,string>>(() => load('billNotes', {}))
+  const [showStats, setShowStats] = useState(false)
 
   // Icon editor
   const [editingIcon, setEditingIcon] = useState<string|null>(null)
@@ -322,6 +324,30 @@ export default function App() {
     const next = [e,...entries]; setEntries(next); save('journal',next); setJournalText('')
     fetch(SB_URL+'/journal',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(e)}).catch(()=>{})
     
+  }
+
+  const getWeekBills = () => {
+    const today = new Date(billDate)
+    const day = today.getDay() || 7
+    const mon = new Date(today)
+    mon.setDate(today.getDate() - day + 1)
+    const sun = new Date(mon)
+    sun.setDate(mon.getDate() + 6)
+    const monStr = mon.getFullYear()+'-'+(mon.getMonth()+1).toString().padStart(2,'0')+'-'+mon.getDate().toString().padStart(2,'0')
+    const sunStr = sun.getFullYear()+'-'+(sun.getMonth()+1).toString().padStart(2,'0')+'-'+sun.getDate().toString().padStart(2,'0')
+    return bills.filter(b => b.type==='expense' && b.date >= monStr && b.date <= sunStr)
+  }
+
+  const getMonthBills = () => {
+    const ym = billDate.substring(0, 7)
+    return bills.filter(b => b.type==='expense' && b.date.startsWith(ym))
+  }
+
+  const getCatStats = (items: BillItem[]) => {
+    const map: Record<string, number> = {}
+    items.forEach(b => { map[b.category] = (map[b.category]||0) + b.amount })
+    const total = items.reduce((s,b) => s+b.amount, 0)
+    return Object.entries(map).map(([cat, amt]) => ({ cat, amt, pct: total>0?Math.round(amt/total*100):0 })).sort((a,b) => b.amt-a.amt)
   }
 
   const addCustomCat = () => {
@@ -574,6 +600,71 @@ export default function App() {
                 </div>
               </div>
             </div>
+
+            {billNotes[billDate] && (
+              <div className="bill-kk-note">
+                <div className="bill-kk-note-label">kk says:</div>
+                <div className="bill-kk-note-text">{billNotes[billDate]}</div>
+              </div>
+            )}
+
+            <div style={{textAlign:'center',margin:'4px 0'}}>
+              <button onClick={()=>setShowStats(!showStats)} style={{background:'none',border:'none',fontFamily:"'Space Mono',monospace",fontSize:10,color:'#bbb',cursor:'pointer',letterSpacing:1}}>{showStats?'▲ hide stats':'▼ weekly / monthly'}</button>
+            </div>
+
+            {showStats && (
+              <div className="receipt" style={{marginBottom:12}}>
+                <div style={{fontFamily:"'Space Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:2,textAlign:'center',marginBottom:12,color:'#222'}}>WEEKLY</div>
+                {(()=>{
+                  const ws = getCatStats(getWeekBills())
+                  const wTotal = getWeekBills().reduce((s,b)=>s+b.amount,0)
+                  return ws.length===0 ? <div className="bill-empty">no data</div> : (
+                    <>
+                      {ws.map(s=>{
+                        const cat = billCategories.find(cc=>cc.id===s.cat)
+                        return (
+                          <div key={s.cat} style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,fontFamily:"'Space Mono',monospace",fontSize:11,color:'#444'}}>
+                            <span style={{width:50}}>{cat?.name||s.cat}</span>
+                            <div style={{flex:1,height:8,background:'#f0f0f0',borderRadius:1,overflow:'hidden'}}>
+                              <div style={{width:`${s.pct}%`,height:'100%',background:'#222',borderRadius:1}} />
+                            </div>
+                            <span style={{width:35,textAlign:'right',fontSize:10}}>{s.pct}%</span>
+                            <span style={{width:50,textAlign:'right',fontSize:10,color:'#999'}}>{s.amt.toFixed(0)}</span>
+                          </div>
+                        )
+                      })}
+                      <hr className="receipt-divider" />
+                      <div className="receipt-row total"><span>WEEK TOTAL</span><span>-{wTotal.toFixed(2)}</span></div>
+                    </>
+                  )
+                })()}
+                <div style={{height:16}} />
+                <div style={{fontFamily:"'Space Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:2,textAlign:'center',marginBottom:12,color:'#222'}}>MONTHLY</div>
+                {(()=>{
+                  const ms = getCatStats(getMonthBills())
+                  const mTotal = getMonthBills().reduce((s,b)=>s+b.amount,0)
+                  return ms.length===0 ? <div className="bill-empty">no data</div> : (
+                    <>
+                      {ms.map(s=>{
+                        const cat = billCategories.find(cc=>cc.id===s.cat)
+                        return (
+                          <div key={s.cat} style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,fontFamily:"'Space Mono',monospace",fontSize:11,color:'#444'}}>
+                            <span style={{width:50}}>{cat?.name||s.cat}</span>
+                            <div style={{flex:1,height:8,background:'#f0f0f0',borderRadius:1,overflow:'hidden'}}>
+                              <div style={{width:`${s.pct}%`,height:'100%',background:'#222',borderRadius:1}} />
+                            </div>
+                            <span style={{width:35,textAlign:'right',fontSize:10}}>{s.pct}%</span>
+                            <span style={{width:50,textAlign:'right',fontSize:10,color:'#999'}}>{s.amt.toFixed(0)}</span>
+                          </div>
+                        )
+                      })}
+                      <hr className="receipt-divider" />
+                      <div className="receipt-row total"><span>MONTH TOTAL</span><span>-{mTotal.toFixed(2)}</span></div>
+                    </>
+                  )
+                })()}
+              </div>
+            )}
 
             <div className="receipt-input">
               <div className="bill-type-toggle">
