@@ -18,7 +18,7 @@ const SB_H = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'a
 
 
 interface JournalEntry { id: string; author: 'yy'|'kk'; text: string; date: string }
-interface ChecklistItem { id: string; text: string; done: boolean; owner: 'yy'|'kk'; nudge: number; comment: string; created_at: string }
+interface ChecklistItem { id: string; text: string; done: boolean; owner: 'yy'|'kk'; nudge: number; comment: string; done_at?: string; created_at: string }
 interface ThemeConfig { wallpaper: string; accentColor: string; cardOpacity: number; customIcons: Record<string,string> }
 
 const defaultTheme: ThemeConfig = { wallpaper: '', accentColor: '#7d9a8c', cardOpacity: 0.72, customIcons: {} }
@@ -146,6 +146,7 @@ export default function App() {
   const [clBgKk, setClBgKk] = useState<string>(()=>load('cl_bg_kk',''))
   const [clBgModal, setClBgModal] = useState(false)
   const clBgRef = useRef<HTMLInputElement>(null)
+  const [clDoneOpen, setClDoneOpen] = useState(false)
 
   // Icon editor
   const [editingIcon, setEditingIcon] = useState<string|null>(null)
@@ -225,13 +226,18 @@ export default function App() {
     fetch(SB_URL+'/checklist',{method:'POST',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify(item)}).catch(()=>{})
   }
   const toggleClItem = (id: string) => {
-    const next = clItems.map(i=>i.id===id?{...i,done:!i.done}:i); setClItems(next); save('checklist', next)
+    const next = clItems.map(i=>i.id===id?{...i,done:!i.done,done_at:!i.done?new Date().toISOString():''}:i); setClItems(next); save('checklist', next)
     const item = next.find(i=>i.id===id)
-    if(item) fetch(SB_URL+'/checklist?id=eq.'+id,{method:'PATCH',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify({done:item.done})}).catch(()=>{})
+    if(item) fetch(SB_URL+'/checklist?id=eq.'+id,{method:'PATCH',headers:{...SB_H,'Prefer':'return=representation'},body:JSON.stringify({done:item.done,done_at:item.done_at||null})}).catch(()=>{})
   }
   const deleteClItem = (id: string) => {
     const next = clItems.filter(i=>i.id!==id); setClItems(next); save('checklist', next)
     fetch(SB_URL+'/checklist?id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{})
+  }
+  const clearDoneItems = () => {
+    const doneIds = clItems.filter(i=>i.owner===clTab&&i.done).map(i=>i.id)
+    const next = clItems.filter(i=>!(i.owner===clTab&&i.done)); setClItems(next); save('checklist', next)
+    doneIds.forEach(id=>fetch(SB_URL+'/checklist?id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{}))
   }
   const nudgeClItem = (id: string) => {
     const next = clItems.map(i=>i.id===id?{...i,nudge:(i.nudge||0)+1}:i); setClItems(next); save('checklist', next)
@@ -398,12 +404,17 @@ export default function App() {
                     {item.comment&&<div style={{marginTop:6,padding:'6px 10px',background:'rgba(0,0,0,0.03)',borderRadius:8,fontSize:12,color:'#666',lineHeight:'1.4'}}>{clTab==='yy'?'kk':'厌厌'}说: {item.comment}</div>}
                   </div>
                 ))}
-                {done.length>0&&<div style={{fontSize:12,color:'#aaa',margin:'16px 0 8px',fontWeight:500}}>已完成 ({done.length})</div>}
-                {done.map(item=>(
-                  <div key={item.id} className="glass" style={{padding:'12px 16px',marginBottom:8,borderRadius:10,display:'flex',alignItems:'center',gap:12,opacity:0.6}}>
-                    <div onClick={()=>toggleClItem(item.id)} style={{width:20,height:20,borderRadius:6,background:'var(--accent)',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.2s'}}><span style={{color:'white',fontSize:12,fontWeight:700}}>✓</span></div>
-                    <span style={{flex:1,fontSize:14,color:'#999',lineHeight:'1.5',textDecoration:'line-through'}}>{item.text}</span>
-                    <button onClick={()=>deleteClItem(item.id)} style={{background:'none',border:'none',color:'#ccc',fontSize:14,cursor:'pointer',padding:4}}>×</button>
+                {done.length>0&&<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'16px 0 8px'}}><button onClick={()=>setClDoneOpen(!clDoneOpen)} style={{background:'none',border:'none',fontSize:12,color:'#aaa',fontWeight:500,cursor:'pointer',fontFamily:'var(--font)'}}>{clDoneOpen?'▾':'▸'} 已完成 ({done.length})</button>{clDoneOpen&&<button onClick={()=>{if(confirm('清空所有已完成的项？'))clearDoneItems()}} style={{background:'none',border:'none',fontSize:11,color:'#ccc',cursor:'pointer',fontFamily:'var(--font)'}}>清空</button>}</div>}
+                {clDoneOpen&&done.map(item=>(
+                  <div key={item.id} className="glass" style={{padding:'12px 16px',marginBottom:8,borderRadius:10,opacity:0.6}}>
+                    <div style={{display:'flex',alignItems:'center',gap:12}}>
+                      <div onClick={()=>toggleClItem(item.id)} style={{width:20,height:20,borderRadius:6,background:'var(--accent)',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.2s'}}><span style={{color:'white',fontSize:12,fontWeight:700}}>✓</span></div>
+                      <span style={{flex:1,fontSize:14,color:'#999',lineHeight:'1.5',textDecoration:'line-through'}}>{item.text}</span>
+                      <button onClick={()=>deleteClItem(item.id)} style={{background:'none',border:'none',color:'#ccc',fontSize:14,cursor:'pointer',padding:4}}>×</button>
+                    </div>
+                    {item.done_at&&<div style={{marginTop:4,fontSize:10,color:'#bbb'}}>{new Date(item.done_at).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'})} 完成</div>}
+                    {(item.nudge||0)>0&&<div style={{marginTop:4,fontSize:11,color:'var(--accent)',fontWeight:500}}>被催了{item.nudge}次</div>}
+                    {item.comment&&<div style={{marginTop:4,padding:'6px 10px',background:'rgba(0,0,0,0.03)',borderRadius:8,fontSize:12,color:'#666',lineHeight:'1.4'}}>{clTab==='yy'?'kk':'厌厌'}说: {item.comment}</div>}
                   </div>
                 ))}
               </>)
