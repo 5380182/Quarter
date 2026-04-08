@@ -592,11 +592,9 @@ export default function App() {
               <hr className="receipt-divider" />
               <div className="receipt-row total"><span>BALANCE</span><span>{(dayIncome-dayExpense).toFixed(2)}</span></div>
 
-              {kkNote && (
-                <><hr className="receipt-divider" />
-                <div style={{fontFamily:"'Space Mono',monospace",fontSize:10,color:'#bbb',letterSpacing:1,marginBottom:4}}>kk says:</div>
-                <div style={{fontFamily:"'Caveat',cursive",fontSize:15,color:'#888',lineHeight:'1.5'}}>{kkNote.note}</div></>
-              )}
+              <><hr className="receipt-divider" />
+                <div style={{fontFamily:"'Space Mono',monospace",fontSize:9,color:'#ccc',letterSpacing:1,marginBottom:2,textTransform:'uppercase'}}>kk says</div>
+                <div style={{fontFamily:"'Caveat',cursive",fontSize:13,color:'#999',lineHeight:'1.4',letterSpacing:'0.3px'}}>{kkNote ? kkNote.note : '...'}</div></>
               <div className="receipt-footer">
                 <div className="receipt-footer-text">thank you, have a nice day</div>
                 <div className="receipt-barcode">
