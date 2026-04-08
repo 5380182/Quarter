@@ -594,7 +594,7 @@ export default function App() {
 
               <><hr className="receipt-divider" />
                 <div style={{fontFamily:"'Space Mono',monospace",fontSize:9,color:'#ccc',letterSpacing:1,marginBottom:2,textTransform:'uppercase'}}>kk says</div>
-                <div style={{fontFamily:"'Ma Shan Zheng','Caveat',cursive",fontSize:14,color:'#999',lineHeight:'1.5'}}>{kkNote ? kkNote.note : '...'}</div></>
+                <div style={{fontFamily:"'Long Cang','Caveat',cursive",fontSize:15,color:'#999',lineHeight:'1.5'}}>{kkNote ? kkNote.note : '...'}</div></>
               <div className="receipt-footer">
                 <div className="receipt-footer-text">thank you, have a nice day</div>
                 <div className="receipt-barcode">
