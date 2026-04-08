@@ -384,7 +384,8 @@ export default function App() {
     fetch(SB_URL+'/bill?id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{})
   }
 
-  const dayBills = bills.filter(b => b.date === billDate)
+  const dayBills = bills.filter(b => b.date === billDate && b.category !== 'kk_note')
+  const kkNote = bills.find(b => b.date === billDate && b.category === 'kk_note')
   const dayExpense = dayBills.filter(b => b.type === 'expense').reduce((s, b) => s + b.amount, 0)
   const dayIncome = dayBills.filter(b => b.type === 'income').reduce((s, b) => s + b.amount, 0)
 
@@ -601,10 +602,10 @@ export default function App() {
               </div>
             </div>
 
-            {billNotes[billDate] && (
+            {kkNote && (
               <div className="bill-kk-note">
                 <div className="bill-kk-note-label">kk says:</div>
-                <div className="bill-kk-note-text">{billNotes[billDate]}</div>
+                <div className="bill-kk-note-text">{kkNote.note}</div>
               </div>
             )}
 
