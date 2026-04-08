@@ -592,6 +592,11 @@ export default function App() {
               <hr className="receipt-divider" />
               <div className="receipt-row total"><span>BALANCE</span><span>{(dayIncome-dayExpense).toFixed(2)}</span></div>
 
+              {kkNote && (
+                <><hr className="receipt-divider" />
+                <div style={{fontFamily:"'Space Mono',monospace",fontSize:10,color:'#bbb',letterSpacing:1,marginBottom:4}}>kk says:</div>
+                <div style={{fontFamily:"'Caveat',cursive",fontSize:15,color:'#888',lineHeight:'1.5'}}>{kkNote.note}</div></>
+              )}
               <div className="receipt-footer">
                 <div className="receipt-footer-text">thank you, have a nice day</div>
                 <div className="receipt-barcode">
@@ -602,12 +607,7 @@ export default function App() {
               </div>
             </div>
 
-            {kkNote && (
-              <div className="bill-kk-note">
-                <div className="bill-kk-note-label">kk says:</div>
-                <div className="bill-kk-note-text">{kkNote.note}</div>
-              </div>
-            )}
+
 
             <div style={{textAlign:'center',margin:'4px 0'}}>
               <button onClick={()=>setShowStats(!showStats)} style={{background:'none',border:'none',fontFamily:"'Space Mono',monospace",fontSize:10,color:'#bbb',cursor:'pointer',letterSpacing:1}}>{showStats?'▲ hide stats':'▼ weekly / monthly'}</button>
