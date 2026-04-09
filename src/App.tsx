@@ -748,8 +748,7 @@ export default function App() {
                 <img className="story-top-deco" src="https://i.postimg.cc/X7pJ8QDh/083.png" alt="" />
                 <div className="story-title-frame">
                   <img src="https://i.postimg.cc/BvhkMczg/070.png" alt="" />
-                  <h2>Stories</h2>
-                  <div className="story-title-sub">once upon a time, in a place called ours</div>
+                  <div className="story-title-text"><h2>Stories</h2><div className="sub">once upon a time, in a place called ours</div></div>
                 </div>
                 <img className="story-divider" src="https://i.postimg.cc/htWCr3tG/046.png" alt="" />
                 {storyCategories.map((cat,idx)=>{

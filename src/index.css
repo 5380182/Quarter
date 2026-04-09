@@ -936,7 +936,7 @@ body {
   text-transform: uppercase;
 }
 
-/* ===== Story Collection v5 ===== */
+/* ===== Story Collection v5.1 ===== */
 .story-page {
   background-image: url('https://i.postimg.cc/0NmRTr47/com-xingin-xhs-20260409131418.png');
   background-size: 300px;
@@ -949,172 +949,92 @@ body {
   -webkit-backdrop-filter: blur(12px) !important;
   border-bottom: none !important;
 }
-.story-page .page-body {
-  padding: 0 16px 40px !important;
-}
+.story-page .page-body { padding: 0 16px 40px !important; }
 
-/* Top decoration image */
-.story-top-deco {
-  width: 80px;
-  margin: 12px auto 0;
-  display: block;
-  opacity: 1;
-}
+.story-top-deco { width: 80px; margin: 12px auto 0; display: block; }
 
-/* Title frame - using 070.png as background */
+/* Title section: frame image shown naturally, text overlaid */
 .story-title-frame {
   position: relative;
   text-align: center;
-  padding: 30px 20px;
-  margin: 0 auto 8px;
-  max-width: 320px;
+  margin: 0 auto 4px;
+  max-width: 300px;
 }
-.story-title-frame img {
+.story-title-frame > img { width: 100%; height: auto; display: block; }
+.story-title-text {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  opacity: 1;
-  pointer-events: none;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
 }
-.story-title-frame h2 {
-  position: relative;
-  z-index: 1;
+.story-title-text h2 {
   font-family: "Playfair Display", serif;
-  font-size: 28px;
-  font-weight: 700;
-  font-style: italic;
-  color: #5a3e2b;
-  letter-spacing: 4px;
+  font-size: 26px; font-weight: 700; font-style: italic;
+  color: #5a3e2b; letter-spacing: 4px;
 }
-.story-title-sub {
-  position: relative;
-  z-index: 1;
+.story-title-text .sub {
   font-family: "Cormorant Garamond", serif;
-  font-size: 13px;
-  font-style: italic;
-  color: #b8a08a;
-  margin-top: 4px;
-  letter-spacing: 2px;
+  font-size: 12px; font-style: italic;
+  color: #b8a08a; margin-top: 4px; letter-spacing: 1px;
 }
 
-/* Divider line using 046.png */
-.story-divider {
-  width: 60%;
-  max-width: 200px;
-  margin: 12px auto;
-  display: block;
-  opacity: 1;
-}
+.story-divider { width: 50%; max-width: 180px; margin: 10px auto; display: block; }
 
-/* Category card - uses frame PNG as overlay */
+/* Category card: frame image shown naturally, text centered on top */
 .story-cat-card {
   position: relative;
   cursor: pointer;
   transition: transform 0.2s ease;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
-.story-cat-card:active {
-  transform: scale(0.97);
-}
+.story-cat-card:active { transform: scale(0.97); }
 .story-cat-frame {
   position: relative;
-  width: 100%;
-  padding: 0;
 }
-/* The frame image sits on top as overlay */
 .story-cat-frame > .frame-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  z-index: 2;
-  pointer-events: none;
+  width: 100%; height: auto; display: block;
 }
-/* Content area behind the frame */
 .story-cat-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 160px;
-  padding: 30px 40px;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
+  width: 70%;
 }
-.story-cat-content .cat-name {
+.cat-name {
   font-family: "Playfair Display", serif;
-  font-size: 22px;
-  font-weight: 700;
-  font-style: italic;
-  color: #5a3e2b;
-  letter-spacing: 3px;
+  font-size: 20px; font-weight: 700; font-style: italic;
+  color: #5a3e2b; letter-spacing: 2px;
 }
-.story-cat-content .cat-desc {
+.cat-desc {
   font-family: "Cormorant Garamond", serif;
-  font-size: 13px;
-  font-style: italic;
-  color: #8a7b6b;
-  margin-top: 6px;
-  letter-spacing: 1px;
+  font-size: 12px; font-style: italic;
+  color: #8a7b6b; margin-top: 4px; letter-spacing: 1px;
 }
 
-/* Big frame for pending/custom */
-.story-big-frame {
-  position: relative;
-  width: 100%;
-}
-.story-big-frame > .frame-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  z-index: 2;
-  pointer-events: none;
-}
+/* Big frame */
+.story-big-frame { position: relative; }
+.story-big-frame > .frame-img { width: 100%; height: auto; display: block; }
 .story-big-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 140px;
-  padding: 30px;
-  gap: 8px;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 .pending-plus {
   font-family: "Cormorant Garamond", serif;
-  font-size: 36px;
-  color: #c4b5a4;
-  line-height: 1;
+  font-size: 32px; color: #c4b5a4; line-height: 1;
 }
 .pending-text {
   font-family: "Playfair Display", serif;
-  font-size: 14px;
-  font-style: italic;
-  color: #b8a08a;
-  letter-spacing: 3px;
+  font-size: 13px; font-style: italic;
+  color: #b8a08a; letter-spacing: 2px; margin-top: 6px;
 }
 
-/* Bottom decoration */
-.story-bottom-deco {
-  width: 100px;
-  margin: 16px auto 0;
-  display: block;
-  opacity: 1;
-}
-
-/* Footer text */
+.story-bottom-deco { width: 90px; margin: 14px auto 0; display: block; }
 .story-footer {
-  text-align: center;
-  padding: 8px 0 0;
+  text-align: center; padding: 8px 0 0;
   font-family: "Cormorant Garamond", serif;
-  font-size: 14px;
-  font-style: italic;
-  color: #c4b5a4;
-  letter-spacing: 2px;
+  font-size: 13px; font-style: italic;
+  color: #c4b5a4; letter-spacing: 2px;
 }
