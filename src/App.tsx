@@ -759,7 +759,7 @@ export default function App() {
                 {(()=>{const cat=storyCategories.find(c=>c.id==='us');if(!cat)return null;const count=stories.filter(s=>s.category_id===cat.id).length;return(
                   <div className="lace-card" onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}}>
                     <div className="lace-frame">
-                      <div className="lace-bow">🎀</div>
+                      <div className="lace-bow">{String.fromCodePoint(0x1F380)}</div>
                       <div className="lace-img-area" style={{backgroundImage:load('story_cover_'+cat.id,'')?'url('+load('story_cover_'+cat.id,'')+')':'none'}}>
                         <div className="stamp-overlay"><div className="stamp-title">{cat.name}</div><div className="stamp-desc">{cat.description}</div><div className="stamp-count">{count} 篇</div></div>
                       </div>
