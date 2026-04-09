@@ -748,7 +748,7 @@ export default function App() {
                 <div className="story-header-deco"><h2>故事集</h2><div className="story-header-sub">every story begins with once upon a time</div></div>
                 {(()=>{const cat=storyCategories.find(c=>c.id==='fairy');if(!cat)return null;const count=stories.filter(s=>s.category_id===cat.id).length;return(
                   <div className="stamp-card" onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}}>
-                    <div className="stamp-border">
+                    <div className="stamp-perf">
                       <div className="stamp-img-area" style={{backgroundImage:load('story_cover_'+cat.id,'')?'url('+load('story_cover_'+cat.id,'')+')':'none'}}>
                         <div className="stamp-overlay"><div className="stamp-title">{cat.name}</div><div className="stamp-desc">{cat.description}</div><div className="stamp-count">{count} 篇</div></div>
                       </div>
@@ -768,7 +768,7 @@ export default function App() {
                 )})()}
                 <div className="story-lace-sep"></div>
                 <div className="stamp-card pending-stamp" onClick={()=>setShowStoryForm(true)}>
-                  <div className="stamp-border">
+                  <div className="stamp-perf">
                     <div className="stamp-img-area">
                       <div style={{textAlign:'center'}}><div className="pending-plus">+</div><div className="pending-text">篇章待开启</div></div>
                     </div>

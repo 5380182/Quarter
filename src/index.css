@@ -936,120 +936,108 @@ body {
   text-transform: uppercase;
 }
 
-/* ===== Story Collection v3 ===== */
+/* ===== Story Collection v4 ===== */
 .story-page {
   background-image: url('https://i.postimg.cc/0NmRTr47/com-xingin-xhs-20260409131418.png');
-  background-size: 320px;
+  background-size: 300px;
   background-repeat: repeat;
   background-color: #FFF8F3;
 }
 
 .story-page .page-body {
-  padding: 0 24px 40px !important;
+  padding: 0 20px 40px !important;
 }
 
-/* Title area */
+/* Header decoration */
 .story-header-deco {
   text-align: center;
-  padding: 20px 0 8px;
+  padding: 24px 0 20px;
 }
 .story-header-deco h2 {
-  font-family: 'LXGW WenKai', serif;
-  font-size: 22px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 24px;
   font-weight: 700;
-  color: #5a4636;
-  letter-spacing: 4px;
-  display: inline-block;
-  position: relative;
+  color: #5a3e2b;
+  letter-spacing: 6px;
 }
-.story-header-deco h2::before,
-.story-header-deco h2::after {
-  content: '¾7';
-  font-size: 14px;
-  color: #c4a882;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.story-header-deco h2::before { left: -24px; }
-.story-header-deco h2::after { right: -24px; transform: translateY(-50%) scaleX(-1); }
 .story-header-sub {
   font-family: 'Caveat', cursive;
-  font-size: 13px;
-  color: #b8a08a;
-  margin-top: 4px;
-  letter-spacing: 1px;
-}
-
-/* Lace separator */
-.story-lace-sep {
-  width: 80%;
-  max-width: 260px;
-  height: 16px;
-  margin: 16px auto;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0px, transparent 4px,
-    rgba(200,180,160,0.2) 4px, rgba(200,180,160,0.2) 5px
-  );
-  position: relative;
-}
-.story-lace-sep::before,
-.story-lace-sep::after {
-  content: '¼0';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 12px;
+  font-size: 14px;
   color: #c4a882;
-  background: #FFF8F3;
-  padding: 0 6px;
+  margin-top: 6px;
+  letter-spacing: 1px;
+  font-style: italic;
 }
-.story-lace-sep::before { left: -4px; }
-.story-lace-sep::after { right: -4px; }
 
-/* ---- STAMP CARD ---- */
-.stamp-card {
+/* Lace separator - clean version, no content symbols */
+.story-lace-sep {
+  margin: 20px auto;
+  width: 90%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(180,150,120,0.3) 20%, rgba(180,150,120,0.3) 80%, transparent);
   position: relative;
-  padding: 0;
-  cursor: pointer;
-  transition: transform 0.15s ease;
 }
-.stamp-card:active { transform: scale(0.97); }
-
-.stamp-border {
-  position: relative;
-  background: #FFFCF7;
-  padding: 10px;
-}
-
-/* Perforated edge using radial-gradient mask */
-.stamp-border::after {
+.story-lace-sep::before {
   content: '';
   position: absolute;
-  inset: -5px;
-  background: #FFFCF7;
-  z-index: -1;
-  mask-image:
-    radial-gradient(circle at 0px 0px, transparent 5px, black 5.5px),
-    radial-gradient(circle at 12px 0px, transparent 5px, black 5.5px);
-  -webkit-mask-image:
-    radial-gradient(circle at 0px 0px, transparent 5px, black 5.5px),
-    radial-gradient(circle at 12px 0px, transparent 5px, black 5.5px);
-  mask-size: 12px 12px;
-  -webkit-mask-size: 12px 12px;
-  mask-composite: intersect;
-  -webkit-mask-composite: source-in;
-  box-shadow: 0 2px 16px rgba(100,80,60,0.12);
-  border-radius: 0;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(180,150,120,0.4);
+}
+
+/* ---- STAMP CARD (perforated edges) ---- */
+.stamp-card {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  margin: 0 4px;
+}
+.stamp-card:active {
+  transform: scale(0.98);
+}
+
+/* The perforated border is made by cutting circles out of a white background layer */
+.stamp-perf {
+  position: relative;
+  background: #FFFCF8;
+  /* Perforation: radial-gradient creates half-circles on all 4 edges */
+  --perf-size: 12px;
+  --perf-color: transparent;
+  padding: var(--perf-size);
+  box-shadow: 0 3px 20px rgba(100,80,60,0.15);
+  /* Top and bottom perforations */
+  background-image:
+    radial-gradient(circle at 50% 0, transparent var(--perf-size), #FFFCF8 calc(var(--perf-size) + 0.5px)),
+    radial-gradient(circle at 50% 100%, transparent var(--perf-size), #FFFCF8 calc(var(--perf-size) + 0.5px));
+  background-size: calc(var(--perf-size) * 2) calc(var(--perf-size) * 2);
+  background-position: 0 0, 0 100%;
+  background-repeat: repeat-x;
+}
+
+/* Use outline to create the actual perforated look - simpler and more reliable */
+.stamp-perf::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle, #FFF8F3 calc(var(--perf-size) - 1px), transparent var(--perf-size)) top center / calc(var(--perf-size)*2) calc(var(--perf-size)*2) repeat-x,
+    radial-gradient(circle, #FFF8F3 calc(var(--perf-size) - 1px), transparent var(--perf-size)) bottom center / calc(var(--perf-size)*2) calc(var(--perf-size)*2) repeat-x,
+    radial-gradient(circle, #FFF8F3 calc(var(--perf-size) - 1px), transparent var(--perf-size)) left center / calc(var(--perf-size)*2) calc(var(--perf-size)*2) repeat-y,
+    radial-gradient(circle, #FFF8F3 calc(var(--perf-size) - 1px), transparent var(--perf-size)) right center / calc(var(--perf-size)*2) calc(var(--perf-size)*2) repeat-y;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .stamp-img-area {
   width: 100%;
-  height: 180px;
+  height: 200px;
   background-size: cover;
   background-position: center;
-  background-color: #e8ddd3;
+  background-color: #e0d5c8;
   position: relative;
   overflow: hidden;
 }
@@ -1057,24 +1045,24 @@ body {
 .stamp-overlay {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  padding: 20px 16px 14px;
-  background: linear-gradient(to top, rgba(40,30,20,0.55) 0%, transparent 100%);
+  padding: 24px 16px 16px;
+  background: linear-gradient(to top, rgba(30,20,10,0.65) 0%, transparent 100%);
 }
-.stamp-overlay .stamp-title {
+.stamp-title {
   font-family: 'Noto Serif SC', serif;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.3);
-  letter-spacing: 2px;
+  letter-spacing: 3px;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.4);
 }
-.stamp-overlay .stamp-desc {
+.stamp-desc {
   font-family: 'LXGW WenKai', serif;
   font-size: 12px;
   color: rgba(255,255,255,0.85);
-  margin-top: 4px;
+  margin-top: 5px;
 }
-.stamp-overlay .stamp-count {
+.stamp-count {
   font-family: 'Noto Sans SC', sans-serif;
   font-size: 10px;
   color: rgba(255,255,255,0.6);
@@ -1086,82 +1074,117 @@ body {
   position: relative;
   cursor: pointer;
   transition: transform 0.15s ease;
+  padding-top: 12px;
 }
-.lace-card:active { transform: scale(0.97); }
+.lace-card:active { transform: scale(0.98); }
 
+/* Outer lace frame */
 .lace-frame {
   position: relative;
-  background: #FFFCF7;
-  padding: 14px;
-  border: 2px solid rgba(200,180,150,0.3);
-  border-radius: 4px;
-  box-shadow: 0 2px 20px rgba(100,80,60,0.08);
+  background: #FFFCF8;
+  border: 1.5px solid rgba(200,175,150,0.4);
+  box-shadow: 0 3px 20px rgba(100,80,60,0.12);
+  padding: 10px;
 }
-
-/* Lace border pattern */
+/* Inner dashed border */
 .lace-frame::before {
   content: '';
   position: absolute;
-  inset: 3px;
-  border: 1px dashed rgba(200,180,150,0.35);
-  border-radius: 2px;
+  inset: 5px;
+  border: 1px dashed rgba(200,175,150,0.5);
+  pointer-events: none;
+  z-index: 3;
+}
+/* Corner decorations */
+.lace-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 0 0, rgba(200,175,150,0.15) 8px, transparent 8px),
+    radial-gradient(circle at 100% 0, rgba(200,175,150,0.15) 8px, transparent 8px),
+    radial-gradient(circle at 0 100%, rgba(200,175,150,0.15) 8px, transparent 8px),
+    radial-gradient(circle at 100% 100%, rgba(200,175,150,0.15) 8px, transparent 8px);
   pointer-events: none;
 }
 
-/* Bow decoration */
+/* Bow on top */
 .lace-bow {
   position: absolute;
-  top: -8px;
+  top: -2px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
-  font-size: 22px;
-  color: #d4a8a8;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.08));
+  z-index: 10;
+  width: 40px;
+  height: 14px;
 }
+/* Left loop */
+.lace-bow::before {
+  content: '';
+  position: absolute;
+  right: 50%;
+  top: 0;
+  width: 16px;
+  height: 12px;
+  background: #e8a0a0;
+  border-radius: 50% 0 0 50%;
+  transform: rotate(-15deg);
+  transform-origin: right center;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+/* Right loop */
 .lace-bow::after {
-  content: "\1F380";
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 16px;
+  height: 12px;
+  background: #e8a0a0;
+  border-radius: 0 50% 50% 0;
+  transform: rotate(15deg);
+  transform-origin: left center;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .lace-img-area {
   width: 100%;
-  height: 180px;
+  height: 200px;
   background-size: cover;
   background-position: center;
-  background-color: #d3dde8;
+  background-color: #ccd5e0;
   position: relative;
   overflow: hidden;
-  border-radius: 2px;
 }
 
-/* ---- PENDING CARD ---- */
+/* ---- PENDING STAMP ---- */
 .pending-stamp .stamp-img-area {
-  background-color: #f0ebe4;
+  background: linear-gradient(135deg, #f5efe8 0%, #ede4d8 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 8px;
 }
-.pending-stamp .pending-text {
-  font-family: 'LXGW WenKai', serif;
-  font-size: 16px;
-  color: #b8a08a;
-  letter-spacing: 3px;
-  text-align: center;
-}
-.pending-stamp .pending-plus {
-  font-size: 28px;
+.pending-plus {
+  font-size: 32px;
   color: #c4b5a4;
-  margin-bottom: 6px;
+  line-height: 1;
+}
+.pending-text {
+  font-family: 'LXGW WenKai', serif;
+  font-size: 15px;
+  color: #b8a08a;
+  letter-spacing: 4px;
 }
 
 /* Footer */
 .story-footer {
   text-align: center;
-  padding: 16px 0 0;
+  padding: 20px 0 0;
   font-family: 'Caveat', cursive;
-  font-size: 13px;
+  font-size: 14px;
   color: #c4b5a4;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  font-style: italic;
 }
-
