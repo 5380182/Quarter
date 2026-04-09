@@ -1038,3 +1038,23 @@ body {
   font-size: 13px; font-style: italic;
   color: #c4b5a4; letter-spacing: 2px;
 }
+
+/* Outer frame wrapping all content */
+.story-outer-frame {
+  position: relative;
+  margin: 0 auto;
+}
+.outer-frame-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  z-index: 0;
+}
+.outer-frame-content {
+  position: relative;
+  z-index: 1;
+  padding: 20px 12px;
+}
