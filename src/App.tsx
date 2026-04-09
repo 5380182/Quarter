@@ -805,8 +805,6 @@ export default function App() {
                 <input ref={storyCoverRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryCover} />
                 </div>
                 </div>
-                </div>
-                </div>
                 <div className="story-footer">where our stories live forever</div>
               </div>
             )}
