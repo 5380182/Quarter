@@ -936,255 +936,185 @@ body {
   text-transform: uppercase;
 }
 
-/* ===== Story Collection v4 ===== */
+/* ===== Story Collection v5 ===== */
 .story-page {
   background-image: url('https://i.postimg.cc/0NmRTr47/com-xingin-xhs-20260409131418.png');
   background-size: 300px;
   background-repeat: repeat;
   background-color: #FFF8F3;
 }
-
+.story-page .page-header {
+  background: rgba(255,253,250,0.7) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: none !important;
+}
 .story-page .page-body {
-  padding: 0 20px 40px !important;
+  padding: 0 16px 40px !important;
 }
 
-/* Header decoration */
-.story-header-deco {
+/* Top decoration image */
+.story-top-deco {
+  width: 80px;
+  margin: 12px auto 0;
+  display: block;
+  opacity: 0.7;
+}
+
+/* Title frame - using 070.png as background */
+.story-title-frame {
+  position: relative;
   text-align: center;
-  padding: 24px 0 20px;
+  padding: 30px 20px;
+  margin: 0 auto 8px;
+  max-width: 320px;
 }
-.story-header-deco h2 {
-  font-family: 'Noto Serif SC', serif;
-  font-size: 24px;
+.story-title-frame img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.35;
+  pointer-events: none;
+}
+.story-title-frame h2 {
+  position: relative;
+  z-index: 1;
+  font-family: "Playfair Display", serif;
+  font-size: 28px;
   font-weight: 700;
-  color: #5a3e2b;
-  letter-spacing: 6px;
-}
-.story-header-sub {
-  font-family: 'Caveat', cursive;
-  font-size: 14px;
-  color: #c4a882;
-  margin-top: 6px;
-  letter-spacing: 1px;
   font-style: italic;
+  color: #5a3e2b;
+  letter-spacing: 4px;
 }
-
-/* Lace separator - clean version, no content symbols */
-.story-lace-sep {
-  margin: 20px auto;
-  width: 90%;
-  height: 1px;
-  background: linear-gradient(to right, transparent, rgba(180,150,120,0.3) 20%, rgba(180,150,120,0.3) 80%, transparent);
+.story-title-sub {
   position: relative;
-}
-.story-lace-sep::before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(180,150,120,0.4);
-}
-
-/* ---- STAMP CARD (perforated edges) ---- */
-.stamp-card {
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  margin: 0 4px;
-}
-.stamp-card:active {
-  transform: scale(0.98);
-}
-
-/* The perforated border is made by cutting circles out of a white background layer */
-.stamp-perf {
-  position: relative;
-  background: #FFFCF8;
-  /* Perforation: radial-gradient creates half-circles on all 4 edges */
-  --perf-size: 12px;
-  --perf-color: transparent;
-  padding: var(--perf-size);
-  box-shadow: 0 3px 20px rgba(100,80,60,0.15);
-  /* Top and bottom perforations */
-  background-image:
-    radial-gradient(circle at 50% 0, transparent var(--perf-size), #FFFCF8 calc(var(--perf-size) + 0.5px)),
-    radial-gradient(circle at 50% 100%, transparent var(--perf-size), #FFFCF8 calc(var(--perf-size) + 0.5px));
-  background-size: calc(var(--perf-size) * 2) calc(var(--perf-size) * 2);
-  background-position: 0 0, 0 100%;
-  background-repeat: repeat-x;
-}
-
-/* Use outline to create the actual perforated look - simpler and more reliable */
-.stamp-perf::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle, #FFF8F3 calc(var(--perf-size) - 1px), transparent var(--perf-size)) top center / calc(var(--perf-size)*2) calc(var(--perf-size)*2) repeat-x,
-    radial-gradient(circle, #FFF8F3 calc(var(--perf-size) - 1px), transparent var(--perf-size)) bottom center / calc(var(--perf-size)*2) calc(var(--perf-size)*2) repeat-x,
-    radial-gradient(circle, #FFF8F3 calc(var(--perf-size) - 1px), transparent var(--perf-size)) left center / calc(var(--perf-size)*2) calc(var(--perf-size)*2) repeat-y,
-    radial-gradient(circle, #FFF8F3 calc(var(--perf-size) - 1px), transparent var(--perf-size)) right center / calc(var(--perf-size)*2) calc(var(--perf-size)*2) repeat-y;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.stamp-img-area {
-  width: 100%;
-  height: 200px;
-  background-size: cover;
-  background-position: center;
-  background-color: #e0d5c8;
-  position: relative;
-  overflow: hidden;
-}
-
-.stamp-overlay {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  padding: 24px 16px 16px;
-  background: linear-gradient(to top, rgba(30,20,10,0.65) 0%, transparent 100%);
-}
-.stamp-title {
-  font-family: 'Noto Serif SC', serif;
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 3px;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.4);
-}
-.stamp-desc {
-  font-family: 'LXGW WenKai', serif;
-  font-size: 12px;
-  color: rgba(255,255,255,0.85);
-  margin-top: 5px;
-}
-.stamp-count {
-  font-family: 'Noto Sans SC', sans-serif;
-  font-size: 10px;
-  color: rgba(255,255,255,0.6);
+  z-index: 1;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 13px;
+  font-style: italic;
+  color: #b8a08a;
   margin-top: 4px;
+  letter-spacing: 2px;
 }
 
-/* ---- LACE CARD ---- */
-.lace-card {
+/* Divider line using 046.png */
+.story-divider {
+  width: 60%;
+  max-width: 200px;
+  margin: 12px auto;
+  display: block;
+  opacity: 0.5;
+}
+
+/* Category card - uses frame PNG as overlay */
+.story-cat-card {
   position: relative;
   cursor: pointer;
-  transition: transform 0.15s ease;
-  padding-top: 12px;
+  transition: transform 0.2s ease;
+  margin-bottom: 6px;
 }
-.lace-card:active { transform: scale(0.98); }
-
-/* Outer lace frame */
-.lace-frame {
+.story-cat-card:active {
+  transform: scale(0.97);
+}
+.story-cat-frame {
   position: relative;
-  background: #FFFCF8;
-  border: 1.5px solid rgba(200,175,150,0.4);
-  box-shadow: 0 3px 20px rgba(100,80,60,0.12);
-  padding: 10px;
+  width: 100%;
+  padding: 0;
 }
-/* Inner dashed border */
-.lace-frame::before {
-  content: '';
-  position: absolute;
-  inset: 5px;
-  border: 1px dashed rgba(200,175,150,0.5);
-  pointer-events: none;
-  z-index: 3;
-}
-/* Corner decorations */
-.lace-frame::after {
-  content: '';
+/* The frame image sits on top as overlay */
+.story-cat-frame > .frame-img {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at 0 0, rgba(200,175,150,0.15) 8px, transparent 8px),
-    radial-gradient(circle at 100% 0, rgba(200,175,150,0.15) 8px, transparent 8px),
-    radial-gradient(circle at 0 100%, rgba(200,175,150,0.15) 8px, transparent 8px),
-    radial-gradient(circle at 100% 100%, rgba(200,175,150,0.15) 8px, transparent 8px);
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  z-index: 2;
   pointer-events: none;
 }
-
-/* Bow on top */
-.lace-bow {
-  position: absolute;
-  top: -2px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  width: 40px;
-  height: 14px;
-}
-/* Left loop */
-.lace-bow::before {
-  content: '';
-  position: absolute;
-  right: 50%;
-  top: 0;
-  width: 16px;
-  height: 12px;
-  background: #e8a0a0;
-  border-radius: 50% 0 0 50%;
-  transform: rotate(-15deg);
-  transform-origin: right center;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-}
-/* Right loop */
-.lace-bow::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 16px;
-  height: 12px;
-  background: #e8a0a0;
-  border-radius: 0 50% 50% 0;
-  transform: rotate(15deg);
-  transform-origin: left center;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.lace-img-area {
-  width: 100%;
-  height: 200px;
-  background-size: cover;
-  background-position: center;
-  background-color: #ccd5e0;
+/* Content area behind the frame */
+.story-cat-content {
   position: relative;
-  overflow: hidden;
-}
-
-/* ---- PENDING STAMP ---- */
-.pending-stamp .stamp-img-area {
-  background: linear-gradient(135deg, #f5efe8 0%, #ede4d8 100%);
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 160px;
+  padding: 30px 40px;
+  text-align: center;
+}
+.story-cat-content .cat-name {
+  font-family: "Playfair Display", serif;
+  font-size: 22px;
+  font-weight: 700;
+  font-style: italic;
+  color: #5a3e2b;
+  letter-spacing: 3px;
+}
+.story-cat-content .cat-desc {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 13px;
+  font-style: italic;
+  color: #8a7b6b;
+  margin-top: 6px;
+  letter-spacing: 1px;
+}
+
+/* Big frame for pending/custom */
+.story-big-frame {
+  position: relative;
+  width: 100%;
+}
+.story-big-frame > .frame-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  z-index: 2;
+  pointer-events: none;
+}
+.story-big-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  padding: 30px;
   gap: 8px;
 }
 .pending-plus {
-  font-size: 32px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 36px;
   color: #c4b5a4;
   line-height: 1;
 }
 .pending-text {
-  font-family: 'LXGW WenKai', serif;
-  font-size: 15px;
+  font-family: "Playfair Display", serif;
+  font-size: 14px;
+  font-style: italic;
   color: #b8a08a;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
 }
 
-/* Footer */
+/* Bottom decoration */
+.story-bottom-deco {
+  width: 100px;
+  margin: 16px auto 0;
+  display: block;
+  opacity: 0.6;
+}
+
+/* Footer text */
 .story-footer {
   text-align: center;
-  padding: 20px 0 0;
-  font-family: 'Caveat', cursive;
+  padding: 8px 0 0;
+  font-family: "Cormorant Garamond", serif;
   font-size: 14px;
+  font-style: italic;
   color: #c4b5a4;
   letter-spacing: 2px;
-  font-style: italic;
 }

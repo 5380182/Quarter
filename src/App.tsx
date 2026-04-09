@@ -745,35 +745,43 @@ export default function App() {
           <div className="page-body" style={{padding:'16px 20px'}}>
             {storyView==='categories'&&(
               <div>
-                <div className="story-header-deco"><h2>故事集</h2><div className="story-header-sub">every story begins with once upon a time</div></div>
-                {(()=>{const cat=storyCategories.find(c=>c.id==='fairy');if(!cat)return null;const count=stories.filter(s=>s.category_id===cat.id).length;return(
-                  <div className="stamp-card" onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}}>
-                    <div className="stamp-perf">
-                      <div className="stamp-img-area" style={{backgroundImage:load('story_cover_'+cat.id,'')?'url('+load('story_cover_'+cat.id,'')+')':'none'}}>
-                        <div className="stamp-overlay"><div className="stamp-title">{cat.name}</div><div className="stamp-desc">{cat.description}</div><div className="stamp-count">{count} 篇</div></div>
+                <img className="story-top-deco" src="https://i.postimg.cc/X7pJ8QDh/083.png" alt="" />
+                <div className="story-title-frame">
+                  <img src="https://i.postimg.cc/BvhkMczg/070.png" alt="" />
+                  <h2>Stories</h2>
+                  <div className="story-title-sub">once upon a time, in a place called ours</div>
+                </div>
+                <img className="story-divider" src="https://i.postimg.cc/htWCr3tG/046.png" alt="" />
+                {storyCategories.map((cat,idx)=>{
+                  const count=stories.filter(s=>s.category_id===cat.id).length
+                  const frames=['https://i.postimg.cc/ZnkSxxB3/095.png','https://i.postimg.cc/1t7SVZPX/064.png','https://i.postimg.cc/3rbrd2Jt/082.png','https://i.postimg.cc/tg72C0r3/086.png']
+                  return(
+                    <div key={cat.id}>
+                      <div className="story-cat-card" onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}}>
+                        <div className="story-cat-frame">
+                          <img className="frame-img" src={frames[idx%frames.length]} alt="" />
+                          <div className="story-cat-content">
+                            <div>
+                              <div className="cat-name">{cat.name}</div>
+                              <div className="cat-desc">{cat.description}</div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
+                      <img className="story-divider" src="https://i.postimg.cc/htWCr3tG/046.png" alt="" />
                     </div>
-                  </div>
-                )})()}
-                <div className="story-lace-sep"></div>
-                {(()=>{const cat=storyCategories.find(c=>c.id==='us');if(!cat)return null;const count=stories.filter(s=>s.category_id===cat.id).length;return(
-                  <div className="lace-card" onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}}>
-                    <div className="lace-frame">
-                      <div className="lace-bow"></div>
-                      <div className="lace-img-area" style={{backgroundImage:load('story_cover_'+cat.id,'')?'url('+load('story_cover_'+cat.id,'')+')':'none'}}>
-                        <div className="stamp-overlay"><div className="stamp-title">{cat.name}</div><div className="stamp-desc">{cat.description}</div><div className="stamp-count">{count} 篇</div></div>
-                      </div>
-                    </div>
-                  </div>
-                )})()}
-                <div className="story-lace-sep"></div>
-                <div className="stamp-card pending-stamp" onClick={()=>setShowStoryForm(true)}>
-                  <div className="stamp-perf">
-                    <div className="stamp-img-area">
-                      <div style={{textAlign:'center'}}><div className="pending-plus">+</div><div className="pending-text">篇章待开启</div></div>
+                  )
+                })}
+                <div className="story-cat-card" onClick={()=>setShowStoryForm(true)}>
+                  <div className="story-big-frame">
+                    <img className="frame-img" src="https://i.postimg.cc/SN6yV3Gh/102.png" alt="" />
+                    <div className="story-big-content">
+                      <div className="pending-plus">+</div>
+                      <div className="pending-text">a new chapter awaits</div>
                     </div>
                   </div>
                 </div>
+                <img className="story-bottom-deco" src="https://i.postimg.cc/2SxSjMqy/012.png" alt="" />
                 <div className="story-footer">where our stories live forever</div>
               </div>
             )}
