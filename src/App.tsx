@@ -730,8 +730,8 @@ export default function App() {
         </div>
       )}
       {page==='stories' && (
-        <div className="page-overlay" style={{background:'#FAF8F5'}}>
-          <div className="page-header" style={{background:'rgba(250,248,245,0.95)',borderBottom:'1px solid rgba(0,0,0,0.04)'}}>
+        <div className="page-overlay story-page">
+          <div className="page-header" style={{background:'rgba(255,253,250,0.88)',borderBottom:'1px solid rgba(180,160,140,0.15)',backdropFilter:'blur(10px)'}}>
             <button className="page-back" onClick={()=>{
               if(storyView==='read'){setStoryView('list')}
               else if(storyView==='list'){setStoryView('categories');setStoryCatId(null)}
@@ -748,10 +748,15 @@ export default function App() {
                 {storyCategories.map(cat=>{
                   const count=stories.filter(s=>s.category_id===cat.id).length
                   return(
-                    <div key={cat.id} onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}} style={{background:cat.color,borderRadius:16,padding:'24px 20px',cursor:'pointer',transition:'transform 0.2s',position:'relative',overflow:'hidden'}}>
-                      <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:18,fontWeight:700,color:'#2c2c2c',marginBottom:4}}>{cat.name}</div>
-                      <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:13,color:'rgba(44,44,44,0.6)'}}>{cat.description}</div>
-                      <div style={{position:'absolute',right:20,top:'50%',transform:'translateY(-50%)',fontFamily:"'Noto Sans SC',sans-serif",fontSize:11,color:'rgba(44,44,44,0.35)'}}>{count} 篇</div>
+                    <div key={cat.id} onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}} className="stamp-card" style={{cursor:'pointer'}}>
+                      <div className="stamp-inner">
+                        <div className="stamp-illustration" style={{background:cat.color}}></div>
+                        <div className="stamp-text">
+                          <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:16,fontWeight:700,color:'#4a3728',letterSpacing:1}}>{cat.name}</div>
+                          <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:12,color:'#8a7b6b',marginTop:4}}>{cat.description}</div>
+                          <div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#c4b5a4',marginTop:6}}>{count} 篇</div>
+                        </div>
+                      </div>
                     </div>
                   )
                 })}

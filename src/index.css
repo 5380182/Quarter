@@ -935,3 +935,77 @@ body {
   letter-spacing: 2px;
   text-transform: uppercase;
 }
+
+/* ===== Story Collection Styles ===== */
+.story-page {
+  background-image: url('https://i.postimg.cc/0NmRTr47/com-xingin-xhs-20260409131418.png');
+  background-size: 400px;
+  background-repeat: repeat;
+  background-color: #FFF9F5;
+}
+
+/* Stamp Card */
+.stamp-card {
+  background: #FFFDF8;
+  padding: 6px;
+  border-radius: 2px;
+  box-shadow: 0 2px 12px rgba(120,100,80,0.1), 0 0 0 1px rgba(180,160,130,0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.stamp-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle, transparent 4px, #FFFDF8 4px) -6px -6px / 12px 12px repeat;
+  pointer-events: none;
+  mask:
+    linear-gradient(to right, #000 6px, transparent 6px, transparent calc(100% - 6px), #000 calc(100% - 6px)),
+    linear-gradient(to bottom, #000 6px, transparent 6px, transparent calc(100% - 6px), #000 calc(100% - 6px));
+  -webkit-mask-composite: source-over;
+  mask-composite: add;
+}
+
+.stamp-card:active {
+  transform: scale(0.97);
+}
+
+.stamp-inner {
+  border: 1px solid rgba(180,160,130,0.25);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.stamp-illustration {
+  width: 100%;
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.stamp-illustration::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 60%, rgba(255,253,248,0.8) 100%);
+}
+
+.stamp-text {
+  padding: 14px 16px 16px;
+  text-align: center;
+  background: #FFFDF8;
+}
+
+/* Lace divider */
+.lace-divider {
+  width: 100%;
+  height: 20px;
+  background-image:
+    radial-gradient(circle at 50% 0%, transparent 8px, rgba(180,160,140,0.12) 8px, rgba(180,160,140,0.12) 9px, transparent 9px);
+  background-size: 20px 20px;
+  background-repeat: repeat-x;
+  margin: 8px 0;
+}
