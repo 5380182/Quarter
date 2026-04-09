@@ -777,7 +777,7 @@ export default function App() {
                 <div className="story-footer">where our stories live forever</div>
               </div>
             )}
-            storyView==='list'&&(
+            {storyView==='list'&&(
               <div style={{display:'flex',flexDirection:'column',gap:12}}>
                 {stories.filter(s=>s.category_id===storyCatId).length===0?(
                   <div style={{textAlign:'center',padding:'60px 20px',color:'#b0a898',fontSize:13,fontFamily:"'LXGW WenKai',serif"}}>还没有故事</div>
