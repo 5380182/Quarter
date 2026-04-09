@@ -761,9 +761,6 @@ export default function App() {
           <div className="page-body" style={{padding:'16px 20px'}}>
             {storyView==='categories'&&(
               <div>
-                <div className="story-outer-frame">
-                  <img className="outer-frame-img" src="https://i.postimg.cc/k58RyfD4/085.png" alt="" />
-                  <div className="outer-frame-content">
                 <img className="story-top-deco" src="https://i.postimg.cc/X7pJ8QDh/083.png" alt="" />
                 <div className="story-title-frame">
                   <img src="https://i.postimg.cc/BvhkMczg/070.png" alt="" />
@@ -803,8 +800,6 @@ export default function App() {
                 <div style={{textAlign:"center",marginTop:12}}><button onClick={()=>storyBgRef.current?.click()} style={{background:"none",border:"1px dashed rgba(180,150,120,0.4)",borderRadius:8,padding:"8px 16px",fontSize:11,color:"#b8a08a",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",letterSpacing:1}}>change wallpaper</button></div>
                 <input ref={storyBgRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryBg} />
                 <input ref={storyCoverRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryCover} />
-                </div>
-                </div>
                 <div className="story-footer">where our stories live forever</div>
               </div>
             )}

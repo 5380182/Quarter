@@ -943,6 +943,18 @@ body {
   background-repeat: repeat;
   background-color: #FFF8F3;
 }
+.story-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('https://i.postimg.cc/SN6yV3Gh/102.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.85;
+}
 .story-page .page-header {
   background: rgba(255,253,250,0.7) !important;
   backdrop-filter: blur(12px) !important;
