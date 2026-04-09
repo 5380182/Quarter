@@ -221,16 +221,8 @@ export default function App() {
     {id:'fish1',category_id:'fairy',title:'鱼和树',author:'kk',summary:'一条鱼和一棵树的故事',sort_order:2,created_at:'2026-04-05T00:00:00Z'}
   ]))
   const [chapters, setChapters] = useState<Chapter[]>(() => load('chapters', [
-    {id:'deer1_ch1',story_id:'deer1',chapter_number:1,title:'第一夜',content:'从前有一只小鹿，她迷路了。树林很大，月亮很亮，但她找不到回家的路。
-
-她走啊走，走到一棵很大的树下面。树上有一只猴子，猴子说：“你迷路了吗？”
-
-小鹿说：“我不知道家在哪里。”
-
-猴子说：“那你就在这里住一晚吧。明天我带你找。”',created_at:'2026-04-03T00:00:00Z'},
-    {id:'fish1_ch1',story_id:'fish1',chapter_number:1,title:'第一章',content:'河底有一条鱼，河边有一棵树。
-
-鱼每天都能看到树的倒影，但树看不到鱼。',created_at:'2026-04-05T00:00:00Z'}
+    {id:'deer1_ch1',story_id:'deer1',chapter_number:1,title:'第一夜',content:'从前有一只小鹿，她迷路了。树林很大，月亮很亮，但她找不到回家的路。\n\n她走啊走，走到一棵很大的树下面。树上有一只猴子，猴子说：你迷路了吗？\n\n小鹿说：我不知道家在哪里。\n\n猴子说：那你就在这里住一晚吧。明天我带你找。',created_at:'2026-04-03T00:00:00Z'},
+    {id:'fish1_ch1',story_id:'fish1',chapter_number:1,title:'第一章',content:'河底有一条鱼，河边有一棵树。\n\n鱼每天都能看到树的倒影，但树看不到鱼。',created_at:'2026-04-05T00:00:00Z'}
   ]))
   const [showStoryForm, setShowStoryForm] = useState(false)
   const [newStoryTitle, setNewStoryTitle] = useState('')
