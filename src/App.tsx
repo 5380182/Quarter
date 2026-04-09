@@ -228,6 +228,38 @@ export default function App() {
   const [newStoryTitle, setNewStoryTitle] = useState('')
   const [newStoryContent, setNewStoryContent] = useState('')
   const [newStoryCat, setNewStoryCat] = useState('')
+  const [storyBg, setStoryBg] = useState<string>(() => load('story_bg', ''))
+  const storyBgRef = useRef<HTMLInputElement>(null)
+  const storyCoverRef = useRef<HTMLInputElement>(null)
+  const [editingCover, setEditingCover] = useState<string|null>(null)
+  const handleStoryBg = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => { const u = reader.result as string; setStoryBg(u); save('story_bg', u) }
+    reader.readAsDataURL(file)
+  }
+  const handleStoryCover = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file || !editingCover) return
+    const reader = new FileReader()
+    reader.onload = () => { const u = reader.result as string; save('story_cover_' + editingCover, u); setEditingCover(null) }
+    reader.readAsDataURL(file)
+  }
+  const [storyBg, setStoryBg] = useState<string>(() => load('story_bg', ''))
+  const storyBgRef = useRef<HTMLInputElement>(null)
+  const storyCoverRef = useRef<HTMLInputElement>(null)
+  const [editingCover, setEditingCover] = useState<string|null>(null)
+  const handleStoryBg = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => { const u = reader.result as string; setStoryBg(u); save('story_bg', u) }
+    reader.readAsDataURL(file)
+  }
+  const handleStoryCover = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file || !editingCover) return
+    const reader = new FileReader()
+    reader.onload = () => { const u = reader.result as string; save('story_cover_' + editingCover, u); setEditingCover(null) }
+    reader.readAsDataURL(file)
+  }
 
 
   // Icon editor
@@ -730,7 +762,7 @@ export default function App() {
         </div>
       )}
       {page==='stories' && (
-        <div className="page-overlay story-page">
+        <div className="page-overlay story-page" style={storyBg?{backgroundImage:`url(${storyBg})`,backgroundSize:"300px",backgroundRepeat:"repeat"}:{}}>
           <div className="page-header" style={{background:'rgba(255,253,250,0.88)',borderBottom:'1px solid rgba(180,160,140,0.15)',backdropFilter:'blur(10px)'}}>
             <button className="page-back" onClick={()=>{
               if(storyView==='read'){setStoryView('list')}
@@ -781,6 +813,12 @@ export default function App() {
                   </div>
                 </div>
                 <img className="story-bottom-deco" src="https://i.postimg.cc/2SxSjMqy/012.png" alt="" />
+                <div style={{textAlign:"center",marginTop:12}}><button onClick={()=>storyBgRef.current?.click()} style={{background:"none",border:"1px dashed rgba(180,150,120,0.4)",borderRadius:8,padding:"8px 16px",fontSize:11,color:"#b8a08a",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",letterSpacing:1}}>change wallpaper</button></div>
+                <input ref={storyBgRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryBg} />
+                <input ref={storyCoverRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryCover} />
+                <div style={{textAlign:"center",marginTop:12}}><button onClick={()=>storyBgRef.current?.click()} style={{background:"none",border:"1px dashed rgba(180,150,120,0.4)",borderRadius:8,padding:"8px 16px",fontSize:11,color:"#b8a08a",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",letterSpacing:1}}>change wallpaper</button></div>
+                <input ref={storyBgRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryBg} />
+                <input ref={storyCoverRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryCover} />
                 <div className="story-footer">where our stories live forever</div>
               </div>
             )}
