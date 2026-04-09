@@ -784,8 +784,7 @@ export default function App() {
                 <div style={{minHeight:'70vh'}}>
                   <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,color:'var(--accent)',marginBottom:6,fontWeight:500}}>{ch.title}</div>
                   <div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:14,color:'#3c3c3c',lineHeight:'2.2',letterSpacing:'0.5px'}}>
-                    {ch.content.split('
-').map((p,i)=><p key={i} style={{textIndent:'2em',margin:'0 0 8px 0'}}>{p}</p>)}
+                    {ch.content.split('\n').map((p,i)=><p key={i} style={{textIndent:'2em',margin:'0 0 8px 0'}}>{p}</p>)}
                   </div>
                   <div style={{display:'flex',justifyContent:'space-between',marginTop:40,paddingTop:20,borderTop:'1px solid rgba(0,0,0,0.06)'}}>
                     {storyChIdx>0?<button onClick={()=>setStoryChIdx(storyChIdx-1)} style={{background:'none',border:'1px solid rgba(0,0,0,0.1)',borderRadius:8,padding:'8px 20px',fontSize:12,color:'#666',cursor:'pointer',fontFamily:"'Noto Sans SC',sans-serif"}}>上一章</button>:<div/>}
