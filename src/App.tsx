@@ -244,22 +244,6 @@ export default function App() {
     reader.onload = () => { const u = reader.result as string; save('story_cover_' + editingCover, u); setEditingCover(null) }
     reader.readAsDataURL(file)
   }
-  const [storyBg, setStoryBg] = useState<string>(() => load('story_bg', ''))
-  const storyBgRef = useRef<HTMLInputElement>(null)
-  const storyCoverRef = useRef<HTMLInputElement>(null)
-  const [editingCover, setEditingCover] = useState<string|null>(null)
-  const handleStoryBg = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => { const u = reader.result as string; setStoryBg(u); save('story_bg', u) }
-    reader.readAsDataURL(file)
-  }
-  const handleStoryCover = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file || !editingCover) return
-    const reader = new FileReader()
-    reader.onload = () => { const u = reader.result as string; save('story_cover_' + editingCover, u); setEditingCover(null) }
-    reader.readAsDataURL(file)
-  }
 
 
   // Icon editor
@@ -813,9 +797,6 @@ export default function App() {
                   </div>
                 </div>
                 <img className="story-bottom-deco" src="https://i.postimg.cc/2SxSjMqy/012.png" alt="" />
-                <div style={{textAlign:"center",marginTop:12}}><button onClick={()=>storyBgRef.current?.click()} style={{background:"none",border:"1px dashed rgba(180,150,120,0.4)",borderRadius:8,padding:"8px 16px",fontSize:11,color:"#b8a08a",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",letterSpacing:1}}>change wallpaper</button></div>
-                <input ref={storyBgRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryBg} />
-                <input ref={storyCoverRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryCover} />
                 <div style={{textAlign:"center",marginTop:12}}><button onClick={()=>storyBgRef.current?.click()} style={{background:"none",border:"1px dashed rgba(180,150,120,0.4)",borderRadius:8,padding:"8px 16px",fontSize:11,color:"#b8a08a",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",letterSpacing:1}}>change wallpaper</button></div>
                 <input ref={storyBgRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryBg} />
                 <input ref={storyCoverRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryCover} />
