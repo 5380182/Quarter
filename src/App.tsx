@@ -502,7 +502,7 @@ export default function App() {
     <>
       <div className="wallpaper" style={wpStyle} />
       <div className="shell">
-        <div className="status-bar"><span>{time}</span><span style={{letterSpacing:'1px'}}>Quarter</span></div>
+        <div className="status-bar"><span>{time}</span><span style={{letterSpacing:'1px'}}>{page || 'Quarter'}</span></div>
         <div className="desktop">
           <div className="desktop-header"><h1>Quarter</h1><div className="subtitle">四分之一英寸的距离</div></div>
           <div className="glass countdown-card">
