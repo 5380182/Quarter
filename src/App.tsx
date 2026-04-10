@@ -807,13 +807,43 @@ export default function App() {
         </div>
       )}
       {page==='storybook' && (
-        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:'#ff4d6d',display:'flex',flexDirection:'column'}}>
-          <div style={{height:56,display:'flex',alignItems:'center',gap:12,padding:'0 16px',background:'#ffffff',color:'#111',fontWeight:700}}>
-            <button style={{border:'none',background:'transparent',fontSize:18,cursor:'pointer'}} onClick={()=>setPage(null)}>←</button>
-            <span>故事集 TEST</span>
+        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:'#fff8f3',display:'flex',flexDirection:'column',overflow:'auto'}}>
+          <div style={{height:56,display:'flex',alignItems:'center',gap:12,padding:'0 16px',background:'rgba(255,253,250,0.96)',color:'#5a3e2b',fontWeight:700,borderBottom:'1px solid rgba(160,130,110,0.12)',flexShrink:0}}>
+            <button style={{border:'none',background:'transparent',fontSize:18,cursor:'pointer',color:'#5a3e2b'}} onClick={()=>setPage(null)}>←</button>
+            <span style={{fontFamily:"'Noto Serif SC',serif"}}>故事集</span>
           </div>
-          <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:28,fontWeight:800,textAlign:'center',padding:24}}>
-            storybook page is rendering
+          <div style={{padding:'18px 16px 28px',display:'flex',flexDirection:'column',gap:12}}>
+            <div style={{textAlign:'center',padding:'8px 0 2px'}}>
+              <div style={{fontFamily:'Playfair Display, serif',fontSize:28,fontWeight:700,fontStyle:'italic',color:'#5a3e2b'}}>Stories</div>
+              <div style={{fontFamily:'Cormorant Garamond, serif',fontSize:13,fontStyle:'italic',letterSpacing:1,color:'#b08f76'}}>once upon a time, in a place called ours</div>
+            </div>
+            {storyView==='categories' && safeStoryCategories.map((cat)=>{
+              const count = safeStories.filter(st=>st.category_id===cat.id).length
+              const cover = cat.cover
+              return (
+                <div key={cat.id} onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}} style={{position:'relative',borderRadius:20,overflow:'hidden',minHeight:140,background:cat.color||'#eadfd6',border:'1px solid rgba(160,130,110,0.08)',boxShadow:'0 8px 24px rgba(90,62,43,0.06)',cursor:'pointer'}}>
+                  {cover && <img src={cover} alt='' style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}} />}
+                  <div style={{position:'relative',zIndex:1,minHeight:140,display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'18px 18px 16px',background:cover?'linear-gradient(to top, rgba(255,248,243,0.92), rgba(255,248,243,0.28))':'transparent'}}>
+                    <div>
+                      <div style={{fontFamily:'Playfair Display, serif',fontSize:24,fontWeight:700,fontStyle:'italic',color:'#5a3e2b'}}>{cat.name}</div>
+                      <div style={{fontFamily:'Cormorant Garamond, serif',fontSize:14,color:'#8c7562',marginTop:4}}>{cat.description}</div>
+                    </div>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:12}}>
+                      <div style={{fontFamily:'Cormorant Garamond, serif',fontSize:12,letterSpacing:1,color:'#a58a74'}}>{count} stories</div>
+                      <button onClick={(e)=>{e.stopPropagation();setEditingCover(cat.id);storyCoverRef.current?.click()}} style={{border:'1px dashed rgba(160,130,110,0.35)',background:'rgba(255,251,247,0.88)',color:'#9c8268',borderRadius:999,padding:'6px 12px',fontSize:11,fontFamily:'Cormorant Garamond, serif'}}>upload cover</button>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+            {storyView==='categories' && <div onClick={()=>setShowStoryForm(true)} style={{borderRadius:20,minHeight:120,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',background:'rgba(236,225,215,0.65)',border:'1px dashed rgba(160,130,110,0.25)',color:'#b08f76',cursor:'pointer'}}><div style={{fontSize:32,lineHeight:1,fontFamily:'Cormorant Garamond, serif'}}>+</div><div style={{fontFamily:'Playfair Display, serif',fontSize:13,fontStyle:'italic',marginTop:6}}>begin a new chapter</div></div>}
+            {storyView==='list' && <div style={{display:'flex',flexDirection:'column',gap:12}}>{safeStories.filter(s=>s.category_id===storyCatId).length===0?<div style={{textAlign:'center',padding:'60px 20px',color:'#b0a898',fontSize:13,fontFamily:"'LXGW WenKai',serif"}}>还没有故事</div>:safeStories.filter(s=>s.category_id===storyCatId).sort((a,b)=>a.sort_order-b.sort_order).map(s=><div key={s.id} onClick={()=>{setStoryId(s.id);setStoryChIdx(0);setStoryView('read')}} style={{background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px',cursor:'pointer',border:'1px solid rgba(0,0,0,0.05)',boxShadow:'0 8px 24px rgba(90,62,43,0.04)'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:16,fontWeight:600,color:'#2c2c2c'}}>{s.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#bbb'}}>{safeChapters.filter(c=>c.story_id===s.id).length}章</div></div>{s.summary&&<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:12,color:'#999',marginTop:6,lineHeight:'1.6'}}>{s.summary}</div>}<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#ccc',marginTop:8}}>{s.author==='kk'?'kk':'厌厌'} · {new Date(s.created_at).toLocaleDateString('zh-CN')}</div></div>)}</div>}
+            {storyView==='read' && (()=>{ const chs=safeChapters.filter(c=>c.story_id===storyId).sort((a,b)=>a.chapter_number-b.chapter_number); const ch=chs[storyChIdx]; if(!ch)return <div style={{textAlign:'center',padding:40,color:'#999'}}>没有章节</div>; return <div style={{background:'rgba(255,252,248,0.94)',borderRadius:18,padding:'18px 16px 22px',border:'1px solid rgba(160,130,110,0.08)',boxShadow:'0 8px 24px rgba(90,62,43,0.06)'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,color:'var(--accent)',marginBottom:6,fontWeight:500}}>{ch.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:14,color:'#3c3c3c',lineHeight:'2.2',letterSpacing:'0.5px'}}>{ch.content.split('\n').map((p,i)=><p key={i} style={{textIndent:'2em',margin:'0 0 8px 0'}}>{p}</p>)}</div><div style={{display:'flex',justifyContent:'space-between',marginTop:40,paddingTop:20,borderTop:'1px solid rgba(0,0,0,0.06)'}}>{storyChIdx>0?<button onClick={()=>setStoryChIdx(storyChIdx-1)} style={{background:'none',border:'1px solid rgba(0,0,0,0.1)',borderRadius:8,padding:'8px 20px',fontSize:12,color:'#666',cursor:'pointer'}}>上一章</button>:<div/>}{storyChIdx<chs.length-1&&<button onClick={()=>setStoryChIdx(storyChIdx+1)} style={{background:'var(--accent)',border:'none',borderRadius:8,padding:'8px 20px',fontSize:12,color:'white',cursor:'pointer'}}>下一章</button>}</div></div>})()}
+            <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap'}}>
+              <button onClick={()=>storyBgRef.current?.click()} style={{background:'none',border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'8px 16px',fontSize:11,color:'#b8a08a',cursor:'pointer',fontFamily:'Cormorant Garamond, serif',fontStyle:'italic',letterSpacing:1}}>change wallpaper</button>
+            </div>
+            <input ref={storyBgRef} type='file' accept='image/*' style={{display:'none'}} onChange={handleStoryBg} />
+            <input ref={storyCoverRef} type='file' accept='image/*' style={{display:'none'}} onChange={handleStoryCover} />
           </div>
         </div>
       )}
