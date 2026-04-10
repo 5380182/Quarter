@@ -807,9 +807,8 @@ export default function App() {
         </div>
       )}
       {page==='storybook' && (
-        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:storyBg?`url(${storyBg}) center/${safeStoryBgSize==='repeat'?'300px auto':safeStoryBgSize} ${safeStoryBgSize==='repeat'?'repeat':'no-repeat'}`:'#fff8f3',display:'flex',flexDirection:'column',overflow:'auto'}}>
-          <div style={{position:'absolute',inset:0,background:'rgba(255,248,243,0.72)',pointerEvents:'none'}} />
-          <div style={{position:'absolute',inset:'14px 10px 10px',background:`url(https://i.postimg.cc/SN6yV3Gh/102.png) center/100% 100% no-repeat`,pointerEvents:'none',opacity:0.96}} />
+        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:storyBg?(safeStoryBgSize==='repeat'?`url(${storyBg}) center/300px auto repeat`:`url(${storyBg}) center/${safeStoryBgSize} no-repeat`):'#fff8f3',display:'flex',flexDirection:'column',overflow:'auto'}}>
+          <div style={{position:'fixed',inset:0,background:`url(https://i.postimg.cc/SN6yV3Gh/102.png) center/cover no-repeat`,pointerEvents:'none',opacity:1}} />
           <div style={{height:56,display:'flex',alignItems:'center',gap:12,padding:'0 16px',background:'rgba(255,253,250,0.9)',color:'#5a3e2b',fontWeight:700,borderBottom:'1px solid rgba(160,130,110,0.12)',flexShrink:0,position:'relative',zIndex:2}}>
             <button style={{border:'none',background:'transparent',fontSize:18,cursor:'pointer',color:'#5a3e2b'}} onClick={()=>setPage(null)}>←</button>
             <span style={{fontFamily:"'Noto Serif SC',serif"}}>故事集</span>
