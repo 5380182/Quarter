@@ -223,6 +223,7 @@ export default function App() {
   const [newStoryContent, setNewStoryContent] = useState('')
   const [newStoryCat, setNewStoryCat] = useState('')
   const [storyBg, setStoryBg] = useState<string>(() => load('story_bg', ''))
+  const [storyReadBg, setStoryReadBg] = useState<string>(() => load('story_read_bg', ''))
   const [storyBgSize, setStoryBgSize] = useState<'cover'|'contain'|'repeat'>(() => load('story_bg_size', 'repeat'))
   const storyBgRef = useRef<HTMLInputElement>(null)
   const storyCoverRef = useRef<HTMLInputElement>(null)
@@ -234,7 +235,16 @@ export default function App() {
   const handleStoryBg = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return
     const reader = new FileReader()
-    reader.onload = () => { const u = reader.result as string; setStoryBg(u); save('story_bg', u) }
+    reader.onload = () => {
+      const u = reader.result as string
+      if (storyView === 'read') {
+        setStoryReadBg(u)
+        save('story_read_bg', u)
+      } else {
+        setStoryBg(u)
+        save('story_bg', u)
+      }
+    }
     reader.readAsDataURL(file)
   }
   const handleStoryCover = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -890,7 +900,7 @@ if (!Array.isArray(stories)) {
         </div>
       )}
       {page==='storybook' && (
-        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:storyBg?(safeStoryBgSize==='repeat'?`url(${storyBg}) center/300px auto repeat`:`url(${storyBg}) center/${safeStoryBgSize} no-repeat`):'#fff8f3',display:'flex',flexDirection:'column',height:'100dvh',overflow:'hidden'}}>
+        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:(storyView==='read' ? (storyReadBg || storyBg) : storyBg)?(safeStoryBgSize==='repeat'?`url(${storyView==='read' ? (storyReadBg || storyBg) : storyBg}) center/300px auto repeat`:`url(${storyView==='read' ? (storyReadBg || storyBg) : storyBg}) center/${safeStoryBgSize} no-repeat`):'#fff8f3',display:'flex',flexDirection:'column',height:'100dvh',overflow:'hidden'}}>
           <div style={{height:56,display:'flex',alignItems:'center',gap:12,padding:'0 16px',background:'rgba(255,253,250,0.9)',color:'#5a3e2b',fontWeight:700,borderBottom:'1px solid rgba(160,130,110,0.12)',flexShrink:0,position:'relative',zIndex:2}}>
             <button style={{border:'none',background:'transparent',fontSize:18,cursor:'pointer',color:'#5a3e2b'}} onClick={()=>{if(storyView==='read'){setStoryView('list')}else if(storyView==='list'){setStoryView('categories');setStoryCatId(null)}else{setPage(null)}}}>←</button>
             <span style={{fontFamily:"'Noto Serif SC',serif"}}>{storyView==='categories'?'故事集':storyView==='list'?(safeStoryCategories.find(c=>c.id===storyCatId)?.name||'故事集'):(safeStories.find(s=>s.id===storyId)?.title||'故事集')}</span>
