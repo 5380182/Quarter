@@ -266,13 +266,19 @@ export default function App() {
     const next = [...safeStoryCategories, cat]
     setStoryCategories(next)
     save('story_cats', next)
-const createSeriesStory = () => {
+    setNewStoryCat('')
+    setNewStoryTitle('')
+    setNewStoryContent('')
+    setShowStoryForm(false)
+  }
+
+  const createSeriesStory = () => {
     const title = newStoryTitle.trim()
     if (!title || !storyCatId) return
-    const id = 'story_' + Date.now()
+    const storyIdNew = 'story_' + Date.now()
     const categoryStories = safeStories.filter(st => st.category_id === storyCatId)
     const story: Story = {
-      id,
+      id: storyIdNew,
       category_id: storyCatId,
       title,
       author: identity,
@@ -280,14 +286,26 @@ const createSeriesStory = () => {
       sort_order: categoryStories.length + 1,
       created_at: new Date().toISOString()
     }
-    const next = [...safeStories, story]
-    setStories(next)
-    save('stories', next)
+    const nextStories = [...safeStories, story]
+    const firstChapter: Chapter = {
+      id: 'chapter_' + Date.now(),
+      story_id: storyIdNew,
+      chapter_number: 1,
+      title: '第一篇',
+      content: (newStoryContent.trim() || '新的故事开始了。'),
+      created_at: new Date().toISOString()
+    }
+    const nextChapters = [...safeChapters, firstChapter]
+    setStories(nextStories)
+    setChapters(nextChapters)
+    save('stories', nextStories)
+    save('chapters', nextChapters)
     setNewStoryTitle('')
     setNewStoryContent('')
     setNewStoryCat('')
     setShowStoryForm(false)
   }
+
   const createChapter = () => {
     const title = newStoryTitle.trim()
     const content = newStoryContent.trim()
@@ -310,11 +328,7 @@ const createSeriesStory = () => {
     setNewStoryCat('')
     setShowStoryForm(false)
   }
-    setNewStoryTitle('')
-    setNewStoryContent('')
-    setNewStoryCat('')
-    setShowStoryForm(false)
-  }
+
   const deleteStoryCategory = (id: string) => {
     const nextCats = safeStoryCategories.filter(cat => cat.id !== id)
     const nextStories = safeStories.filter(st => st.category_id !== id)
