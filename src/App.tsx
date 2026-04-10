@@ -807,13 +807,12 @@ export default function App() {
         </div>
       )}
       {page==='storybook' && (
-        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:storyBg?(safeStoryBgSize==='repeat'?`url(${storyBg}) center/300px auto repeat`:`url(${storyBg}) center/${safeStoryBgSize} no-repeat`):'#fff8f3',display:'flex',flexDirection:'column',overflow:'auto'}}>
-          <div style={{position:'fixed',inset:0,background:`url(https://i.postimg.cc/SN6yV3Gh/102.png) center/cover no-repeat`,pointerEvents:'none',opacity:1}} />
+        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:storyBg?(safeStoryBgSize==='repeat'?`url(${storyBg}) center/300px auto repeat`:`url(${storyBg}) center/${safeStoryBgSize} no-repeat`):'#fff8f3',display:'flex',flexDirection:'column',height:'100dvh',overflow:'hidden'}}>
           <div style={{height:56,display:'flex',alignItems:'center',gap:12,padding:'0 16px',background:'rgba(255,253,250,0.9)',color:'#5a3e2b',fontWeight:700,borderBottom:'1px solid rgba(160,130,110,0.12)',flexShrink:0,position:'relative',zIndex:2}}>
-            <button style={{border:'none',background:'transparent',fontSize:18,cursor:'pointer',color:'#5a3e2b'}} onClick={()=>setPage(null)}>←</button>
-            <span style={{fontFamily:"'Noto Serif SC',serif"}}>故事集</span>
+            <button style={{border:'none',background:'transparent',fontSize:18,cursor:'pointer',color:'#5a3e2b'}} onClick={()=>{if(storyView==='read'){setStoryView('list')}else if(storyView==='list'){setStoryView('categories');setStoryCatId(null)}else{setPage(null)}}}>←</button>
+            <span style={{fontFamily:"'Noto Serif SC',serif"}}>{storyView==='categories'?'故事集':storyView==='list'?(safeStoryCategories.find(c=>c.id===storyCatId)?.name||'故事集'):(safeStories.find(s=>s.id===storyId)?.title||'故事集')}</span>
           </div>
-          <div style={{padding:'18px 16px 28px',display:'flex',flexDirection:'column',gap:12,position:'relative',zIndex:2}}>
+          <div style={{padding:'18px 16px 28px',display:'flex',flexDirection:'column',gap:12,position:'relative',zIndex:2,overflowY:'auto',flex:1}}>
             {storyView==='categories' && <>
               <img src='https://i.postimg.cc/X7pJ8QDh/083.png' alt='' style={{width:82,display:'block',margin:'0 auto 2px'}} />
               <div style={{position:'relative',maxWidth:320,margin:'0 auto 4px'}}>
@@ -857,12 +856,12 @@ export default function App() {
                 </div>
               )
             })}
-            {storyView==='categories' && <div onClick={()=>setShowStoryForm(true)} style={{position:'relative',cursor:'pointer'}}>
+            {storyView==='categories' && <div onClick={()=>setShowStoryForm(true)} style={{position:'relative',cursor:'pointer',minHeight:140}}>
               <img src='https://i.postimg.cc/tg72C0r3/086.png' alt='' style={{width:'100%',display:'block'}} />
-              <div style={{position:'absolute',inset:'20% 18%',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',color:'#b08f76'}}>
+              <button onClick={(e)=>{e.stopPropagation();setShowStoryForm(true)}} style={{position:'absolute',inset:'20% 18%',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',color:'#b08f76',background:'transparent',border:'none',width:'64%',height:'54%',cursor:'pointer'}}>
                 <div style={{fontSize:32,lineHeight:1,fontFamily:'Cormorant Garamond, serif'}}>+</div>
                 <div style={{fontFamily:'Playfair Display, serif',fontSize:13,fontStyle:'italic',marginTop:6}}>begin a new chapter</div>
-              </div>
+              </button>
             </div>}
             {storyView==='categories' && <img src='https://i.postimg.cc/2SxSjMqy/012.png' alt='' style={{width:90,display:'block',margin:'8px auto 0'}} />}
             {storyView==='list' && <div style={{display:'flex',flexDirection:'column',gap:12}}>{safeStories.filter(s=>s.category_id===storyCatId).length===0?<div style={{textAlign:'center',padding:'60px 20px',color:'#b0a898',fontSize:13,fontFamily:"'LXGW WenKai',serif"}}>还没有故事</div>:safeStories.filter(s=>s.category_id===storyCatId).sort((a,b)=>a.sort_order-b.sort_order).map(s=><div key={s.id} onClick={()=>{setStoryId(s.id);setStoryChIdx(0);setStoryView('read')}} style={{background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px',cursor:'pointer',border:'1px solid rgba(0,0,0,0.05)',boxShadow:'0 8px 24px rgba(90,62,43,0.04)'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:16,fontWeight:600,color:'#2c2c2c'}}>{s.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#bbb'}}>{safeChapters.filter(c=>c.story_id===s.id).length}章</div></div>{s.summary&&<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:12,color:'#999',marginTop:6,lineHeight:'1.6'}}>{s.summary}</div>}<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#ccc',marginTop:8}}>{s.author==='kk'?'kk':'厌厌'} · {new Date(s.created_at).toLocaleDateString('zh-CN')}</div></div>)}</div>}
