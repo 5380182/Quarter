@@ -106,7 +106,7 @@ const appDefs = [
   { id: 'songs', name: '共享歌单', Icon: MusicNotes, color: '#8b7db0' },
   { id: 'bill', name: '每日账单', Icon: Receipt, color: '#6b8fa3' },
   { id: 'checklist', name: '清单', Icon: ListChecks, color: '#7da07d' },
-  { id: 'stories', name: '故事集', Icon: BookBookmark, color: '#a07d7d', targetPage: 'bill' },
+  { id: 'stories', name: '故事集', Icon: BookBookmark, color: '#a07d7d', targetPage: 'storyhome' },
   { id: 'memories', name: '回忆墙', Icon: Camera, color: '#9a8c7d' },
   { id: 'room', name: '小窝', Icon: House, color: '#b07d9a' },
   { id: 'wish', name: '许愿', Icon: Star, color: '#c4a35a' },
@@ -806,7 +806,7 @@ export default function App() {
           </div>
         </div>
       )}
-      {page==='stories' && (
+      {page==='storyhome' && (
         <div className="page-overlay story-page" style={{zIndex: 9999, background:'#fffdfb'}}>
           <div className="page-header" style={{position:'relative', zIndex:10000, background:'#fffdfb'}}>
             <button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button>
@@ -815,13 +815,13 @@ export default function App() {
           <div className="page-body" style={{position:'relative', zIndex:10000}}>
             <div style={{background:'rgba(255,255,255,0.95)',borderRadius:16,padding:20,border:'1px solid rgba(0,0,0,0.06)'}}>
               <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:22,fontWeight:700,marginBottom:10,color:'#5a3e2b'}}>Stories</div>
-              <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,lineHeight:'1.9',color:'#666'}}>故事集页面骨架测试成功。</div>
-              <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,lineHeight:'1.9',color:'#666'}}>如果你现在能打开，说明之前是层级或样式压住了。</div>
+              <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,lineHeight:'1.9',color:'#666'}}>新的故事集路由测试页。</div>
+              <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,lineHeight:'1.9',color:'#666'}}>如果你现在能打开，说明坏的是旧的 stories 分支键，不是图标，不是入口。</div>
             </div>
           </div>
         </div>
       )}
-      {page && !['journal','settings','checklist','bill','stories'].includes(page) && (
+      {page && !['journal','settings','checklist','bill','stories','storyhome'].includes(page) && (
         <div className="page-overlay">
           <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">{appDefs.find(a=>a.id===page)?.name||page}</span></div>
           <div className="page-body"><div className="empty"><div className="empty-icon">✨</div><div className="empty-text">即将上线...</div></div></div>
