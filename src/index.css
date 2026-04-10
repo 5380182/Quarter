@@ -938,22 +938,31 @@ body {
 
 /* ===== Story Collection v5.1 ===== */
 .story-page {
+  position: relative;
+  isolation: isolate;
   background-image: url('https://i.postimg.cc/0NmRTr47/com-xingin-xhs-20260409131418.png');
   background-size: 300px;
   background-repeat: repeat;
   background-color: #FFF8F3;
 }
-.story-page::before {
-  content: '';
+.story-global-frame {
   position: fixed;
   inset: 0;
   background-image: url('https://i.postimg.cc/SN6yV3Gh/102.png');
-  background-size: contain;
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.85;
+  opacity: 0.95;
+}
+.story-page .page-header,
+.story-page .page-body {
+  position: relative;
+  z-index: 2;
+}
+.story-page.story-reading-mode .page-body {
+  padding: 12px 16px 28px !important;
 }
 .story-page .page-header {
   background: rgba(255,253,250,0.7) !important;
@@ -1013,6 +1022,85 @@ body {
   text-align: center;
   width: 70%;
 }
+.story-cat-cover-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 18px;
+}
+.story-cat-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.92) brightness(0.98);
+}
+.story-cat-text-layer {
+  position: relative;
+  z-index: 1;
+  background: rgba(255,248,243,0.72);
+  border-radius: 14px;
+  padding: 12px 14px;
+  backdrop-filter: blur(4px);
+}
+.story-upload-btn {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+  border: 1px dashed rgba(180,150,120,0.5);
+  background: rgba(255,251,247,0.92);
+  color: #9c8268;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  font-family: "Cormorant Garamond", serif;
+}
+.cat-meta {
+  margin-top: 6px;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  color: #a78f79;
+  font-family: "Cormorant Garamond", serif;
+}
+.story-tools-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.story-mini-btn {
+  background: none;
+  border: 1px dashed rgba(180,150,120,0.4);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 11px;
+  color: #b8a08a;
+  cursor: pointer;
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+.story-reading-card {
+  position: relative;
+  z-index: 2;
+  background: rgba(255,252,248,0.94);
+  border-radius: 18px;
+  padding: 18px 16px 22px;
+  border: 1px solid rgba(160,130,110,0.08);
+  box-shadow: 0 8px 24px rgba(90,62,43,0.06);
+}
+.story-create-modal {
+  max-width: 360px !important;
+}
+
 .cat-name {
   font-family: "Playfair Display", serif;
   font-size: 20px; font-weight: 700; font-style: italic;

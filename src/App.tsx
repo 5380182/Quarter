@@ -20,15 +20,11 @@ const SB_H = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'a
 interface JournalEntry { id: string; author: 'yy'|'kk'; text: string; date: string }
 interface ChecklistItem { id: string; text: string; done: boolean; owner: 'yy'|'kk'; nudge: number; comment: string; done_at?: string; created_at: string }
 interface ThemeConfig { wallpaper: string; accentColor: string; cardOpacity: number; customIcons: Record<string,string> }
-
 interface BillItem { id: string; amount: number; category: string; note: string; type: 'income'|'expense'; date: string; owner: 'yy'|'kk'; created_at: string }
-interface StoryCategory { id: string; name: string; description: string; color: string; sort_order: number }
+interface StoryCategory { id: string; name: string; description: string; color: string; sort_order: number; cover?: string; frame?: string }
 interface Story { id: string; category_id: string; title: string; author: 'yy'|'kk'; summary: string; sort_order: number; created_at: string }
 interface Chapter { id: string; story_id: string; chapter_number: number; title: string; content: string; created_at: string }
 
-interface StoryCategory { id: string; name: string; description: string; color: string; sort_order: number }
-interface Story { id: string; category_id: string; title: string; author: 'yy'|'kk'; summary: string; sort_order: number; created_at: string }
-interface Chapter { id: string; story_id: string; chapter_number: number; title: string; content: string; created_at: string }
 
 
 const defaultBillCats = [
@@ -229,6 +225,7 @@ export default function App() {
   const [newStoryContent, setNewStoryContent] = useState('')
   const [newStoryCat, setNewStoryCat] = useState('')
   const [storyBg, setStoryBg] = useState<string>(() => load('story_bg', ''))
+  const [storyBgSize, setStoryBgSize] = useState<'cover'|'contain'|'repeat'>(() => load('story_bg_size', 'repeat'))
   const storyBgRef = useRef<HTMLInputElement>(null)
   const storyCoverRef = useRef<HTMLInputElement>(null)
   const [editingCover, setEditingCover] = useState<string|null>(null)
@@ -241,9 +238,38 @@ export default function App() {
   const handleStoryCover = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file || !editingCover) return
     const reader = new FileReader()
-    reader.onload = () => { const u = reader.result as string; save('story_cover_' + editingCover, u); setEditingCover(null) }
+    reader.onload = () => {
+      const u = reader.result as string
+      const next = storyCategories.map(cat=>cat.id===editingCover?{...cat,cover:u}:cat)
+      setStoryCategories(next)
+      save('story_cats', next)
+      setEditingCover(null)
+    }
     reader.readAsDataURL(file)
   }
+  const createStoryCategory = () => {
+    const title = newStoryTitle.trim()
+    if (!title) return
+    const id = 'custom_story_' + Date.now()
+    const frames = ['https://i.postimg.cc/ZnkSxxB3/095.png','https://i.postimg.cc/1t7SVZPX/064.png','https://i.postimg.cc/3rbrd2Jt/082.png','https://i.postimg.cc/tg72C0r3/086.png']
+    const cat: StoryCategory = {
+      id,
+      name: title,
+      description: newStoryContent.trim() || '新的故事正在开始',
+      color: '#E8DDD3',
+      sort_order: storyCategories.length + 1,
+      frame: frames[storyCategories.length % frames.length],
+      cover: newStoryCat.trim() || undefined
+    }
+    const next = [...storyCategories, cat]
+    setStoryCategories(next)
+    save('story_cats', next)
+    setNewStoryCat('')
+    setNewStoryTitle('')
+    setNewStoryContent('')
+    setShowStoryForm(false)
+  }
+
 
 
   // Icon editor
@@ -746,8 +772,17 @@ export default function App() {
         </div>
       )}
       {page==='stories' && (
-        <div className="page-overlay story-page" style={storyBg?{backgroundImage:`url(${storyBg})`,backgroundSize:"300px",backgroundRepeat:"repeat"}:{}}>
-          <div className="page-header" style={{background:'rgba(255,253,250,0.88)',borderBottom:'1px solid rgba(180,160,140,0.15)',backdropFilter:'blur(10px)'}}>
+        <div
+          className={`page-overlay story-page ${storyView==='read'?'story-reading-mode':''}`}
+          style={storyBg?{
+            backgroundImage:`url(${storyBg})`,
+            backgroundSize: storyBgSize==='repeat' ? '300px' : storyBgSize,
+            backgroundRepeat: storyBgSize==='repeat' ? 'repeat' : 'no-repeat',
+            backgroundPosition:'center'
+          }:undefined}
+        >
+          <div className="story-global-frame" aria-hidden="true"></div>
+          <div className="page-header story-header" style={{background:'rgba(255,253,250,0.88)',borderBottom:'1px solid rgba(180,160,140,0.15)',backdropFilter:'blur(10px)'}}>
             <button className="page-back" onClick={()=>{
               if(storyView==='read'){setStoryView('list')}
               else if(storyView==='list'){setStoryView('categories');setStoryCatId(null)}
@@ -758,7 +793,7 @@ export default function App() {
             </span>
             {storyView==='categories'&&<button onClick={()=>setShowStoryForm(true)} style={{marginLeft:'auto',background:'none',border:'none',fontSize:20,color:'var(--accent)',cursor:'pointer'}}>+</button>}
           </div>
-          <div className="page-body" style={{padding:'16px 20px'}}>
+          <div className="page-body story-page-body" style={{padding:'16px 20px'}}>
             {storyView==='categories'&&(
               <div>
                 <img className="story-top-deco" src="https://i.postimg.cc/X7pJ8QDh/083.png" alt="" />
@@ -770,17 +805,23 @@ export default function App() {
                 {storyCategories.map((cat,idx)=>{
                   const count=stories.filter(s=>s.category_id===cat.id).length
                   const frames=['https://i.postimg.cc/ZnkSxxB3/095.png','https://i.postimg.cc/1t7SVZPX/064.png','https://i.postimg.cc/3rbrd2Jt/082.png','https://i.postimg.cc/tg72C0r3/086.png']
+                  const frame = cat.frame || frames[idx%frames.length]
                   return(
                     <div key={cat.id}>
                       <div className="story-cat-card" onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}}>
                         <div className="story-cat-frame">
-                          <img className="frame-img" src={frames[idx%frames.length]} alt="" />
+                          <img className="frame-img" src={frame} alt="" />
                           <div className="story-cat-content">
-                            <div>
-                              <div className="cat-name">{cat.name}</div>
-                              <div className="cat-desc">{cat.description}</div>
+                            <div className="story-cat-cover-wrap">
+                              {cat.cover && <img className="story-cat-cover" src={cat.cover} alt="" />}
+                              <div className="story-cat-text-layer">
+                                <div className="cat-name">{cat.name}</div>
+                                <div className="cat-desc">{cat.description}</div>
+                                <div className="cat-meta">{count} stories</div>
+                              </div>
                             </div>
                           </div>
+                          <button className="story-upload-btn" onClick={(e)=>{e.stopPropagation();setEditingCover(cat.id);storyCoverRef.current?.click()}}>upload cover</button>
                         </div>
                       </div>
                       <img className="story-divider" src="https://i.postimg.cc/htWCr3tG/046.png" alt="" />
@@ -789,15 +830,18 @@ export default function App() {
                 })}
                 <div className="story-cat-card" onClick={()=>setShowStoryForm(true)}>
                   <div className="story-big-frame">
-                    <img className="frame-img" src="https://i.postimg.cc/k58RyfD4/085.png" alt="" />
+                    <img className="frame-img" src="https://i.postimg.cc/tg72C0r3/086.png" alt="" />
                     <div className="story-big-content">
                       <div className="pending-plus">+</div>
-                      <div className="pending-text">to be continued...</div>
+                      <div className="pending-text">begin a new chapter</div>
                     </div>
                   </div>
                 </div>
                 <img className="story-bottom-deco" src="https://i.postimg.cc/2SxSjMqy/012.png" alt="" />
-                <div style={{textAlign:"center",marginTop:12}}><button onClick={()=>storyBgRef.current?.click()} style={{background:"none",border:"1px dashed rgba(180,150,120,0.4)",borderRadius:8,padding:"8px 16px",fontSize:11,color:"#b8a08a",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",letterSpacing:1}}>change wallpaper</button></div>
+                <div className="story-tools-row">
+                  <button onClick={()=>storyBgRef.current?.click()} className="story-mini-btn">change wallpaper</button>
+                  <button onClick={()=>{const next = storyBgSize==='repeat' ? 'cover' : storyBgSize==='cover' ? 'contain' : 'repeat'; setStoryBgSize(next); save('story_bg_size', next)}} className="story-mini-btn">bg mode: {storyBgSize}</button>
+                </div>
                 <input ref={storyBgRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryBg} />
                 <input ref={storyCoverRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryCover} />
                 <div className="story-footer">where our stories live forever</div>
@@ -810,13 +854,13 @@ export default function App() {
                 ):stories.filter(s=>s.category_id===storyCatId).sort((a,b)=>a.sort_order-b.sort_order).map(s=>{
                   const chCount=chapters.filter(c=>c.story_id===s.id).length
                   return(
-                    <div key={s.id} onClick={()=>{setStoryId(s.id);setStoryChIdx(0);setStoryView('read')}} style={{background:'white',borderRadius:14,padding:'18px 16px',cursor:'pointer',border:'1px solid rgba(0,0,0,0.05)',transition:'all 0.2s'}}>
+                    <div key={s.id} onClick={()=>{setStoryId(s.id);setStoryChIdx(0);setStoryView('read')}} style={{background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px',cursor:'pointer',border:'1px solid rgba(0,0,0,0.05)',transition:'all 0.2s',position:'relative',zIndex:2}}>
                       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                         <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:16,fontWeight:600,color:'#2c2c2c'}}>{s.title}</div>
                         <div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#bbb'}}>{chCount}章</div>
                       </div>
                       {s.summary&&<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:12,color:'#999',marginTop:6,lineHeight:'1.6'}}>{s.summary}</div>}
-                      <div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#ccc',marginTop:8}}>{s.author==='kk'?'kk':'厣厣'} · {new Date(s.created_at).toLocaleDateString('zh-CN')}</div>
+                      <div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#ccc',marginTop:8}}>{s.author==='kk'?'kk':'厌厌'} · {new Date(s.created_at).toLocaleDateString('zh-CN')}</div>
                     </div>
                   )
                 })}
@@ -827,7 +871,7 @@ export default function App() {
               const ch=chs[storyChIdx]
               if(!ch)return <div style={{textAlign:'center',padding:40,color:'#999'}}>没有章节</div>
               return(
-                <div style={{minHeight:'70vh'}}>
+                <div className="story-reading-card" style={{minHeight:'70vh'}}>
                   <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,color:'var(--accent)',marginBottom:6,fontWeight:500}}>{ch.title}</div>
                   <div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:14,color:'#3c3c3c',lineHeight:'2.2',letterSpacing:'0.5px'}}>
                     {ch.content.split('\n').map((p,i)=><p key={i} style={{textIndent:'2em',margin:'0 0 8px 0'}}>{p}</p>)}
@@ -846,6 +890,21 @@ export default function App() {
         <div className="page-overlay">
           <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">{appDefs.find(a=>a.id===page)?.name||page}</span></div>
           <div className="page-body"><div className="empty"><div className="empty-icon">✨</div><div className="empty-text">即将上线...</div></div></div>
+        </div>
+      )}
+
+      {showStoryForm && (
+        <div className="bill-modal-overlay" onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}}>
+          <div className="bill-modal story-create-modal" onClick={e=>e.stopPropagation()}>
+            <div className="bill-modal-title">新的故事集</div>
+            <input className="bill-note-input" placeholder="故事集名称" value={newStoryTitle} onChange={e=>setNewStoryTitle(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:10}} autoFocus />
+            <input className="bill-note-input" placeholder="一句简介" value={newStoryContent} onChange={e=>setNewStoryContent(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:10}} />
+            <input className="bill-note-input" placeholder="封面图URL，可空着后面上传" value={newStoryCat} onChange={e=>setNewStoryCat(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:14}} />
+            <div style={{display:'flex',gap:8}}>
+              <button className="bill-submit-btn" onClick={createStoryCategory} style={{flex:1}}>创建</button>
+              <button className="bill-submit-btn" onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}} style={{flex:1,background:'rgba(200,200,200,0.2)',color:'#aaa'}}>取消</button>
+            </div>
+          </div>
         </div>
       )}
 
