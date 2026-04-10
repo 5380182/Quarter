@@ -266,12 +266,7 @@ export default function App() {
     const next = [...safeStoryCategories, cat]
     setStoryCategories(next)
     save('story_cats', next)
-    setNewStoryCat('')
-    setNewStoryTitle('')
-    setNewStoryContent('')
-    setShowStoryForm(false)
-  }
-  const createSeriesStory = () => {
+const createSeriesStory = () => {
     const title = newStoryTitle.trim()
     if (!title || !storyCatId) return
     const id = 'story_' + Date.now()
@@ -288,6 +283,33 @@ export default function App() {
     const next = [...safeStories, story]
     setStories(next)
     save('stories', next)
+    setNewStoryTitle('')
+    setNewStoryContent('')
+    setNewStoryCat('')
+    setShowStoryForm(false)
+  }
+  const createChapter = () => {
+    const title = newStoryTitle.trim()
+    const content = newStoryContent.trim()
+    if (!storyId || !title || !content) return
+    const currentChapters = safeChapters.filter(ch => ch.story_id === storyId)
+    const chapter: Chapter = {
+      id: 'chapter_' + Date.now(),
+      story_id: storyId,
+      chapter_number: currentChapters.length + 1,
+      title,
+      content,
+      created_at: new Date().toISOString()
+    }
+    const next = [...safeChapters, chapter]
+    setChapters(next)
+    save('chapters', next)
+    setStoryChIdx(currentChapters.length)
+    setNewStoryTitle('')
+    setNewStoryContent('')
+    setNewStoryCat('')
+    setShowStoryForm(false)
+  }
     setNewStoryTitle('')
     setNewStoryContent('')
     setNewStoryCat('')
@@ -935,12 +957,12 @@ if (!Array.isArray(stories)) {
       {showStoryForm && (
         <div className="bill-modal-overlay" style={{zIndex:2147483648}} onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}}>
           <div className="bill-modal story-create-modal" onClick={e=>e.stopPropagation()}>
-            <div className="bill-modal-title">{storyView==='list' ? '新的系列故事' : '新的故事集'}</div>
-            <input className="bill-note-input" placeholder={storyView==='list' ? '系列故事名称' : '故事集名称'} value={newStoryTitle} onChange={e=>setNewStoryTitle(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:10}} autoFocus />
-            <input className="bill-note-input" placeholder={storyView==='list' ? '一句简介，可空着' : '一句简介'} value={newStoryContent} onChange={e=>setNewStoryContent(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:storyView==='list'?14:10}} />
-            {storyView!=='list' && <input className="bill-note-input" placeholder="封面图URL，可空着后面上传" value={newStoryCat} onChange={e=>setNewStoryCat(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:14}} />}
+            <div className="bill-modal-title">{storyView==='read' ? '新的故事篇章' : storyView==='list' ? '新的系列故事' : '新的故事集'}</div>
+            <input className="bill-note-input" placeholder={storyView==='read' ? '篇章标题' : storyView==='list' ? '系列故事名称' : '故事集名称'} value={newStoryTitle} onChange={e=>setNewStoryTitle(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:10}} autoFocus />
+            <textarea className="bill-note-input" placeholder={storyView==='read' ? '写这一篇的正文内容...' : storyView==='list' ? '一句简介，可空着' : '一句简介'} value={newStoryContent} onChange={e=>setNewStoryContent(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:storyView==='read'||storyView==='list'?14:10,minHeight:storyView==='read'?120:44,resize:'vertical',paddingTop:10,lineHeight:'1.7'}} />
+            {storyView==='categories' && <input className="bill-note-input" placeholder="封面图URL，可空着后面上传" value={newStoryCat} onChange={e=>setNewStoryCat(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:14}} />}
             <div style={{display:'flex',gap:8}}>
-              <button className="bill-submit-btn" onClick={storyView==='list' ? createSeriesStory : createStoryCategory} style={{flex:1}}>创建</button>
+              <button className="bill-submit-btn" onClick={storyView==='read' ? createChapter : storyView==='list' ? createSeriesStory : createStoryCategory} style={{flex:1}}>创建</button>
               <button className="bill-submit-btn" onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}} style={{flex:1,background:'rgba(200,200,200,0.2)',color:'#aaa'}}>取消</button>
             </div>
           </div>
