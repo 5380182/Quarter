@@ -807,16 +807,13 @@ export default function App() {
         </div>
       )}
       {page==='storybook' && (
-        <div className="page-overlay story-page" style={{zIndex: 9999, background:'#fffdfb'}}>
-          <div className="page-header" style={{position:'relative', zIndex:10000, background:'#fffdfb'}}>
-            <button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button>
-            <span className="page-title">故事集</span>
+        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:'#ff4d6d',display:'flex',flexDirection:'column'}}>
+          <div style={{height:56,display:'flex',alignItems:'center',gap:12,padding:'0 16px',background:'#ffffff',color:'#111',fontWeight:700}}>
+            <button style={{border:'none',background:'transparent',fontSize:18,cursor:'pointer'}} onClick={()=>setPage(null)}>←</button>
+            <span>故事集 TEST</span>
           </div>
-          <div className="page-body" style={{position:'relative', zIndex:10000}}>
-            <div style={{background:'rgba(255,255,255,0.95)',borderRadius:16,padding:20,border:'1px solid rgba(0,0,0,0.06)'}}>
-              <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:22,fontWeight:700,marginBottom:10,color:'#5a3e2b'}}>Stories</div>
-              <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,lineHeight:'1.9',color:'#666'}}>新的正式故事集入口测试成功。</div>
-            </div>
+          <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:28,fontWeight:800,textAlign:'center',padding:24}}>
+            storybook page is rendering
           </div>
         </div>
       )}
