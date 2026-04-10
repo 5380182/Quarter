@@ -106,7 +106,7 @@ const appDefs = [
   { id: 'songs', name: '共享歌单', Icon: MusicNotes, color: '#8b7db0' },
   { id: 'bill', name: '每日账单', Icon: Receipt, color: '#6b8fa3' },
   { id: 'checklist', name: '清单', Icon: ListChecks, color: '#7da07d' },
-  { id: 'stories', name: '故事集', Icon: BookBookmark, color: '#a07d7d' },
+  { id: 'stories', name: '故事集', Icon: BookBookmark, color: '#a07d7d', targetPage: 'bill' },
   { id: 'memories', name: '回忆墙', Icon: Camera, color: '#9a8c7d' },
   { id: 'room', name: '小窝', Icon: House, color: '#b07d9a' },
   { id: 'wish', name: '许愿', Icon: Star, color: '#c4a35a' },
@@ -514,7 +514,7 @@ export default function App() {
           </div>
           <div className="app-grid">
             {appDefs.map(app=>(
-              <div key={app.id} className="app-item" onClick={()=>setPage(app.id)} onContextMenu={(e)=>{e.preventDefault();setEditingIcon(app.id);setIconUrl(theme.customIcons[app.id]||'')}}>
+              <div key={app.id} className="app-item" onClick={()=>setPage((app as any).targetPage || app.id)} onContextMenu={(e)=>{e.preventDefault();setEditingIcon(app.id);setIconUrl(theme.customIcons[app.id]||'')}}>
                 <div className="app-icon-box" style={theme.customIcons[app.id] ? {background:`url(${theme.customIcons[app.id]}) center/cover no-repeat`} : {background:app.color}}>
                   {!theme.customIcons[app.id] && <app.Icon size={24} weight="bold" />}
                 </div>
