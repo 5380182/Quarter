@@ -104,9 +104,9 @@ const appDefs = [
   { id: 'mailbox', name: '信箱', Icon: Envelope, color: '#b08d7d' },
   { id: 'mood', name: '心情日历', Icon: Smiley, color: '#c4a35a' },
   { id: 'songs', name: '共享歌单', Icon: MusicNotes, color: '#8b7db0' },
-  { id: 'bill', name: '每日账单', Icon: Receipt, color: '#6b8fa3' },
+  { id: 'bill_real', name: '每日账单', Icon: Receipt, color: '#6b8fa3' },
   { id: 'checklist', name: '清单', Icon: ListChecks, color: '#7da07d' },
-  { id: 'stories', name: '故事集', Icon: BookBookmark, color: '#a07d7d', targetPage: 'storyhome' },
+  { id: 'bill', name: '故事集', Icon: BookBookmark, color: '#a07d7d' },
   { id: 'memories', name: '回忆墙', Icon: Camera, color: '#9a8c7d' },
   { id: 'room', name: '小窝', Icon: House, color: '#b07d9a' },
   { id: 'wish', name: '许愿', Icon: Star, color: '#c4a35a' },
@@ -495,6 +495,7 @@ export default function App() {
   const kkNote = bills.find(b => b.date === billDate && b.category === 'kk_note')
   const dayExpense = dayBills.filter(b => b.type === 'expense').reduce((s, b) => s + b.amount, 0)
   const dayIncome = dayBills.filter(b => b.type === 'income').reduce((s, b) => s + b.amount, 0)
+  const activePage = page === 'bill_real' ? 'bill' : page
 
   const wpStyle = theme.wallpaper ? {backgroundImage:`url(${theme.wallpaper})`,backgroundSize:'cover',backgroundPosition:'center'} : {}
 
@@ -652,7 +653,7 @@ export default function App() {
           </div>
         </div>
       )}
-      {page==='bill' && (
+      {activePage==='bill' && (
         <div className="page-overlay bill-page">
           <div className="page-header">
             <button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button>
