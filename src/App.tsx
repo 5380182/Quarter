@@ -850,7 +850,7 @@ export default function App() {
                 'https://i.postimg.cc/tg72C0r3/086.png'
               ]
               const frame = (cat.frame === 'https://i.postimg.cc/ZnkSxxB3/095.png' ? 'https://i.postimg.cc/L8G9JKkM/059.png' : cat.frame) || frames[idx % frames.length]
-              const frameInset = frame === 'https://i.postimg.cc/L8G9JKkM/059.png' ? '30% 20% 34%' : '16% 12% 18%'
+              const frameInset = frame === 'https://i.postimg.cc/L8G9JKkM/059.png' ? '34% 23% 38%' : '16% 12% 18%'
               return (
                 <div key={cat.id}>
                   <div onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}} style={{position:'relative',cursor:'pointer'}}>
