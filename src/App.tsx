@@ -856,7 +856,7 @@ export default function App() {
                   <div onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}} style={{position:'relative',cursor:'pointer'}}>
                     <img src={frame} alt='' style={{width:'100%',display:'block'}} />
                     <div style={{position:'absolute',inset:'16% 12% 18%',borderRadius:18,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(255,248,243,0.24)'}}>
-                      {cover && <img src={cover} alt='' style={{position:'absolute',left:'50%',top:isFrame059?'52%':'50%',transform:'translate(-50%,-50%)',width:isFrame059?'70%':'86%',height:isFrame059?'72%':'82%',objectFit:'cover',objectPosition:'center center',borderRadius:isFrame059?18:14}} />}
+                      {cover && <img src={cover} alt='' style={{position:'absolute',left:'50%',top:isFrame059?'52%':'50%',transform:'translate(-50%,-50%)',width:isFrame059?'58%':'86%',height:isFrame059?'68%':'82%',objectFit:'cover',objectPosition:'center center',borderRadius:isFrame059?18:14}} />}
                       <div style={{position:'absolute',inset:0,background:cover?'linear-gradient(to top, rgba(255,248,243,0.96), rgba(255,248,243,0.40) 42%, rgba(255,248,243,0.08) 72%)':'transparent'}} />
                       <div style={{position:'relative',zIndex:1,height:'100%',width:'100%',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'18px 18px 16px'}}>
                         <div>
