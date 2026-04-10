@@ -808,42 +808,58 @@ export default function App() {
       )}
       {page==='stories' && (
         <div
-          className={`page-overlay story-page ${storyView==='read'?'story-reading-mode':''}`}
-          style={storyBg?{
-            backgroundImage:`url(${storyBg})`,
-            backgroundSize: safeStoryBgSize==='repeat' ? '300px' : safeStoryBgSize,
-            backgroundRepeat: safeStoryBgSize==='repeat' ? 'repeat' : 'no-repeat',
-            backgroundPosition:'center'
-          }:undefined}
+          className={`page-overlay story-page ${storyView==='read' ? 'story-reading-mode' : ''}`}
+          style={storyBg ? {
+            backgroundImage: `url(${storyBg})`,
+            backgroundSize: safeStoryBgSize === 'repeat' ? '300px' : safeStoryBgSize,
+            backgroundRepeat: safeStoryBgSize === 'repeat' ? 'repeat' : 'no-repeat',
+            backgroundPosition: 'center'
+          } : undefined}
         >
           <div className="story-global-frame" aria-hidden="true"></div>
-          <div className="page-header story-header" style={{background:'rgba(255,253,250,0.88)',borderBottom:'1px solid rgba(180,160,140,0.15)',backdropFilter:'blur(10px)'}}>
-            <button className="page-back" onClick={()=>{
-              if(storyView==='read'){setStoryView('list')}
-              else if(storyView==='list'){setStoryView('categories');setStoryCatId(null)}
-              else{setPage(null)}
+          <div className="page-header story-header" style={{ background:'rgba(255,253,250,0.88)', borderBottom:'1px solid rgba(180,160,140,0.15)', backdropFilter:'blur(10px)' }}>
+            <button className="page-back" onClick={() => {
+              if (storyView === 'read') setStoryView('list')
+              else if (storyView === 'list') { setStoryView('categories'); setStoryCatId(null) }
+              else setPage(null)
             }}><ArrowLeft size={20} weight="bold" /></button>
-            <span className="page-title" style={{fontFamily:"'Noto Serif SC',serif",fontWeight:700,letterSpacing:2}}>
-              {storyView==='categories'?'故事集':storyView==='list'?(safeStoryCategories.find(c=>c.id===storyCatId)?.name||''):(safeStories.find(s=>s.id===storyId)?.title||'')}
+            <span className="page-title" style={{ fontFamily:"'Noto Serif SC',serif", fontWeight:700, letterSpacing:2 }}>
+              {storyView === 'categories'
+                ? '故事集'
+                : storyView === 'list'
+                  ? (safeStoryCategories.find(c => c.id === storyCatId)?.name || '')
+                  : (safeStories.find(s => s.id === storyId)?.title || '')}
             </span>
-            {storyView==='categories'&&<button onClick={()=>setShowStoryForm(true)} style={{marginLeft:'auto',background:'none',border:'none',fontSize:20,color:'var(--accent)',cursor:'pointer'}}>+</button>}
+            {storyView === 'categories' && (
+              <button onClick={() => setShowStoryForm(true)} style={{ marginLeft:'auto', background:'none', border:'none', fontSize:20, color:'var(--accent)', cursor:'pointer' }}>+</button>
+            )}
           </div>
-          <div className="page-body story-page-body" style={{padding:'16px 20px'}}>
-            {storyView==='categories'&&(
+
+          <div className="page-body story-page-body" style={{ padding:'16px 20px' }}>
+            {storyView === 'categories' && (
               <div>
                 <img className="story-top-deco" src="https://i.postimg.cc/X7pJ8QDh/083.png" alt="" />
                 <div className="story-title-frame">
                   <img src="https://i.postimg.cc/BvhkMczg/070.png" alt="" />
-                  <div className="story-title-text"><h2>Stories</h2><div className="sub">once upon a time, in a place called ours</div></div>
+                  <div className="story-title-text">
+                    <h2>Stories</h2>
+                    <div className="sub">once upon a time, in a place called ours</div>
+                  </div>
                 </div>
                 <img className="story-divider" src="https://i.postimg.cc/htWCr3tG/046.png" alt="" />
-                {safeStoryCategories.map((cat,idx)=>{
-                  const count=safeStories.filter(s=>s.category_id===cat.id).length
-                  const frames=['https://i.postimg.cc/ZnkSxxB3/095.png','https://i.postimg.cc/1t7SVZPX/064.png','https://i.postimg.cc/3rbrd2Jt/082.png','https://i.postimg.cc/tg72C0r3/086.png']
-                  const frame = cat.frame || frames[idx%frames.length]
-                  return(
+
+                {safeStoryCategories.map((cat, idx) => {
+                  const count = safeStories.filter(s => s.category_id === cat.id).length
+                  const frames = [
+                    'https://i.postimg.cc/ZnkSxxB3/095.png',
+                    'https://i.postimg.cc/1t7SVZPX/064.png',
+                    'https://i.postimg.cc/3rbrd2Jt/082.png',
+                    'https://i.postimg.cc/tg72C0r3/086.png'
+                  ]
+                  const frame = cat.frame || frames[idx % frames.length]
+                  return (
                     <div key={cat.id}>
-                      <div className="story-cat-card" onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}}>
+                      <div className="story-cat-card" onClick={() => { setStoryCatId(cat.id); setStoryView('list') }}>
                         <div className="story-cat-frame">
                           <img className="frame-img" src={frame} alt="" />
                           <div className="story-cat-content">
@@ -856,14 +872,15 @@ export default function App() {
                               </div>
                             </div>
                           </div>
-                          <button className="story-upload-btn" onClick={(e)=>{e.stopPropagation();setEditingCover(cat.id);storyCoverRef.current?.click()}}>upload cover</button>
+                          <button className="story-upload-btn" onClick={(e) => { e.stopPropagation(); setEditingCover(cat.id); storyCoverRef.current?.click() }}>upload cover</button>
                         </div>
                       </div>
                       <img className="story-divider" src="https://i.postimg.cc/htWCr3tG/046.png" alt="" />
                     </div>
                   )
                 })}
-                <div className="story-cat-card" onClick={()=>setShowStoryForm(true)}>
+
+                <div className="story-cat-card" onClick={() => setShowStoryForm(true)}>
                   <div className="story-big-frame">
                     <img className="frame-img" src="https://i.postimg.cc/tg72C0r3/086.png" alt="" />
                     <div className="story-big-content">
@@ -872,48 +889,63 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+
                 <img className="story-bottom-deco" src="https://i.postimg.cc/2SxSjMqy/012.png" alt="" />
                 <div className="story-tools-row">
-                  <button onClick={()=>storyBgRef.current?.click()} className="story-mini-btn">change wallpaper</button>
-                  <button onClick={()=>{const next = storyBgSize==='repeat' ? 'cover' : storyBgSize==='cover' ? 'contain' : 'repeat'; setStoryBgSize(next); save('story_bg_size', next)}} className="story-mini-btn">bg mode: {storyBgSize}</button>
+                  <button onClick={() => storyBgRef.current?.click()} className="story-mini-btn">change wallpaper</button>
+                  <button
+                    onClick={() => {
+                      const next = safeStoryBgSize === 'repeat' ? 'cover' : safeStoryBgSize === 'cover' ? 'contain' : 'repeat'
+                      setStoryBgSize(next)
+                      save('story_bg_size', next)
+                    }}
+                    className="story-mini-btn"
+                  >
+                    bg mode: {safeStoryBgSize}
+                  </button>
                 </div>
-                <input ref={storyBgRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryBg} />
-                <input ref={storyCoverRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleStoryCover} />
+                <input ref={storyBgRef} type="file" accept="image/*" style={{ display:'none' }} onChange={handleStoryBg} />
+                <input ref={storyCoverRef} type="file" accept="image/*" style={{ display:'none' }} onChange={handleStoryCover} />
                 <div className="story-footer">where our stories live forever</div>
               </div>
             )}
-            {storyView==='list'&&(
-              <div style={{display:'flex',flexDirection:'column',gap:12}}>
-                {safeStories.filter(s=>s.category_id===storyCatId).length===0?(
-                  <div style={{textAlign:'center',padding:'60px 20px',color:'#b0a898',fontSize:13,fontFamily:"'LXGW WenKai',serif"}}>还没有故事</div>
-                ):safeStories.filter(s=>s.category_id===storyCatId).sort((a,b)=>a.sort_order-b.sort_order).map(s=>{
-                  const chCount=safeChapters.filter(c=>c.story_id===s.id).length
-                  return(
-                    <div key={s.id} onClick={()=>{setStoryId(s.id);setStoryChIdx(0);setStoryView('read')}} style={{background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px',cursor:'pointer',border:'1px solid rgba(0,0,0,0.05)',transition:'all 0.2s',position:'relative',zIndex:2}}>
-                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                        <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:16,fontWeight:600,color:'#2c2c2c'}}>{s.title}</div>
-                        <div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#bbb'}}>{chCount}章</div>
-                      </div>
-                      {s.summary&&<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:12,color:'#999',marginTop:6,lineHeight:'1.6'}}>{s.summary}</div>}
-                      <div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#ccc',marginTop:8}}>{s.author==='kk'?'kk':'厌厌'} · {new Date(s.created_at).toLocaleDateString('zh-CN')}</div>
-                    </div>
-                  )
-                })}
+
+            {storyView === 'list' && (
+              <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                {safeStories.filter(s => s.category_id === storyCatId).length === 0 ? (
+                  <div style={{ textAlign:'center', padding:'60px 20px', color:'#b0a898', fontSize:13, fontFamily:"'LXGW WenKai',serif" }}>还没有故事</div>
+                ) : safeStories
+                    .filter(s => s.category_id === storyCatId)
+                    .sort((a, b) => a.sort_order - b.sort_order)
+                    .map(s => {
+                      const chCount = safeChapters.filter(c => c.story_id === s.id).length
+                      return (
+                        <div key={s.id} onClick={() => { setStoryId(s.id); setStoryChIdx(0); setStoryView('read') }} style={{ background:'rgba(255,255,255,0.92)', borderRadius:14, padding:'18px 16px', cursor:'pointer', border:'1px solid rgba(0,0,0,0.05)', transition:'all 0.2s', position:'relative', zIndex:2 }}>
+                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                            <div style={{ fontFamily:"'LXGW WenKai',serif", fontSize:16, fontWeight:600, color:'#2c2c2c' }}>{s.title}</div>
+                            <div style={{ fontFamily:"'Noto Sans SC',sans-serif", fontSize:10, color:'#bbb' }}>{chCount}章</div>
+                          </div>
+                          {s.summary && <div style={{ fontFamily:"'Noto Sans SC',sans-serif", fontSize:12, color:'#999', marginTop:6, lineHeight:'1.6' }}>{s.summary}</div>}
+                          <div style={{ fontFamily:"'Noto Sans SC',sans-serif", fontSize:10, color:'#ccc', marginTop:8 }}>{s.author === 'kk' ? 'kk' : '厌厌'} · {new Date(s.created_at).toLocaleDateString('zh-CN')}</div>
+                        </div>
+                      )
+                    })}
               </div>
             )}
-            {storyView==='read'&&(()=>{
-              const chs=safeChapters.filter(c=>c.story_id===storyId).sort((a,b)=>a.chapter_number-b.chapter_number)
-              const ch=chs[storyChIdx]
-              if(!ch)return <div style={{textAlign:'center',padding:40,color:'#999'}}>没有章节</div>
-              return(
-                <div className="story-reading-card" style={{minHeight:'70vh'}}>
-                  <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,color:'var(--accent)',marginBottom:6,fontWeight:500}}>{ch.title}</div>
-                  <div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:14,color:'#3c3c3c',lineHeight:'2.2',letterSpacing:'0.5px'}}>
-                    {ch.content.split('\n').map((p,i)=><p key={i} style={{textIndent:'2em',margin:'0 0 8px 0'}}>{p}</p>)}
+
+            {storyView === 'read' && (() => {
+              const chs = safeChapters.filter(c => c.story_id === storyId).sort((a, b) => a.chapter_number - b.chapter_number)
+              const ch = chs[storyChIdx]
+              if (!ch) return <div style={{ textAlign:'center', padding:40, color:'#999' }}>没有章节</div>
+              return (
+                <div className="story-reading-card" style={{ minHeight:'70vh' }}>
+                  <div style={{ fontFamily:"'LXGW WenKai',serif", fontSize:14, color:'var(--accent)', marginBottom:6, fontWeight:500 }}>{ch.title}</div>
+                  <div style={{ fontFamily:"'Noto Sans SC',sans-serif", fontSize:14, color:'#3c3c3c', lineHeight:'2.2', letterSpacing:'0.5px' }}>
+                    {ch.content.split('\n').map((p, i) => <p key={i} style={{ textIndent:'2em', margin:'0 0 8px 0' }}>{p}</p>)}
                   </div>
-                  <div style={{display:'flex',justifyContent:'space-between',marginTop:40,paddingTop:20,borderTop:'1px solid rgba(0,0,0,0.06)'}}>
-                    {storyChIdx>0?<button onClick={()=>setStoryChIdx(storyChIdx-1)} style={{background:'none',border:'1px solid rgba(0,0,0,0.1)',borderRadius:8,padding:'8px 20px',fontSize:12,color:'#666',cursor:'pointer',fontFamily:"'Noto Sans SC',sans-serif"}}>上一章</button>:<div/>}
-                    {storyChIdx<chs.length-1&&<button onClick={()=>setStoryChIdx(storyChIdx+1)} style={{background:'var(--accent)',border:'none',borderRadius:8,padding:'8px 20px',fontSize:12,color:'white',cursor:'pointer',fontFamily:"'Noto Sans SC',sans-serif"}}>下一章</button>}
+                  <div style={{ display:'flex', justifyContent:'space-between', marginTop:40, paddingTop:20, borderTop:'1px solid rgba(0,0,0,0.06)' }}>
+                    {storyChIdx > 0 ? <button onClick={() => setStoryChIdx(storyChIdx - 1)} style={{ background:'none', border:'1px solid rgba(0,0,0,0.1)', borderRadius:8, padding:'8px 20px', fontSize:12, color:'#666', cursor:'pointer', fontFamily:"'Noto Sans SC',sans-serif" }}>上一章</button> : <div />}
+                    {storyChIdx < chs.length - 1 && <button onClick={() => setStoryChIdx(storyChIdx + 1)} style={{ background:'var(--accent)', border:'none', borderRadius:8, padding:'8px 20px', fontSize:12, color:'white', cursor:'pointer', fontFamily:"'Noto Sans SC',sans-serif" }}>下一章</button>}
                   </div>
                 </div>
               )
