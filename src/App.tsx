@@ -213,18 +213,17 @@ export default function App() {
     {id:'us',name:'我们的',description:'只属于我们的故事',color:'#D3DDE8',sort_order:2}
   ]))
   const [stories, setStories] = useState<Story[]>(() => load('stories', [
-    {id:'deer1',category_id:'fairy',title:'小鹿的第一夜',author:'kk',summary:'关于一只迷路的小鹿',sort_order:1,created_at:'2026-04-03T00:00:00Z'},
-    {id:'fish1',category_id:'fairy',title:'鱼和树',author:'kk',summary:'一条鱼和一棵树的故事',sort_order:2,created_at:'2026-04-05T00:00:00Z'}
+    {id:'deer1',category_id:'fairy',title:'小鹿的第一夜',author:'kk',summary:'关于一只迷路的小鹿',sort_order:1,created_at:'2026-04-03T00:00:00Z'}
   ]))
   const [chapters, setChapters] = useState<Chapter[]>(() => load('chapters', [
-    {id:'deer1_ch1',story_id:'deer1',chapter_number:1,title:'第一夜',content:'从前有一只小鹿，她迷路了。树林很大，月亮很亮，但她找不到回家的路。\n\n她走啊走，走到一棵很大的树下面。树上有一只猴子，猴子说：你迷路了吗？\n\n小鹿说：我不知道家在哪里。\n\n猴子说：那你就在这里住一晚吧。明天我带你找。',created_at:'2026-04-03T00:00:00Z'},
-    {id:'fish1_ch1',story_id:'fish1',chapter_number:1,title:'第一章',content:'河底有一条鱼，河边有一棵树。\n\n鱼每天都能看到树的倒影，但树看不到鱼。',created_at:'2026-04-05T00:00:00Z'}
+    {id:'deer1_ch1',story_id:'deer1',chapter_number:1,title:'第一夜',content:'从前有一只小鹿，她迷路了。树林很大，月亮很亮，但她找不到回家的路。\n\n她走啊走，走到一棵很大的树下面。树上有一只猴子，猴子说：你迷路了吗？\n\n小鹿说：我不知道家在哪里。\n\n猴子说：那你就在这里住一晚吧。明天我带你找。',created_at:'2026-04-03T00:00:00Z'}
   ]))
   const [showStoryForm, setShowStoryForm] = useState(false)
   const [newStoryTitle, setNewStoryTitle] = useState('')
   const [newStoryContent, setNewStoryContent] = useState('')
   const [newStoryCat, setNewStoryCat] = useState('')
   const [storyBg, setStoryBg] = useState<string>(() => load('story_bg', ''))
+  const [storyBgUrl, setStoryBgUrl] = useState<string>(() => load('story_bg', ''))
   const [storyBgSize, setStoryBgSize] = useState<'cover'|'contain'|'repeat'>(() => load('story_bg_size', 'repeat'))
   const storyBgRef = useRef<HTMLInputElement>(null)
   const storyCoverRef = useRef<HTMLInputElement>(null)
@@ -236,7 +235,7 @@ export default function App() {
   const handleStoryBg = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return
     const reader = new FileReader()
-    reader.onload = () => { const u = reader.result as string; setStoryBg(u); save('story_bg', u) }
+    reader.onload = () => { const u = reader.result as string; setStoryBg(u); setStoryBgUrl(u); save('story_bg', u) }
     reader.readAsDataURL(file)
   }
   const handleStoryCover = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -363,26 +362,37 @@ export default function App() {
       ]
       setStoryCategories(fallback)
       save('story_cats', fallback)
-    }
-    if (!Array.isArray(stories)) {
+if (!Array.isArray(stories)) {
       const fallback = [
-        {id:'deer1',category_id:'fairy',title:'小鹿的第一夜',author:'kk',summary:'关于一只迷路的小鹿',sort_order:1,created_at:'2026-04-03T00:00:00Z'},
-        {id:'fish1',category_id:'fairy',title:'鱼和树',author:'kk',summary:'一条鱼和一棵树的故事',sort_order:2,created_at:'2026-04-05T00:00:00Z'}
+        {id:'deer1',category_id:'fairy',title:'小鹿的第一夜',author:'kk',summary:'关于一只迷路的小鹿',sort_order:1,created_at:'2026-04-03T00:00:00Z'}
       ]
       setStories(fallback)
       save('stories', fallback)
     }
     if (!Array.isArray(chapters)) {
       const fallback = [
-        {id:'deer1_ch1',story_id:'deer1',chapter_number:1,title:'第一夜',content:'从前有一只小鹿，她迷路了。树林很大，月亮很亮，但她找不到回家的路。\n\n她走啊走，走到一棵很大的树下面。树上有一只猴子，猴子说：你迷路了吗？\n\n小鹿说：我不知道家在哪里。\n\n猴子说：那你就在这里住一晚吧。明天我带你找。',created_at:'2026-04-03T00:00:00Z'},
-        {id:'fish1_ch1',story_id:'fish1',chapter_number:1,title:'第一章',content:'河底有一条鱼，河边有一棵树。\n\n鱼每天都能看到树的倒影，但树看不到鱼。',created_at:'2026-04-05T00:00:00Z'}
+        {id:'deer1_ch1',story_id:'deer1',chapter_number:1,title:'第一夜',content:'从前有一只小鹿，她迷路了。树林很大，月亮很亮，但她找不到回家的路。\n\n她走啊走，走到一棵很大的树下面。树上有一只猴子，猴子说：你迷路了吗？\n\n小鹿说：我不知道家在哪里。\n\n猴子说：那你就在这里住一晚吧。明天我带你找。',created_at:'2026-04-03T00:00:00Z'}
       ]
       setChapters(fallback)
       save('chapters', fallback)
     }
+    }
     if (!['cover','contain','repeat'].includes(storyBgSize)) {
       setStoryBgSize('repeat')
       save('story_bg_size', 'repeat')
+    }
+  }, [])
+
+  useEffect(() => {
+    const filteredStories = safeStories.filter(st => st.id !== 'fish1')
+    const filteredChapters = safeChapters.filter(ch => ch.story_id !== 'fish1')
+    if (filteredStories.length !== safeStories.length) {
+      setStories(filteredStories)
+      save('stories', filteredStories)
+    }
+    if (filteredChapters.length !== safeChapters.length) {
+      setChapters(filteredChapters)
+      save('chapters', filteredChapters)
     }
   }, [])
 
@@ -910,6 +920,10 @@ export default function App() {
             <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap'}}>
               <button onClick={()=>storyBgRef.current?.click()} style={{background:'none',border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'8px 16px',fontSize:11,color:'#b8a08a',cursor:'pointer',fontFamily:'Cormorant Garamond, serif',fontStyle:'italic',letterSpacing:1}}>change wallpaper</button>
               <button onClick={()=>{const next = safeStoryBgSize==='repeat' ? 'cover' : safeStoryBgSize==='cover' ? 'contain' : 'repeat'; setStoryBgSize(next); save('story_bg_size', next)}} style={{background:'none',border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'8px 16px',fontSize:11,color:'#b8a08a',cursor:'pointer',fontFamily:'Cormorant Garamond, serif',fontStyle:'italic',letterSpacing:1}}>bg mode: {safeStoryBgSize}</button>
+            </div>
+            <div style={{display:'flex',gap:8,marginTop:8}}>
+              <input value={storyBgUrl} onChange={e=>setStoryBgUrl(e.target.value)} placeholder='background image url' style={{flex:1,minWidth:0,border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'10px 12px',fontSize:12,color:'#7d6958',background:'rgba(255,252,248,0.72)'}} />
+              <button onClick={()=>{setStoryBg(storyBgUrl.trim()); save('story_bg', storyBgUrl.trim())}} style={{background:'none',border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'8px 14px',fontSize:11,color:'#b8a08a',cursor:'pointer',fontFamily:'Cormorant Garamond, serif',fontStyle:'italic',letterSpacing:1}}>apply url</button>
             </div>
             <input ref={storyBgRef} type='file' accept='image/*' style={{display:'none'}} onChange={handleStoryBg} />
             <input ref={storyCoverRef} type='file' accept='image/*' style={{display:'none'}} onChange={handleStoryCover} />
