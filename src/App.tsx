@@ -255,7 +255,7 @@ export default function App() {
     const title = newStoryTitle.trim()
     if (!title) return
     const id = 'custom_story_' + Date.now()
-    const frames = ['https://i.postimg.cc/ZnkSxxB3/095.png','https://i.postimg.cc/1t7SVZPX/064.png','https://i.postimg.cc/3rbrd2Jt/082.png','https://i.postimg.cc/tg72C0r3/086.png']
+    const frames = ['https://i.postimg.cc/L8G9JKkM/059.png','https://i.postimg.cc/1t7SVZPX/064.png','https://i.postimg.cc/3rbrd2Jt/082.png','https://i.postimg.cc/tg72C0r3/086.png']
     const cat: StoryCategory = {
       id,
       name: title,
@@ -844,19 +844,20 @@ export default function App() {
               const count = safeStories.filter(st=>st.category_id===cat.id).length
               const cover = cat.cover
               const frames = [
-                'https://i.postimg.cc/ZnkSxxB3/095.png',
+                'https://i.postimg.cc/L8G9JKkM/059.png',
                 'https://i.postimg.cc/1t7SVZPX/064.png',
                 'https://i.postimg.cc/3rbrd2Jt/082.png',
                 'https://i.postimg.cc/tg72C0r3/086.png'
               ]
-              const frame = cat.frame || frames[idx % frames.length]
+              const frame = (cat.frame === 'https://i.postimg.cc/ZnkSxxB3/095.png' ? 'https://i.postimg.cc/L8G9JKkM/059.png' : cat.frame) || frames[idx % frames.length]
               return (
                 <div key={cat.id}>
                   <div onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}} style={{position:'relative',cursor:'pointer'}}>
                     <img src={frame} alt='' style={{width:'100%',display:'block'}} />
-                    <div style={{position:'absolute',inset:'16% 12% 18%',borderRadius:18,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(255,248,243,0.35)'}}>
-                      {cover && <img src={cover} alt='' style={{position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',width:'100%',height:'100%',objectFit:'cover'}} />}
-                      <div style={{position:'relative',zIndex:1,height:'100%',width:'100%',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'18px 18px 16px',background:cover?'linear-gradient(to top, rgba(255,248,243,0.92), rgba(255,248,243,0.18))':'transparent'}}>
+                    <div style={{position:'absolute',inset:'16% 12% 18%',borderRadius:18,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(255,248,243,0.24)'}}>
+                      {cover && <img src={cover} alt='' style={{position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',width:'86%',height:'82%',objectFit:'cover',objectPosition:'center center',borderRadius:14}} />}
+                      <div style={{position:'absolute',inset:0,background:cover?'linear-gradient(to top, rgba(255,248,243,0.96), rgba(255,248,243,0.40) 42%, rgba(255,248,243,0.08) 72%)':'transparent'}} />
+                      <div style={{position:'relative',zIndex:1,height:'100%',width:'100%',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'18px 18px 16px'}}>
                         <div>
                           <div style={{fontFamily:'Playfair Display, serif',fontSize:24,fontWeight:700,fontStyle:'italic',color:'#5a3e2b'}}>{cat.name}</div>
                           <div style={{fontFamily:'Cormorant Garamond, serif',fontSize:14,color:'#8c7562',marginTop:4}}>{cat.description}</div>
