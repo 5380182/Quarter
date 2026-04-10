@@ -255,7 +255,7 @@ export default function App() {
     const title = newStoryTitle.trim()
     if (!title) return
     const id = 'custom_story_' + Date.now()
-    const frames = ['https://i.postimg.cc/L8G9JKkM/059.png','https://i.postimg.cc/1t7SVZPX/064.png','https://i.postimg.cc/3rbrd2Jt/082.png','https://i.postimg.cc/tg72C0r3/086.png']
+    const frames = ['https://i.postimg.cc/L8G9JKkM/059.png','https://i.postimg.cc/1t7SVZPX/064.png','https://i.postimg.cc/3rbrd2Jt/082.png']
     const cat: StoryCategory = {
       id,
       name: title,
@@ -846,8 +846,7 @@ export default function App() {
               const frames = [
                 'https://i.postimg.cc/L8G9JKkM/059.png',
                 'https://i.postimg.cc/1t7SVZPX/064.png',
-                'https://i.postimg.cc/3rbrd2Jt/082.png',
-                'https://i.postimg.cc/tg72C0r3/086.png'
+                'https://i.postimg.cc/3rbrd2Jt/082.png'
               ]
               const frame = (cat.frame === 'https://i.postimg.cc/ZnkSxxB3/095.png' ? 'https://i.postimg.cc/L8G9JKkM/059.png' : cat.frame) || frames[idx % frames.length]
               const frameInset = frame === 'https://i.postimg.cc/L8G9JKkM/059.png' ? '29% 16% 33%' : '16% 12% 18%'
