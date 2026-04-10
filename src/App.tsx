@@ -223,7 +223,6 @@ export default function App() {
   const [newStoryContent, setNewStoryContent] = useState('')
   const [newStoryCat, setNewStoryCat] = useState('')
   const [storyBg, setStoryBg] = useState<string>(() => load('story_bg', ''))
-  const [storyBgUrl, setStoryBgUrl] = useState<string>(() => load('story_bg', ''))
   const [storyBgSize, setStoryBgSize] = useState<'cover'|'contain'|'repeat'>(() => load('story_bg_size', 'repeat'))
   const storyBgRef = useRef<HTMLInputElement>(null)
   const storyCoverRef = useRef<HTMLInputElement>(null)
@@ -235,7 +234,7 @@ export default function App() {
   const handleStoryBg = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return
     const reader = new FileReader()
-    reader.onload = () => { const u = reader.result as string; setStoryBg(u); setStoryBgUrl(u); save('story_bg', u) }
+    reader.onload = () => { const u = reader.result as string; setStoryBg(u); save('story_bg', u) }
     reader.readAsDataURL(file)
   }
   const handleStoryCover = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -916,14 +915,10 @@ if (!Array.isArray(stories)) {
                 <div style={{fontSize:28,lineHeight:1,fontFamily:'Cormorant Garamond, serif'}}>+</div>
               </div>
             </>}
-            {storyView==='read' && (()=>{ const chs=safeChapters.filter(c=>c.story_id===storyId).sort((a,b)=>a.chapter_number-b.chapter_number); const ch=chs[storyChIdx]; if(!ch)return <div style={{textAlign:'center',padding:40,color:'#999'}}>没有章节</div>; return <div style={{background:'rgba(255,252,248,0.94)',borderRadius:18,padding:'18px 16px 22px',border:'1px solid rgba(160,130,110,0.08)',boxShadow:'0 8px 24px rgba(90,62,43,0.06)'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,color:'var(--accent)',marginBottom:6,fontWeight:500}}>{ch.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:14,color:'#3c3c3c',lineHeight:'2.2',letterSpacing:'0.5px'}}>{ch.content.split('\n').map((p,i)=><p key={i} style={{textIndent:'2em',margin:'0 0 8px 0'}}>{p}</p>)}</div><div style={{display:'flex',justifyContent:'space-between',marginTop:40,paddingTop:20,borderTop:'1px solid rgba(0,0,0,0.06)'}}>{storyChIdx>0?<button onClick={()=>setStoryChIdx(storyChIdx-1)} style={{background:'none',border:'1px solid rgba(0,0,0,0.1)',borderRadius:8,padding:'8px 20px',fontSize:12,color:'#666',cursor:'pointer'}}>上一章</button>:<div/>}{storyChIdx<chs.length-1&&<button onClick={()=>setStoryChIdx(storyChIdx+1)} style={{background:'var(--accent)',border:'none',borderRadius:8,padding:'8px 20px',fontSize:12,color:'white',cursor:'pointer'}}>下一章</button>}</div></div>})()}
+            {storyView==='read' && (()=>{ const chs=safeChapters.filter(c=>c.story_id===storyId).sort((a,b)=>a.chapter_number-b.chapter_number); const ch=chs[storyChIdx]; if(!ch)return <div style={{textAlign:'center',padding:40,color:'#999'}}>没有章节</div>; return <div style={{background:'rgba(255,252,248,0.68)',backdropFilter:'blur(10px)',WebkitBackdropFilter:'blur(10px)',borderRadius:18,padding:'18px 16px 22px',border:'1px solid rgba(255,255,255,0.28)',boxShadow:'0 8px 24px rgba(90,62,43,0.10)'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,color:'var(--accent)',marginBottom:6,fontWeight:500}}>{ch.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:14,color:'#3c3c3c',lineHeight:'2.2',letterSpacing:'0.5px'}}>{ch.content.split('\n').map((p,i)=><p key={i} style={{textIndent:'2em',margin:'0 0 8px 0'}}>{p}</p>)}</div><div style={{display:'flex',justifyContent:'space-between',marginTop:40,paddingTop:20,borderTop:'1px solid rgba(0,0,0,0.06)'}}>{storyChIdx>0?<button onClick={()=>setStoryChIdx(storyChIdx-1)} style={{background:'none',border:'1px solid rgba(0,0,0,0.1)',borderRadius:8,padding:'8px 20px',fontSize:12,color:'#666',cursor:'pointer'}}>上一章</button>:<div/>}{storyChIdx<chs.length-1&&<button onClick={()=>setStoryChIdx(storyChIdx+1)} style={{background:'var(--accent)',border:'none',borderRadius:8,padding:'8px 20px',fontSize:12,color:'white',cursor:'pointer'}}>下一章</button>}</div></div>})()}
             <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap'}}>
               <button onClick={()=>storyBgRef.current?.click()} style={{background:'none',border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'8px 16px',fontSize:11,color:'#b8a08a',cursor:'pointer',fontFamily:'Cormorant Garamond, serif',fontStyle:'italic',letterSpacing:1}}>change wallpaper</button>
               <button onClick={()=>{const next = safeStoryBgSize==='repeat' ? 'cover' : safeStoryBgSize==='cover' ? 'contain' : 'repeat'; setStoryBgSize(next); save('story_bg_size', next)}} style={{background:'none',border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'8px 16px',fontSize:11,color:'#b8a08a',cursor:'pointer',fontFamily:'Cormorant Garamond, serif',fontStyle:'italic',letterSpacing:1}}>bg mode: {safeStoryBgSize}</button>
-            </div>
-            <div style={{display:'flex',gap:8,marginTop:8}}>
-              <input value={storyBgUrl} onChange={e=>setStoryBgUrl(e.target.value)} placeholder='background image url' style={{flex:1,minWidth:0,border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'10px 12px',fontSize:12,color:'#7d6958',background:'rgba(255,252,248,0.72)'}} />
-              <button onClick={()=>{setStoryBg(storyBgUrl.trim()); save('story_bg', storyBgUrl.trim())}} style={{background:'none',border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'8px 14px',fontSize:11,color:'#b8a08a',cursor:'pointer',fontFamily:'Cormorant Garamond, serif',fontStyle:'italic',letterSpacing:1}}>apply url</button>
             </div>
             <input ref={storyBgRef} type='file' accept='image/*' style={{display:'none'}} onChange={handleStoryBg} />
             <input ref={storyCoverRef} type='file' accept='image/*' style={{display:'none'}} onChange={handleStoryCover} />
