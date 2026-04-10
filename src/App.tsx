@@ -850,21 +850,19 @@ export default function App() {
                 'https://i.postimg.cc/tg72C0r3/086.png'
               ]
               const frame = (cat.frame === 'https://i.postimg.cc/ZnkSxxB3/095.png' ? 'https://i.postimg.cc/L8G9JKkM/059.png' : cat.frame) || frames[idx % frames.length]
-              const isFrame059 = frame === 'https://i.postimg.cc/L8G9JKkM/059.png'
-              const frameInset = isFrame059 ? '16% 18% 20%' : '16% 12% 18%'
               return (
                 <div key={cat.id}>
                   <div onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}} style={{position:'relative',cursor:'pointer'}}>
                     <img src={frame} alt='' style={{width:'100%',display:'block'}} />
-                    <div style={{position:'absolute',inset:frameInset,borderRadius:18,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',background:isFrame059?'transparent':'rgba(255,248,243,0.24)'}}>
-                      {cover && <img src={cover} alt='' style={{position:'absolute',left:'50%',top:isFrame059?'53%':'50%',transform:'translate(-50%,-50%)',width:isFrame059?'74%':'86%',height:isFrame059?'70%':'82%',objectFit:'cover',objectPosition:'center center',borderRadius:isFrame059?22:14}} />}
-                      <div style={{position:'absolute',inset:0,background:cover?(isFrame059?'linear-gradient(to bottom, rgba(255,248,243,0.08), rgba(255,248,243,0.04))':'linear-gradient(to top, rgba(255,248,243,0.96), rgba(255,248,243,0.40) 42%, rgba(255,248,243,0.08) 72%)'):'transparent'}} />
-                      <div style={{position:'relative',zIndex:1,height:'100%',width:isFrame059?'78%':'100%',margin:isFrame059?'0 auto':'0',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:isFrame059?'12px 0 12px':'18px 18px 16px'}}>
-                        <div style={isFrame059?{background:'rgba(255,248,243,0.72)',borderRadius:18,padding:'12px 14px',backdropFilter:'blur(2px)'}:{}}>
+                    <div style={{position:'absolute',inset:'16% 12% 18%',borderRadius:18,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(255,248,243,0.24)'}}>
+                      {cover && <img src={cover} alt='' style={{position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',width:'86%',height:'82%',objectFit:'cover',objectPosition:'center center',borderRadius:14}} />}
+                      <div style={{position:'absolute',inset:0,background:cover?'linear-gradient(to top, rgba(255,248,243,0.96), rgba(255,248,243,0.40) 42%, rgba(255,248,243,0.08) 72%)':'transparent'}} />
+                      <div style={{position:'relative',zIndex:1,height:'100%',width:'100%',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'18px 18px 16px'}}>
+                        <div>
                           <div style={{fontFamily:'Playfair Display, serif',fontSize:24,fontWeight:700,fontStyle:'italic',color:'#5a3e2b'}}>{cat.name}</div>
                           <div style={{fontFamily:'Cormorant Garamond, serif',fontSize:14,color:'#8c7562',marginTop:4}}>{cat.description}</div>
                         </div>
-                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:12,background:isFrame059?'rgba(255,248,243,0.72)':'transparent',borderRadius:isFrame059?999:0,padding:isFrame059?'8px 10px':'0',backdropFilter:isFrame059?'blur(2px)':'none'}}>
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:12}}>
                           <div style={{fontFamily:'Cormorant Garamond, serif',fontSize:12,letterSpacing:1,color:'#a58a74'}}>{count} stories</div>
                           <button onClick={(e)=>{e.stopPropagation();setEditingCover(cat.id);storyCoverRef.current?.click()}} style={{border:'1px dashed rgba(160,130,110,0.35)',background:'rgba(255,251,247,0.88)',color:'#9c8268',borderRadius:999,padding:'6px 12px',fontSize:11,fontFamily:'Cormorant Garamond, serif'}}>upload cover</button>
                         </div>
