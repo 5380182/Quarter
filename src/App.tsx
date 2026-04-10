@@ -273,6 +273,22 @@ export default function App() {
     setNewStoryContent('')
     setShowStoryForm(false)
   }
+  const deleteStoryCategory = (id: string) => {
+    const nextCats = safeStoryCategories.filter(cat => cat.id !== id)
+    const nextStories = safeStories.filter(st => st.category_id !== id)
+    const removedIds = new Set(safeStories.filter(st => st.category_id === id).map(st => st.id))
+    const nextChapters = safeChapters.filter(ch => !removedIds.has(ch.story_id))
+    setStoryCategories(nextCats)
+    setStories(nextStories)
+    setChapters(nextChapters)
+    save('story_cats', nextCats)
+    save('stories', nextStories)
+    save('chapters', nextChapters)
+    if (storyCatId === id) {
+      setStoryCatId(null)
+      setStoryView('categories')
+    }
+  }
 
 
 
@@ -838,9 +854,9 @@ export default function App() {
                 <div key={cat.id}>
                   <div onClick={()=>{setStoryCatId(cat.id);setStoryView('list')}} style={{position:'relative',cursor:'pointer'}}>
                     <img src={frame} alt='' style={{width:'100%',display:'block'}} />
-                    <div style={{position:'absolute',inset:'14% 11% 16%',borderRadius:18,overflow:'hidden'}}>
-                      {cover && <img src={cover} alt='' style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}} />}
-                      <div style={{position:'relative',zIndex:1,height:'100%',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'18px 18px 16px',background:cover?'linear-gradient(to top, rgba(255,248,243,0.92), rgba(255,248,243,0.28))':'transparent'}}>
+                    <div style={{position:'absolute',inset:'16% 12% 18%',borderRadius:18,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(255,248,243,0.35)'}}>
+                      {cover && <img src={cover} alt='' style={{position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',width:'100%',height:'100%',objectFit:'cover'}} />}
+                      <div style={{position:'relative',zIndex:1,height:'100%',width:'100%',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'18px 18px 16px',background:cover?'linear-gradient(to top, rgba(255,248,243,0.92), rgba(255,248,243,0.18))':'transparent'}}>
                         <div>
                           <div style={{fontFamily:'Playfair Display, serif',fontSize:24,fontWeight:700,fontStyle:'italic',color:'#5a3e2b'}}>{cat.name}</div>
                           <div style={{fontFamily:'Cormorant Garamond, serif',fontSize:14,color:'#8c7562',marginTop:4}}>{cat.description}</div>
@@ -851,19 +867,16 @@ export default function App() {
                         </div>
                       </div>
                     </div>
+                    {cat.id.startsWith('custom_story_') && <button onClick={(e)=>{e.stopPropagation();deleteStoryCategory(cat.id)}} style={{position:'absolute',right:'9%',top:'12%',width:22,height:22,borderRadius:'50%',border:'none',background:'rgba(255,251,247,0.82)',color:'#b08f76',fontSize:14,cursor:'pointer',zIndex:3,lineHeight:1}}>×</button>}
                   </div>
                   <img src='https://i.postimg.cc/htWCr3tG/046.png' alt='' style={{width:170,display:'block',margin:'6px auto 10px'}} />
                 </div>
               )
             })}
-            {storyView==='categories' && <div onClick={()=>setShowStoryForm(true)} style={{position:'relative',cursor:'pointer',minHeight:140}}>
-              <img src='https://i.postimg.cc/tg72C0r3/086.png' alt='' style={{width:'100%',display:'block'}} />
-              <button onClick={(e)=>{e.stopPropagation();setShowStoryForm(true)}} style={{position:'absolute',inset:'20% 18%',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',color:'#b08f76',background:'transparent',border:'none',width:'64%',height:'54%',cursor:'pointer'}}>
-                <div style={{fontSize:32,lineHeight:1,fontFamily:'Cormorant Garamond, serif'}}>+</div>
-                <div style={{fontFamily:'Playfair Display, serif',fontSize:13,fontStyle:'italic',marginTop:6}}>begin a new chapter</div>
-              </button>
+            {storyView==='categories' && <div onClick={()=>setShowStoryForm(true)} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'6px 0 10px',cursor:'pointer',color:'#b08f76'}}>
+              <div style={{fontSize:34,lineHeight:1,fontFamily:'Cormorant Garamond, serif'}}>+</div>
             </div>}
-            {storyView==='categories' && <img src='https://i.postimg.cc/2SxSjMqy/012.png' alt='' style={{width:90,display:'block',margin:'8px auto 0'}} />}
+            {storyView==='categories' && <img src='https://i.postimg.cc/2SxSjMqy/012.png' alt='' style={{width:90,display:'block',margin:'2px auto 0'}} />}
             {storyView==='list' && <div style={{display:'flex',flexDirection:'column',gap:12}}>{safeStories.filter(s=>s.category_id===storyCatId).length===0?<div style={{textAlign:'center',padding:'60px 20px',color:'#b0a898',fontSize:13,fontFamily:"'LXGW WenKai',serif"}}>还没有故事</div>:safeStories.filter(s=>s.category_id===storyCatId).sort((a,b)=>a.sort_order-b.sort_order).map(s=><div key={s.id} onClick={()=>{setStoryId(s.id);setStoryChIdx(0);setStoryView('read')}} style={{background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px',cursor:'pointer',border:'1px solid rgba(0,0,0,0.05)',boxShadow:'0 8px 24px rgba(90,62,43,0.04)'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:16,fontWeight:600,color:'#2c2c2c'}}>{s.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#bbb'}}>{safeChapters.filter(c=>c.story_id===s.id).length}章</div></div>{s.summary&&<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:12,color:'#999',marginTop:6,lineHeight:'1.6'}}>{s.summary}</div>}<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#ccc',marginTop:8}}>{s.author==='kk'?'kk':'厌厌'} · {new Date(s.created_at).toLocaleDateString('zh-CN')}</div></div>)}</div>}
             {storyView==='read' && (()=>{ const chs=safeChapters.filter(c=>c.story_id===storyId).sort((a,b)=>a.chapter_number-b.chapter_number); const ch=chs[storyChIdx]; if(!ch)return <div style={{textAlign:'center',padding:40,color:'#999'}}>没有章节</div>; return <div style={{background:'rgba(255,252,248,0.94)',borderRadius:18,padding:'18px 16px 22px',border:'1px solid rgba(160,130,110,0.08)',boxShadow:'0 8px 24px rgba(90,62,43,0.06)'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,color:'var(--accent)',marginBottom:6,fontWeight:500}}>{ch.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:14,color:'#3c3c3c',lineHeight:'2.2',letterSpacing:'0.5px'}}>{ch.content.split('\n').map((p,i)=><p key={i} style={{textIndent:'2em',margin:'0 0 8px 0'}}>{p}</p>)}</div><div style={{display:'flex',justifyContent:'space-between',marginTop:40,paddingTop:20,borderTop:'1px solid rgba(0,0,0,0.06)'}}>{storyChIdx>0?<button onClick={()=>setStoryChIdx(storyChIdx-1)} style={{background:'none',border:'1px solid rgba(0,0,0,0.1)',borderRadius:8,padding:'8px 20px',fontSize:12,color:'#666',cursor:'pointer'}}>上一章</button>:<div/>}{storyChIdx<chs.length-1&&<button onClick={()=>setStoryChIdx(storyChIdx+1)} style={{background:'var(--accent)',border:'none',borderRadius:8,padding:'8px 20px',fontSize:12,color:'white',cursor:'pointer'}}>下一章</button>}</div></div>})()}
             <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap'}}>
