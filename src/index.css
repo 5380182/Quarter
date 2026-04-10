@@ -1100,6 +1100,13 @@ body {
 .story-create-modal {
   max-width: 360px !important;
 }
+.story-create-modal textarea.bill-note-input {
+  border: 1px solid rgba(160,130,110,0.18);
+  border-radius: 10px;
+  padding-left: 12px;
+  padding-right: 12px;
+  box-sizing: border-box;
+}
 
 .cat-name {
   font-family: "Playfair Display", serif;
