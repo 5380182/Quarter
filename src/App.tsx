@@ -883,7 +883,7 @@ export default function App() {
       )}
 
       {showStoryForm && (
-        <div className="bill-modal-overlay" onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}}>
+        <div className="bill-modal-overlay" style={{zIndex:2147483648}} onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}}>
           <div className="bill-modal story-create-modal" onClick={e=>e.stopPropagation()}>
             <div className="bill-modal-title">新的故事集</div>
             <input className="bill-note-input" placeholder="故事集名称" value={newStoryTitle} onChange={e=>setNewStoryTitle(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:10}} autoFocus />
