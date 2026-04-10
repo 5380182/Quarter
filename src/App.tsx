@@ -229,6 +229,10 @@ export default function App() {
   const storyBgRef = useRef<HTMLInputElement>(null)
   const storyCoverRef = useRef<HTMLInputElement>(null)
   const [editingCover, setEditingCover] = useState<string|null>(null)
+  const safeStoryCategories = Array.isArray(storyCategories) ? storyCategories : []
+  const safeStories = Array.isArray(stories) ? stories : []
+  const safeChapters = Array.isArray(chapters) ? chapters : []
+  const safeStoryBgSize: 'cover'|'contain'|'repeat' = ['cover','contain','repeat'].includes(storyBgSize) ? storyBgSize : 'repeat'
   const handleStoryBg = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return
     const reader = new FileReader()
@@ -257,11 +261,11 @@ export default function App() {
       name: title,
       description: newStoryContent.trim() || '新的故事正在开始',
       color: '#E8DDD3',
-      sort_order: storyCategories.length + 1,
-      frame: frames[storyCategories.length % frames.length],
+      sort_order: safeStoryCategories.length + 1,
+      frame: frames[safeStoryCategories.length % frames.length],
       cover: newStoryCat.trim() || undefined
     }
-    const next = [...storyCategories, cat]
+    const next = [...safeStoryCategories, cat]
     setStoryCategories(next)
     save('story_cats', next)
     setNewStoryCat('')
@@ -312,6 +316,37 @@ export default function App() {
     document.documentElement.style.setProperty('--accent-dark',theme.accentColor)
     document.documentElement.style.setProperty('--card',`rgba(255,255,255,${theme.cardOpacity})`)
   },[theme])
+
+  useEffect(() => {
+    if (!Array.isArray(storyCategories)) {
+      const fallback = [
+        {id:'fairy',name:'童话治愈',description:'每个夜晚的小小故事',color:'#E8DDD3',sort_order:1},
+        {id:'us',name:'我们的',description:'只属于我们的故事',color:'#D3DDE8',sort_order:2}
+      ]
+      setStoryCategories(fallback)
+      save('story_cats', fallback)
+    }
+    if (!Array.isArray(stories)) {
+      const fallback = [
+        {id:'deer1',category_id:'fairy',title:'小鹿的第一夜',author:'kk',summary:'关于一只迷路的小鹿',sort_order:1,created_at:'2026-04-03T00:00:00Z'},
+        {id:'fish1',category_id:'fairy',title:'鱼和树',author:'kk',summary:'一条鱼和一棵树的故事',sort_order:2,created_at:'2026-04-05T00:00:00Z'}
+      ]
+      setStories(fallback)
+      save('stories', fallback)
+    }
+    if (!Array.isArray(chapters)) {
+      const fallback = [
+        {id:'deer1_ch1',story_id:'deer1',chapter_number:1,title:'第一夜',content:'从前有一只小鹿，她迷路了。树林很大，月亮很亮，但她找不到回家的路。\n\n她走啊走，走到一棵很大的树下面。树上有一只猴子，猴子说：你迷路了吗？\n\n小鹿说：我不知道家在哪里。\n\n猴子说：那你就在这里住一晚吧。明天我带你找。',created_at:'2026-04-03T00:00:00Z'},
+        {id:'fish1_ch1',story_id:'fish1',chapter_number:1,title:'第一章',content:'河底有一条鱼，河边有一棵树。\n\n鱼每天都能看到树的倒影，但树看不到鱼。',created_at:'2026-04-05T00:00:00Z'}
+      ]
+      setChapters(fallback)
+      save('chapters', fallback)
+    }
+    if (!['cover','contain','repeat'].includes(storyBgSize)) {
+      setStoryBgSize('repeat')
+      save('story_bg_size', 'repeat')
+    }
+  }, [])
 
   // Load journal from Supabase
   useEffect(() => {
@@ -776,8 +811,8 @@ export default function App() {
           className={`page-overlay story-page ${storyView==='read'?'story-reading-mode':''}`}
           style={storyBg?{
             backgroundImage:`url(${storyBg})`,
-            backgroundSize: storyBgSize==='repeat' ? '300px' : storyBgSize,
-            backgroundRepeat: storyBgSize==='repeat' ? 'repeat' : 'no-repeat',
+            backgroundSize: safeStoryBgSize==='repeat' ? '300px' : safeStoryBgSize,
+            backgroundRepeat: safeStoryBgSize==='repeat' ? 'repeat' : 'no-repeat',
             backgroundPosition:'center'
           }:undefined}
         >
@@ -789,7 +824,7 @@ export default function App() {
               else{setPage(null)}
             }}><ArrowLeft size={20} weight="bold" /></button>
             <span className="page-title" style={{fontFamily:"'Noto Serif SC',serif",fontWeight:700,letterSpacing:2}}>
-              {storyView==='categories'?'故事集':storyView==='list'?(storyCategories.find(c=>c.id===storyCatId)?.name||''):(stories.find(s=>s.id===storyId)?.title||'')}
+              {storyView==='categories'?'故事集':storyView==='list'?(safeStoryCategories.find(c=>c.id===storyCatId)?.name||''):(safeStories.find(s=>s.id===storyId)?.title||'')}
             </span>
             {storyView==='categories'&&<button onClick={()=>setShowStoryForm(true)} style={{marginLeft:'auto',background:'none',border:'none',fontSize:20,color:'var(--accent)',cursor:'pointer'}}>+</button>}
           </div>
@@ -802,8 +837,8 @@ export default function App() {
                   <div className="story-title-text"><h2>Stories</h2><div className="sub">once upon a time, in a place called ours</div></div>
                 </div>
                 <img className="story-divider" src="https://i.postimg.cc/htWCr3tG/046.png" alt="" />
-                {storyCategories.map((cat,idx)=>{
-                  const count=stories.filter(s=>s.category_id===cat.id).length
+                {safeStoryCategories.map((cat,idx)=>{
+                  const count=safeStories.filter(s=>s.category_id===cat.id).length
                   const frames=['https://i.postimg.cc/ZnkSxxB3/095.png','https://i.postimg.cc/1t7SVZPX/064.png','https://i.postimg.cc/3rbrd2Jt/082.png','https://i.postimg.cc/tg72C0r3/086.png']
                   const frame = cat.frame || frames[idx%frames.length]
                   return(
@@ -849,10 +884,10 @@ export default function App() {
             )}
             {storyView==='list'&&(
               <div style={{display:'flex',flexDirection:'column',gap:12}}>
-                {stories.filter(s=>s.category_id===storyCatId).length===0?(
+                {safeStories.filter(s=>s.category_id===storyCatId).length===0?(
                   <div style={{textAlign:'center',padding:'60px 20px',color:'#b0a898',fontSize:13,fontFamily:"'LXGW WenKai',serif"}}>还没有故事</div>
-                ):stories.filter(s=>s.category_id===storyCatId).sort((a,b)=>a.sort_order-b.sort_order).map(s=>{
-                  const chCount=chapters.filter(c=>c.story_id===s.id).length
+                ):safeStories.filter(s=>s.category_id===storyCatId).sort((a,b)=>a.sort_order-b.sort_order).map(s=>{
+                  const chCount=safeChapters.filter(c=>c.story_id===s.id).length
                   return(
                     <div key={s.id} onClick={()=>{setStoryId(s.id);setStoryChIdx(0);setStoryView('read')}} style={{background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px',cursor:'pointer',border:'1px solid rgba(0,0,0,0.05)',transition:'all 0.2s',position:'relative',zIndex:2}}>
                       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
@@ -867,7 +902,7 @@ export default function App() {
               </div>
             )}
             {storyView==='read'&&(()=>{
-              const chs=chapters.filter(c=>c.story_id===storyId).sort((a,b)=>a.chapter_number-b.chapter_number)
+              const chs=safeChapters.filter(c=>c.story_id===storyId).sort((a,b)=>a.chapter_number-b.chapter_number)
               const ch=chs[storyChIdx]
               if(!ch)return <div style={{textAlign:'center',padding:40,color:'#999'}}>没有章节</div>
               return(
