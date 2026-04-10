@@ -957,14 +957,30 @@ if (!Array.isArray(stories)) {
       {showStoryForm && (
         <div className="bill-modal-overlay" style={{zIndex:2147483648}} onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}}>
           <div className="bill-modal story-create-modal" onClick={e=>e.stopPropagation()}>
-            <div className="bill-modal-title">{storyView==='read' ? '新的故事篇章' : storyView==='list' ? '新的系列故事' : '新的故事集'}</div>
-            <input className="bill-note-input" placeholder={storyView==='read' ? '篇章标题' : storyView==='list' ? '系列故事名称' : '故事集名称'} value={newStoryTitle} onChange={e=>setNewStoryTitle(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:10}} autoFocus />
-            <textarea className="bill-note-input" placeholder={storyView==='read' ? '写这一篇的正文内容...' : storyView==='list' ? '一句简介，可空着' : '一句简介'} value={newStoryContent} onChange={e=>setNewStoryContent(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:storyView==='read'||storyView==='list'?14:10,minHeight:storyView==='read'?140:44,resize:'vertical',padding:'10px 0',lineHeight:'1.7',background:'rgba(255,252,248,0.88)',color:'#6b5848'}} />
-            {storyView==='categories' && <input className="bill-note-input" placeholder="封面图URL，可空着后面上传" value={newStoryCat} onChange={e=>setNewStoryCat(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:14}} />}
-            <div style={{display:'flex',gap:8}}>
-              <button className="bill-submit-btn" onClick={storyView==='read' ? createChapter : storyView==='list' ? createSeriesStory : createStoryCategory} style={{flex:1}}>创建</button>
-              <button className="bill-submit-btn" onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}} style={{flex:1,background:'rgba(200,200,200,0.2)',color:'#aaa'}}>取消</button>
-            </div>
+            {storyView==='read' ? (
+              <>
+                <div className="bill-modal-title">新的故事篇章</div>
+                <div style={{fontSize:12,color:'#8c7562',marginBottom:6}}>篇章标题</div>
+                <input className="bill-note-input" placeholder="比如：第二夜" value={newStoryTitle} onChange={e=>setNewStoryTitle(e.target.value)} style={{border:'1px solid rgba(160,130,110,0.18)',borderRadius:10,padding:'10px 12px',marginBottom:12,background:'rgba(255,252,248,0.95)',color:'#5c493a'}} autoFocus />
+                <div style={{fontSize:12,color:'#8c7562',marginBottom:6}}>正文内容</div>
+                <textarea placeholder="写这一篇的正文内容..." value={newStoryContent} onChange={e=>setNewStoryContent(e.target.value)} rows={8} style={{width:'100%',minHeight:180,border:'1px solid rgba(160,130,110,0.18)',borderRadius:10,padding:'12px',marginBottom:14,background:'rgba(255,252,248,0.95)',color:'#5c493a',fontSize:14,lineHeight:'1.8',resize:'vertical',boxSizing:'border-box',fontFamily:"'Noto Sans SC',sans-serif"}} />
+                <div style={{display:'flex',gap:8}}>
+                  <button className="bill-submit-btn" onClick={createChapter} style={{flex:1}}>创建</button>
+                  <button className="bill-submit-btn" onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}} style={{flex:1,background:'rgba(200,200,200,0.2)',color:'#aaa'}}>取消</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="bill-modal-title">{storyView==='list' ? '新的系列故事' : '新的故事集'}</div>
+                <input className="bill-note-input" placeholder={storyView==='list' ? '系列故事名称' : '故事集名称'} value={newStoryTitle} onChange={e=>setNewStoryTitle(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:10}} autoFocus />
+                <textarea className="bill-note-input" placeholder={storyView==='list' ? '一句简介，可空着' : '一句简介'} value={newStoryContent} onChange={e=>setNewStoryContent(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:storyView==='list'?14:10,minHeight:storyView==='read'?140:44,resize:'vertical',padding:'10px 0',lineHeight:'1.7',background:'rgba(255,252,248,0.88)',color:'#6b5848'}} />
+                {storyView==='categories' && <input className="bill-note-input" placeholder="封面图URL，可空着后面上传" value={newStoryCat} onChange={e=>setNewStoryCat(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:14}} />}
+                <div style={{display:'flex',gap:8}}>
+                  <button className="bill-submit-btn" onClick={storyView==='list' ? createSeriesStory : createStoryCategory} style={{flex:1}}>创建</button>
+                  <button className="bill-submit-btn" onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}} style={{flex:1,background:'rgba(200,200,200,0.2)',color:'#aaa'}}>取消</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
