@@ -273,6 +273,28 @@ export default function App() {
     setNewStoryContent('')
     setShowStoryForm(false)
   }
+  const createSeriesStory = () => {
+    const title = newStoryTitle.trim()
+    if (!title || !storyCatId) return
+    const id = 'story_' + Date.now()
+    const categoryStories = safeStories.filter(st => st.category_id === storyCatId)
+    const story: Story = {
+      id,
+      category_id: storyCatId,
+      title,
+      author: identity,
+      summary: newStoryContent.trim(),
+      sort_order: categoryStories.length + 1,
+      created_at: new Date().toISOString()
+    }
+    const next = [...safeStories, story]
+    setStories(next)
+    save('stories', next)
+    setNewStoryTitle('')
+    setNewStoryContent('')
+    setNewStoryCat('')
+    setShowStoryForm(false)
+  }
   const deleteStoryCategory = (id: string) => {
     const nextCats = safeStoryCategories.filter(cat => cat.id !== id)
     const nextStories = safeStories.filter(st => st.category_id !== id)
@@ -880,7 +902,7 @@ export default function App() {
             {storyView==='categories' && <img src='https://i.postimg.cc/2SxSjMqy/012.png' alt='' style={{width:90,display:'block',margin:'2px auto 0'}} />}
             {storyView==='list' && <>
               <div style={{display:'flex',flexDirection:'column',gap:12}}>{safeStories.filter(s=>s.category_id===storyCatId).length===0?<div style={{textAlign:'center',padding:'60px 20px',color:'#b0a898',fontSize:13,fontFamily:"'LXGW WenKai',serif"}}>还没有故事</div>:safeStories.filter(s=>s.category_id===storyCatId).sort((a,b)=>a.sort_order-b.sort_order).map(s=><div key={s.id} onClick={()=>{setStoryId(s.id);setStoryChIdx(0);setStoryView('read')}} style={{background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px',cursor:'pointer',border:'1px solid rgba(0,0,0,0.05)',boxShadow:'0 8px 24px rgba(90,62,43,0.04)'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:16,fontWeight:600,color:'#2c2c2c'}}>{s.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#bbb'}}>{safeChapters.filter(c=>c.story_id===s.id).length}章</div></div>{s.summary&&<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:12,color:'#999',marginTop:6,lineHeight:'1.6'}}>{s.summary}</div>}<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#ccc',marginTop:8}}>{s.author==='kk'?'kk':'厌厌'} · {new Date(s.created_at).toLocaleDateString('zh-CN')}</div></div>)}</div>
-              <div onClick={()=>setShowStoryForm(true)} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'2px 0 12px',cursor:'pointer',color:'#b08f76'}}>
+              <div onClick={()=>{setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('');setShowStoryForm(true)}} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'2px 0 12px',cursor:'pointer',color:'#b08f76'}}>
                 <div style={{fontSize:28,lineHeight:1,fontFamily:'Cormorant Garamond, serif'}}>+</div>
               </div>
             </>}
@@ -904,12 +926,12 @@ export default function App() {
       {showStoryForm && (
         <div className="bill-modal-overlay" style={{zIndex:2147483648}} onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}}>
           <div className="bill-modal story-create-modal" onClick={e=>e.stopPropagation()}>
-            <div className="bill-modal-title">新的故事集</div>
-            <input className="bill-note-input" placeholder="故事集名称" value={newStoryTitle} onChange={e=>setNewStoryTitle(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:10}} autoFocus />
-            <input className="bill-note-input" placeholder="一句简介" value={newStoryContent} onChange={e=>setNewStoryContent(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:10}} />
-            <input className="bill-note-input" placeholder="封面图URL，可空着后面上传" value={newStoryCat} onChange={e=>setNewStoryCat(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:14}} />
+            <div className="bill-modal-title">{storyView==='list' ? '新的系列故事' : '新的故事集'}</div>
+            <input className="bill-note-input" placeholder={storyView==='list' ? '系列故事名称' : '故事集名称'} value={newStoryTitle} onChange={e=>setNewStoryTitle(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:10}} autoFocus />
+            <input className="bill-note-input" placeholder={storyView==='list' ? '一句简介，可空着' : '一句简介'} value={newStoryContent} onChange={e=>setNewStoryContent(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:storyView==='list'?14:10}} />
+            {storyView!=='list' && <input className="bill-note-input" placeholder="封面图URL，可空着后面上传" value={newStoryCat} onChange={e=>setNewStoryCat(e.target.value)} style={{borderBottom:'2px dashed #e0d5c3',marginBottom:14}} />}
             <div style={{display:'flex',gap:8}}>
-              <button className="bill-submit-btn" onClick={createStoryCategory} style={{flex:1}}>创建</button>
+              <button className="bill-submit-btn" onClick={storyView==='list' ? createSeriesStory : createStoryCategory} style={{flex:1}}>创建</button>
               <button className="bill-submit-btn" onClick={()=>{setShowStoryForm(false);setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('')}} style={{flex:1,background:'rgba(200,200,200,0.2)',color:'#aaa'}}>取消</button>
             </div>
           </div>
