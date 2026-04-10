@@ -807,16 +807,16 @@ export default function App() {
         </div>
       )}
       {page==='stories' && (
-        <div className="page-overlay story-page">
-          <div className="page-header">
+        <div className="page-overlay story-page" style={{zIndex: 9999, background:'#fffdfb'}}>
+          <div className="page-header" style={{position:'relative', zIndex:10000, background:'#fffdfb'}}>
             <button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button>
             <span className="page-title">故事集</span>
           </div>
-          <div className="page-body">
-            <div style={{background:'rgba(255,255,255,0.88)',borderRadius:16,padding:20,border:'1px solid rgba(0,0,0,0.06)'}}>
+          <div className="page-body" style={{position:'relative', zIndex:10000}}>
+            <div style={{background:'rgba(255,255,255,0.95)',borderRadius:16,padding:20,border:'1px solid rgba(0,0,0,0.06)'}}>
               <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:22,fontWeight:700,marginBottom:10,color:'#5a3e2b'}}>Stories</div>
               <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,lineHeight:'1.9',color:'#666'}}>故事集页面骨架测试成功。</div>
-              <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,lineHeight:'1.9',color:'#666'}}>如果你现在能打开，说明问题就在我刚加的 stories 复杂 UI 里面，不在入口。</div>
+              <div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,lineHeight:'1.9',color:'#666'}}>如果你现在能打开，说明之前是层级或样式压住了。</div>
             </div>
           </div>
         </div>
