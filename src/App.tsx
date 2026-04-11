@@ -537,14 +537,26 @@ if (!Array.isArray(stories)) {
   // Load story data from Supabase
   useEffect(() => {
     fetch(SB_URL+'/story_categories?select=*&order=sort_order.asc',{headers:SB_H})
-      .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setStoryCategories(data);save('story_cats',data)}})
-      .catch(()=>{})
+      .then(r=>r.json()).then(data=>{
+        if(Array.isArray(data)&&data.length>0){setStoryCategories(data);save('story_cats',data)}
+        else if(safeStoryCategories.length>0){
+          safeStoryCategories.forEach(cat=>{fetch(SB_URL+'/story_categories',{method:'POST',headers:{...SB_H,'Prefer':'return=minimal'},body:JSON.stringify({id:cat.id,name:cat.name,description:cat.description||'',color:cat.color||'#E8DDD3',sort_order:cat.sort_order||0,cover:cat.cover||null,frame:cat.frame||null})}).catch(()=>{})})
+        }
+      }).catch(()=>{})
     fetch(SB_URL+'/stories?select=*&order=sort_order.asc',{headers:SB_H})
-      .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setStories(data);save('stories',data)}})
-      .catch(()=>{})
+      .then(r=>r.json()).then(data=>{
+        if(Array.isArray(data)&&data.length>0){setStories(data);save('stories',data)}
+        else if(safeStories.length>0){
+          safeStories.forEach(s=>{fetch(SB_URL+'/stories',{method:'POST',headers:{...SB_H,'Prefer':'return=minimal'},body:JSON.stringify(s)}).catch(()=>{})})
+        }
+      }).catch(()=>{})
     fetch(SB_URL+'/chapters?select=*&order=chapter_number.asc',{headers:SB_H})
-      .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setChapters(data);save('chapters',data)}})
-      .catch(()=>{})
+      .then(r=>r.json()).then(data=>{
+        if(Array.isArray(data)&&data.length>0){setChapters(data);save('chapters',data)}
+        else if(safeChapters.length>0){
+          safeChapters.forEach(ch=>{fetch(SB_URL+'/chapters',{method:'POST',headers:{...SB_H,'Prefer':'return=minimal'},body:JSON.stringify(ch)}).catch(()=>{})})
+        }
+      }).catch(()=>{})
   }, [])
 
   const startEdit = (e: JournalEntry) => { setEditingId(e.id); setEditText(e.text) }
