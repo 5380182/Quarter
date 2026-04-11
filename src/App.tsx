@@ -268,6 +268,7 @@ export default function App() {
       const next = storyCategories.map(cat=>cat.id===editingCover?{...cat,cover:u}:cat)
       setStoryCategories(next)
       save('story_cats', next)
+      fetch(SB_URL+'/story_categories?id=eq.'+editingCover,{method:'PATCH',headers:{...SB_H,'Prefer':'return=minimal'},body:JSON.stringify({cover:u})}).catch(()=>{})
       setEditingCover(null)
     }
     reader.readAsDataURL(file)
@@ -289,6 +290,7 @@ export default function App() {
     const next = [...safeStoryCategories, cat]
     setStoryCategories(next)
     save('story_cats', next)
+    fetch(SB_URL+'/story_categories',{method:'POST',headers:{...SB_H,'Prefer':'return=minimal'},body:JSON.stringify(cat)}).catch(()=>{})
     setNewStoryCat('')
     setNewStoryTitle('')
     setNewStoryContent('')
@@ -323,6 +325,8 @@ export default function App() {
     setChapters(nextChapters)
     save('stories', nextStories)
     save('chapters', nextChapters)
+    fetch(SB_URL+'/stories',{method:'POST',headers:{...SB_H,'Prefer':'return=minimal'},body:JSON.stringify(story)}).catch(()=>{})
+    fetch(SB_URL+'/chapters',{method:'POST',headers:{...SB_H,'Prefer':'return=minimal'},body:JSON.stringify(firstChapter)}).catch(()=>{})
     setNewStoryTitle('')
     setNewStoryContent('')
     setNewStoryCat('')
@@ -345,6 +349,7 @@ export default function App() {
     const next = [...safeChapters, chapter]
     setChapters(next)
     save('chapters', next)
+    fetch(SB_URL+'/chapters',{method:'POST',headers:{...SB_H,'Prefer':'return=minimal'},body:JSON.stringify(chapter)}).catch(()=>{})
     setStoryChIdx(currentChapters.length)
     setNewStoryTitle('')
     setNewStoryContent('')
@@ -363,6 +368,9 @@ export default function App() {
     save('story_cats', nextCats)
     save('stories', nextStories)
     save('chapters', nextChapters)
+    removedIds.forEach(sid=>{fetch(SB_URL+'/chapters?story_id=eq.'+sid,{method:'DELETE',headers:SB_H}).catch(()=>{})})
+    safeStories.filter(st=>st.category_id===id).forEach(st=>{fetch(SB_URL+'/stories?id=eq.'+st.id,{method:'DELETE',headers:SB_H}).catch(()=>{})})
+    fetch(SB_URL+'/story_categories?id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{})
     if (storyCatId === id) {
       setStoryCatId(null)
       setStoryView('categories')
@@ -376,6 +384,8 @@ export default function App() {
     setChapters(nextChapters)
     save('stories', nextStories)
     save('chapters', nextChapters)
+    fetch(SB_URL+'/chapters?story_id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{})
+    fetch(SB_URL+'/stories?id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{})
     if (storyId === id) {
       setStoryId(null)
       setStoryView('list')
@@ -397,6 +407,7 @@ export default function App() {
     const next = safeChapters.map(ch => ch.id === editingChapterId ? {...ch, title: editChTitle, content: editChContent} : ch)
     setChapters(next)
     save('chapters', next)
+    fetch(SB_URL+'/chapters?id=eq.'+editingChapterId,{method:'PATCH',headers:{...SB_H,'Prefer':'return=minimal'},body:JSON.stringify({title:editChTitle,content:editChContent})}).catch(()=>{})
     setEditingChapterId(null)
     setEditChTitle('')
     setEditChContent('')
@@ -406,6 +417,7 @@ export default function App() {
     const next = safeChapters.filter(ch => ch.id !== id)
     setChapters(next)
     save('chapters', next)
+    fetch(SB_URL+'/chapters?id=eq.'+id,{method:'DELETE',headers:SB_H}).catch(()=>{})
     if (editingChapterId === id) setEditingChapterId(null)
   }
 
@@ -519,6 +531,19 @@ if (!Array.isArray(stories)) {
   useEffect(() => {
     fetch(SB_URL+'/bill?select=*&order=created_at.desc',{headers:SB_H})
       .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setBills(data);save('bills',data)}})
+      .catch(()=>{})
+  }, [])
+
+  // Load story data from Supabase
+  useEffect(() => {
+    fetch(SB_URL+'/story_categories?select=*&order=sort_order.asc',{headers:SB_H})
+      .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setStoryCategories(data);save('story_cats',data)}})
+      .catch(()=>{})
+    fetch(SB_URL+'/stories?select=*&order=sort_order.asc',{headers:SB_H})
+      .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setStories(data);save('stories',data)}})
+      .catch(()=>{})
+    fetch(SB_URL+'/chapters?select=*&order=chapter_number.asc',{headers:SB_H})
+      .then(r=>r.json()).then(data=>{if(Array.isArray(data)&&data.length>0){setChapters(data);save('chapters',data)}})
       .catch(()=>{})
   }, [])
 
