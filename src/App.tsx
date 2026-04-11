@@ -369,6 +369,46 @@ export default function App() {
     }
   }
 
+  const deleteSeriesStory = (id: string) => {
+    const nextStories = safeStories.filter(st => st.id !== id)
+    const nextChapters = safeChapters.filter(ch => ch.story_id !== id)
+    setStories(nextStories)
+    setChapters(nextChapters)
+    save('stories', nextStories)
+    save('chapters', nextChapters)
+    if (storyId === id) {
+      setStoryId(null)
+      setStoryView('list')
+    }
+  }
+
+  const [editingChapterId, setEditingChapterId] = useState<string|null>(null)
+  const [editChTitle, setEditChTitle] = useState('')
+  const [editChContent, setEditChContent] = useState('')
+
+  const startEditChapter = (ch: Chapter) => {
+    setEditingChapterId(ch.id)
+    setEditChTitle(ch.title)
+    setEditChContent(ch.content)
+  }
+
+  const saveEditChapter = () => {
+    if (!editingChapterId) return
+    const next = safeChapters.map(ch => ch.id === editingChapterId ? {...ch, title: editChTitle, content: editChContent} : ch)
+    setChapters(next)
+    save('chapters', next)
+    setEditingChapterId(null)
+    setEditChTitle('')
+    setEditChContent('')
+  }
+
+  const deleteChapter = (id: string) => {
+    const next = safeChapters.filter(ch => ch.id !== id)
+    setChapters(next)
+    save('chapters', next)
+    if (editingChapterId === id) setEditingChapterId(null)
+  }
+
 
 
   // Icon editor
@@ -969,12 +1009,12 @@ if (!Array.isArray(stories)) {
             </div>}
             {storyView==='categories' && <img src='https://i.postimg.cc/2SxSjMqy/012.png' alt='' style={{width:90,display:'block',margin:'2px auto 0'}} />}
             {storyView==='list' && <>
-              <div style={{display:'flex',flexDirection:'column',gap:12}}>{safeStories.filter(s=>s.category_id===storyCatId).length===0?<div style={{textAlign:'center',padding:'60px 20px',color:'#b0a898',fontSize:13,fontFamily:"'LXGW WenKai',serif"}}>还没有故事</div>:safeStories.filter(s=>s.category_id===storyCatId).sort((a,b)=>a.sort_order-b.sort_order).map(s=><div key={s.id} onClick={()=>{setStoryId(s.id);setStoryChIdx(0);setStoryView('read')}} style={{background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px',cursor:'pointer',border:'1px solid rgba(0,0,0,0.05)',boxShadow:'0 8px 24px rgba(90,62,43,0.04)'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:16,fontWeight:600,color:'#2c2c2c'}}>{s.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#bbb'}}>{safeChapters.filter(c=>c.story_id===s.id).length}章</div></div>{s.summary&&<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:12,color:'#999',marginTop:6,lineHeight:'1.6'}}>{s.summary}</div>}<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#ccc',marginTop:8}}>{s.author==='kk'?'kk':'厌厌'} · {new Date(s.created_at).toLocaleDateString('zh-CN')}</div></div>)}</div>
+              <div style={{display:'flex',flexDirection:'column',gap:12}}>{safeStories.filter(s=>s.category_id===storyCatId).length===0?<div style={{textAlign:'center',padding:'60px 20px',color:'#b0a898',fontSize:13,fontFamily:"'LXGW WenKai',serif"}}>还没有故事</div>:safeStories.filter(s=>s.category_id===storyCatId).sort((a,b)=>a.sort_order-b.sort_order).map(s=><div key={s.id} onClick={()=>{setStoryId(s.id);setStoryChIdx(0);setStoryView('read')}} style={{position:'relative',background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px',cursor:'pointer',border:'1px solid rgba(0,0,0,0.05)',boxShadow:'0 8px 24px rgba(90,62,43,0.04)'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:16,fontWeight:600,color:'#2c2c2c'}}>{s.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#bbb'}}>{safeChapters.filter(c=>c.story_id===s.id).length}章</div></div>{s.summary&&<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:12,color:'#999',marginTop:6,lineHeight:'1.6'}}>{s.summary}</div>}<div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:10,color:'#ccc',marginTop:8}}>{s.author==='kk'?'kk':'厌厌'} · {new Date(s.created_at).toLocaleDateString('zh-CN')}</div><button onClick={(e)=>{e.stopPropagation();if(confirm('删除这个系列和所有篇章？'))deleteSeriesStory(s.id)}} style={{position:'absolute',right:10,top:10,width:20,height:20,borderRadius:'50%',border:'none',background:'rgba(0,0,0,0.08)',color:'#999',fontSize:12,cursor:'pointer',lineHeight:1}}>×</button></div>)}</div>
               <div onClick={()=>{setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('');setShowStoryForm(true)}} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'2px 0 12px',cursor:'pointer',color:'#b08f76'}}>
                 <div style={{fontSize:28,lineHeight:1,fontFamily:'Cormorant Garamond, serif'}}>+</div>
               </div>
             </>}
-            {storyView==='read' && (()=>{ const chs=safeChapters.filter(c=>c.story_id===storyId).sort((a,b)=>a.chapter_number-b.chapter_number); const ch=chs[storyChIdx]; if(!ch)return <div style={{textAlign:'center',padding:40,color:'#999'}}>没有章节</div>; return <div style={{background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px 22px',border:'1px solid rgba(0,0,0,0.05)',boxShadow:'0 8px 24px rgba(90,62,43,0.04)'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,color:'var(--accent)',marginBottom:6,fontWeight:500}}>{ch.title}</div><div style={{fontFamily:"'Noto Sans SC',sans-serif",fontSize:14,color:'#3c3c3c',lineHeight:'2.2',letterSpacing:'0.5px'}}>{ch.content.split('\n').map((p,i)=><p key={i} style={{textIndent:'2em',margin:'0 0 8px 0'}}>{p}</p>)}</div><div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',alignItems:'center',gap:10,marginTop:40,paddingTop:20,borderTop:'1px solid rgba(0,0,0,0.06)'}}>{storyChIdx>0?<button onClick={()=>setStoryChIdx(storyChIdx-1)} style={{justifySelf:'start',background:'none',border:'1px solid rgba(0,0,0,0.1)',borderRadius:8,padding:'8px 18px',fontSize:12,color:'#666',cursor:'pointer'}}>上一篇</button>:<div /> }<div onClick={()=>{setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('');setShowStoryForm(true)}} style={{display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#b08f76'}}><div style={{fontSize:26,lineHeight:1,fontFamily:'Cormorant Garamond, serif'}}>+</div></div>{storyChIdx<chs.length-1?<button onClick={()=>setStoryChIdx(storyChIdx+1)} style={{justifySelf:'end',background:'var(--accent)',border:'none',borderRadius:8,padding:'8px 18px',fontSize:12,color:'white',cursor:'pointer'}}>下一篇</button>:<div />}</div></div>})()}
+            {storyView==='read' && (()=>{ const chs=safeChapters.filter(c=>c.story_id===storyId).sort((a,b)=>a.chapter_number-b.chapter_number); const ch=chs[storyChIdx]; if(!ch)return <div style={{textAlign:'center',padding:40,color:'#999'}}>没有章节</div>; return <div style={{background:'rgba(255,255,255,0.92)',borderRadius:14,padding:'18px 16px 22px',border:'1px solid rgba(0,0,0,0.05)',boxShadow:'0 8px 24px rgba(90,62,43,0.04)'}}><div style={{fontFamily:"'LXGW WenKai',serif",fontSize:14,color:'var(--accent)',marginBottom:6,fontWeight:500}}>{ch.title}</div><div style={{display:"flex",gap:8,marginBottom:8}}><button onClick={()=>startEditChapter(ch)} style={{background:"none",border:"1px solid rgba(0,0,0,0.1)",borderRadius:6,padding:"4px 12px",fontSize:11,color:"#888",cursor:"pointer"}}>编辑</button><button onClick={()=>{if(confirm("删除这个篇章？"))deleteChapter(ch.id)}} style={{background:"none",border:"1px solid rgba(0,0,0,0.1)",borderRadius:6,padding:"4px 12px",fontSize:11,color:"#c88",cursor:"pointer"}}>删除</button></div><div style={{fontFamily:""'Noto Sans SC',sans-serif",fontSize:14,color:'#3c3c3c',lineHeight:'2.2',letterSpacing:'0.5px'}}>{ch.content.split('\n').map((p,i)=><p key={i} style={{textIndent:'2em',margin:'0 0 8px 0'}}>{p}</p>)}</div><div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',alignItems:'center',gap:10,marginTop:40,paddingTop:20,borderTop:'1px solid rgba(0,0,0,0.06)'}}>{storyChIdx>0?<button onClick={()=>setStoryChIdx(storyChIdx-1)} style={{justifySelf:'start',background:'none',border:'1px solid rgba(0,0,0,0.1)',borderRadius:8,padding:'8px 18px',fontSize:12,color:'#666',cursor:'pointer'}}>上一篇</button>:<div /> }<div onClick={()=>{setNewStoryTitle('');setNewStoryContent('');setNewStoryCat('');setShowStoryForm(true)}} style={{display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#b08f76'}}><div style={{fontSize:26,lineHeight:1,fontFamily:'Cormorant Garamond, serif'}}>+</div></div>{storyChIdx<chs.length-1?<button onClick={()=>setStoryChIdx(storyChIdx+1)} style={{justifySelf:'end',background:'var(--accent)',border:'none',borderRadius:8,padding:'8px 18px',fontSize:12,color:'white',cursor:'pointer'}}>下一篇</button>:<div />}</div></div>})()}
             <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap'}}>
               <button onClick={()=>storyBgRef.current?.click()} style={{background:'none',border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'8px 16px',fontSize:11,color:'#b8a08a',cursor:'pointer',fontFamily:'Cormorant Garamond, serif',fontStyle:'italic',letterSpacing:1}}>change wallpaper</button>
               <button onClick={()=>{const next = safeStoryBgSize==='repeat' ? 'cover' : safeStoryBgSize==='cover' ? 'contain' : 'repeat'; setStoryBgSize(next); save('story_bg_size', next)}} style={{background:'none',border:'1px dashed rgba(180,150,120,0.4)',borderRadius:8,padding:'8px 16px',fontSize:11,color:'#b8a08a',cursor:'pointer',fontFamily:'Cormorant Garamond, serif',fontStyle:'italic',letterSpacing:1}}>bg mode: {safeStoryBgSize}</button>
@@ -1018,6 +1058,21 @@ if (!Array.isArray(stories)) {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Edit Chapter Modal */}
+      {editingChapterId && (
+        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={()=>setEditingChapterId(null)}>
+          <div style={{background:'#fffcf8',padding:20,width:'100%',maxWidth:360,borderRadius:16,maxHeight:'80vh',overflow:'auto'}} onClick={e=>e.stopPropagation()}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:'#5a3e2b'}}>编辑篇章</div>
+            <input value={editChTitle} onChange={e=>setEditChTitle(e.target.value)} placeholder="篇章标题" style={{width:'100%',padding:'10px 0',border:'none',borderBottom:'2px dashed #e0d5c3',marginBottom:10,fontSize:14,background:'transparent',color:'#3c3c3c',outline:'none'}} />
+            <textarea value={editChContent} onChange={e=>setEditChContent(e.target.value)} placeholder="正文内容" style={{width:'100%',minHeight:200,padding:'10px 0',border:'none',borderBottom:'2px dashed #e0d5c3',marginBottom:14,fontSize:14,background:'rgba(255,252,248,0.88)',color:'#6b5848',resize:'vertical',lineHeight:'1.8',outline:'none'}} />
+            <div style={{display:'flex',gap:10}}>
+              <button onClick={()=>setEditingChapterId(null)} style={{flex:1,padding:'10px',border:'1px solid #ddd',borderRadius:10,background:'white',color:'#999',fontSize:13,cursor:'pointer'}}>取消</button>
+              <button onClick={saveEditChapter} style={{flex:1,padding:'10px',border:'none',borderRadius:10,background:'var(--accent)',color:'white',fontSize:13,cursor:'pointer'}}>保存</button>
+            </div>
           </div>
         </div>
       )}
