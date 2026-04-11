@@ -6,6 +6,19 @@ import {
 } from '@phosphor-icons/react'
 
 const K = (k: string) => 'quarter_' + k
+const compressImage = (dataUrl: string, maxW = 480, quality = 0.6): Promise<string> => new Promise(resolve => {
+  const img = new Image()
+  img.onload = () => {
+    const c = document.createElement('canvas')
+    const scale = Math.min(1, maxW / img.width)
+    c.width = img.width * scale
+    c.height = img.height * scale
+    const ctx = c.getContext('2d')!
+    ctx.drawImage(img, 0, 0, c.width, c.height)
+    resolve(c.toDataURL('image/jpeg', quality))
+  }
+  img.src = dataUrl
+})
 const load = (k: string, fb: any = []) => {
   try { const r = localStorage.getItem(K(k)); return r ? JSON.parse(r) : fb } catch { return fb }
 }
@@ -235,8 +248,8 @@ export default function App() {
   const handleStoryBg = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return
     const reader = new FileReader()
-    reader.onload = () => {
-      const u = reader.result as string
+    reader.onload = async () => {
+      const u = await compressImage(reader.result as string, 800, 0.7)
       if (storyView === 'read') {
         setStoryReadBg(u)
         save('story_read_bg', u)
@@ -250,8 +263,8 @@ export default function App() {
   const handleStoryCover = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file || !editingCover) return
     const reader = new FileReader()
-    reader.onload = () => {
-      const u = reader.result as string
+    reader.onload = async () => {
+      const u = await compressImage(reader.result as string, 400, 0.6)
       const next = storyCategories.map(cat=>cat.id===editingCover?{...cat,cover:u}:cat)
       setStoryCategories(next)
       save('story_cats', next)
@@ -367,8 +380,8 @@ export default function App() {
     const file = e.target.files?.[0]
     if (!file || !editingIcon) return
     const reader = new FileReader()
-    reader.onload = () => {
-      const url = reader.result as string
+    reader.onload = async () => {
+      const url = await compressImage(reader.result as string, 200, 0.6)
       const next = {...theme, customIcons: {...theme.customIcons, [editingIcon]: url}}
       setTheme(next); save('theme', next)
       setEditingIcon(null); setIconUrl('')
