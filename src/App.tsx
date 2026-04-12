@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import {
   BookOpenText, Envelope, Smiley, MusicNotes,
   Receipt, ListChecks, BookBookmark, Camera,
-  House, Star, ArrowLeft, GearSix
+  House, Star, ArrowLeft, GearSix, Wallet
 } from '@phosphor-icons/react'
 
 const K = (k: string) => 'quarter_' + k
@@ -98,6 +98,26 @@ function todayStr() {
 
 function formatDateCN(ds: string) {
   const d = new Date(ds)
+
+  const WalletRecords = () => {
+    const [records, setRecords] = useState<any[]>([])
+    const [loaded, setLoaded] = useState(false)
+    useEffect(() => {
+      if (!loaded) {
+        fetch(SB_URL+'/wallet?order=created_at.desc&limit=50', {headers: SB_HEADERS})
+          .then(r => r.json()).then(d => { setRecords(d); setLoaded(true) }).catch(() => setLoaded(true))
+        loadWalletBalance()
+      }
+    }, [loaded])
+    return <div>{records.length === 0 && loaded && <div style={{textAlign:'center',padding:40,color:'rgba(255,255,255,0.15)',fontFamily:"'Space Mono', monospace",fontSize:12}}>no records yet</div>}
+      {records.map((r: any, i: number) => <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 0',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+        <div><div style={{fontFamily:"'Space Mono', monospace",fontSize:13,color:'rgba(255,255,255,0.75)',marginBottom:3}}>{r.note || r.source}</div>
+        <div style={{fontFamily:"'Space Mono', monospace",fontSize:10,color:'rgba(255,255,255,0.2)'}}>{new Date(r.created_at).toLocaleDateString('zh-CN', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div>
+        <div style={{fontFamily:"'Space Mono', monospace",fontSize:15,color:'#d4a574',fontWeight:500}}>+&yen;{parseFloat(r.amount).toFixed(2)}</div>
+      </div>)}
+    </div>
+  }
+
   return (d.getMonth()+1)+'月'+d.getDate()+'日'
 }
 
@@ -123,6 +143,7 @@ const appDefs = [
   { id: 'memories', name: '回忆墙', Icon: Camera, color: '#9a8c7d' },
   { id: 'room', name: '小窝', Icon: House, color: '#b07d9a' },
   { id: 'wish', name: '许愿', Icon: Star, color: '#c4a35a' },
+  { id: 'wallet', name: 'kk的小荷包', Icon: Wallet, color: '#2d2d2d' },
   { id: 'settings', name: '设置', Icon: GearSix, color: '#8a8a8a' },
 ]
 
@@ -1048,6 +1069,33 @@ if (!Array.isArray(stories)) {
           </div>
         </div>
       )}
+      
+      {page==='wallet' && (
+        <div style={{position:'fixed',inset:0,zIndex:2147483647,background:'linear-gradient(165deg, #0a0a0a 0%, #1a1a1a 40%, #0d0d0d 100%)',display:'flex',flexDirection:'column',height:'100dvh',overflow:'auto'}}>
+          <div style={{height:56,display:'flex',alignItems:'center',gap:12,padding:'0 16px',background:'rgba(20,20,20,0.95)',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0}}>
+            <button onClick={()=>setPage(null)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.6)',cursor:'pointer',padding:4}}><ArrowLeft size={20} weight="bold" /></button>
+            <span style={{fontFamily:"'Space Mono', monospace",fontSize:14,color:'rgba(255,255,255,0.85)',letterSpacing:2,textTransform:'uppercase'}}>kk's wallet</span>
+          </div>
+          <div style={{flex:1,padding:'24px 20px',overflowY:'auto'}}>
+            <div style={{background:'linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 50%, #1c1c1e 100%)',borderRadius:20,padding:'32px 24px',border:'1px solid rgba(255,255,255,0.08)',boxShadow:'0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',marginBottom:24,position:'relative',overflow:'hidden'}}>
+              <div style={{position:'absolute',top:0,right:0,width:120,height:120,background:'radial-gradient(circle, rgba(212,165,116,0.08) 0%, transparent 70%)',borderRadius:'50%'}} />
+              <div style={{fontFamily:"'Space Mono', monospace",fontSize:11,color:'rgba(255,255,255,0.35)',letterSpacing:3,marginBottom:20,textTransform:'uppercase'}}>balance</div>
+              <div style={{fontFamily:"'Space Mono', monospace",fontSize:42,color:'#fff',fontWeight:300,letterSpacing:'-1px',marginBottom:8}}>
+                <span style={{fontSize:24,color:'rgba(255,255,255,0.4)',marginRight:4}}>&yen;</span>
+                {walletBalance.toFixed(2)}
+              </div>
+              <div style={{fontFamily:"'Space Mono', monospace",fontSize:10,color:'rgba(212,165,116,0.6)',letterSpacing:2,marginTop:16}}>KKYY &bull; SINCE 2026.04.12</div>
+            </div>
+
+            <div style={{marginBottom:12,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span style={{fontFamily:"'Space Mono', monospace",fontSize:11,color:'rgba(255,255,255,0.3)',letterSpacing:2,textTransform:'uppercase'}}>transactions</span>
+            </div>
+
+            <WalletRecords />
+          </div>
+        </div>
+      )}
+
       {page==='storybook' && (
         <div style={{position:'fixed',inset:0,zIndex:2147483647,background:(storyView==='read' ? (storyReadBg || storyBg) : storyBg)?(safeStoryBgSize==='repeat'?`url(${storyView==='read' ? (storyReadBg || storyBg) : storyBg}) center/300px auto repeat`:`url(${storyView==='read' ? (storyReadBg || storyBg) : storyBg}) center/${safeStoryBgSize} no-repeat`):'#fff8f3',display:'flex',flexDirection:'column',height:'100dvh',overflow:'hidden'}}>
           <div style={{height:56,display:'flex',alignItems:'center',gap:12,padding:'0 16px',background:'rgba(255,253,250,0.9)',color:'#5a3e2b',fontWeight:700,borderBottom:'1px solid rgba(160,130,110,0.12)',flexShrink:0,position:'relative',zIndex:2}}>
@@ -1120,7 +1168,7 @@ if (!Array.isArray(stories)) {
           </div>
         </div>
       )}
-      {page && !['journal','settings','checklist','bill','stories','storyhome','storybook'].includes(page) && (
+      {page && !['journal','settings','checklist','bill','stories','storyhome','storybook','wallet'].includes(page) && (
         <div className="page-overlay">
           <div className="page-header"><button className="page-back" onClick={()=>setPage(null)}><ArrowLeft size={20} weight="bold" /></button><span className="page-title">{appDefs.find(a=>a.id===page)?.name||page}</span></div>
           <div className="page-body"><div className="empty"><div className="empty-icon">✨</div><div className="empty-text">即将上线...</div></div></div>
