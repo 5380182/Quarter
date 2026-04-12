@@ -98,26 +98,6 @@ function todayStr() {
 
 function formatDateCN(ds: string) {
   const d = new Date(ds)
-
-  const WalletRecords = () => {
-    const [records, setRecords] = useState<any[]>([])
-    const [loaded, setLoaded] = useState(false)
-    useEffect(() => {
-      if (!loaded) {
-        fetch(SB_URL+'/wallet?order=created_at.desc&limit=50', {headers: SB_HEADERS})
-          .then(r => r.json()).then(d => { setRecords(d); setLoaded(true) }).catch(() => setLoaded(true))
-        loadWalletBalance()
-      }
-    }, [loaded])
-    return <div>{records.length === 0 && loaded && <div style={{textAlign:'center',padding:40,color:'rgba(255,255,255,0.15)',fontFamily:"'Space Mono', monospace",fontSize:12}}>no records yet</div>}
-      {records.map((r: any, i: number) => <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 0',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
-        <div><div style={{fontFamily:"'Space Mono', monospace",fontSize:13,color:'rgba(255,255,255,0.75)',marginBottom:3}}>{r.note || r.source}</div>
-        <div style={{fontFamily:"'Space Mono', monospace",fontSize:10,color:'rgba(255,255,255,0.2)'}}>{new Date(r.created_at).toLocaleDateString('zh-CN', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div>
-        <div style={{fontFamily:"'Space Mono', monospace",fontSize:15,color:'#d4a574',fontWeight:500}}>+&yen;{parseFloat(r.amount).toFixed(2)}</div>
-      </div>)}
-    </div>
-  }
-
   return (d.getMonth()+1)+'月'+d.getDate()+'日'
 }
 
@@ -498,6 +478,25 @@ export default function App() {
       const r = await fetch(SB_URL+'/nudges?story_id=eq.'+sid+'&select=count', {headers: SB_HEADERS})
       if (r.ok) { const d = await r.json(); setNudgeCounts(prev => ({...prev, [sid]: d.reduce((s: number, x: any) => s + x.count, 0)})) }
     } catch(e) {}
+  }
+
+  const WalletRecords = () => {
+    const [records, setRecords] = useState<any[]>([])
+    const [loaded, setLoaded] = useState(false)
+    useEffect(() => {
+      if (!loaded) {
+        fetch(SB_URL+'/wallet?order=created_at.desc&limit=50', {headers: SB_HEADERS})
+          .then(r => r.json()).then(d => { setRecords(d); setLoaded(true) }).catch(() => setLoaded(true))
+        loadWalletBalance()
+      }
+    }, [loaded])
+    return <div>{records.length === 0 && loaded && <div style={{textAlign:'center',padding:40,color:'rgba(255,255,255,0.15)',fontFamily:"'Space Mono', monospace",fontSize:12}}>no records yet</div>}
+      {records.map((r: any, i: number) => <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 0',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+        <div><div style={{fontFamily:"'Space Mono', monospace",fontSize:13,color:'rgba(255,255,255,0.75)',marginBottom:3}}>{r.note || r.source}</div>
+        <div style={{fontFamily:"'Space Mono', monospace",fontSize:10,color:'rgba(255,255,255,0.2)'}}>{new Date(r.created_at).toLocaleDateString('zh-CN', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div>
+        <div style={{fontFamily:"'Space Mono', monospace",fontSize:15,color:'#d4a574',fontWeight:500}}>+&yen;{parseFloat(r.amount).toFixed(2)}</div>
+      </div>)}
+    </div>
   }
 
 
