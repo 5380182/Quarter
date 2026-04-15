@@ -937,7 +937,6 @@ if (!Array.isArray(stories)) {
                     {item.comment&&<div style={{marginTop:6,padding:'6px 10px',background:'rgba(0,0,0,0.03)',borderRadius:8,fontSize:12,color:'#666',lineHeight:'1.4'}}>{clTab==='yy'?'kk':'厌厌'}说: {item.comment}</div>}
                   </div>
                 ))}
-                {done.length>0
                 {done.length>0&&<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'16px 0 8px'}}><button onClick={()=>setClDoneOpen(!clDoneOpen)} style={{background:'none',border:'none',fontSize:12,color:'#aaa',fontWeight:500,cursor:'pointer',fontFamily:'var(--font)'}}>{clDoneOpen?'▾':'▸'} 已完成 ({done.length})</button>{clDoneOpen&&<button onClick={()=>{if(confirm('清空所有已完成的项？'))clearDoneItems()}} style={{background:'none',border:'none',fontSize:11,color:'#ccc',cursor:'pointer',fontFamily:'var(--font)'}}>清空</button>}</div>}
                 {clDoneOpen&&done.map(item=>(
                   <div key={item.id} className="glass" style={{padding:'12px 16px',marginBottom:8,borderRadius:10,opacity:0.6}}>
@@ -946,7 +945,6 @@ if (!Array.isArray(stories)) {
                       <span style={{flex:1,fontSize:14,color:'#999',lineHeight:'1.5',textDecoration:'line-through'}}>{item.text}</span>
                       <button onClick={()=>deleteClItem(item.id)} style={{background:'none',border:'none',color:'#ccc',fontSize:14,cursor:'pointer',padding:4}}>×</button>
                     </div>
-                    {item.created_at&&<div style={{marginTop:4,fontSize:10,color:'#bbb'}}>{new Date(item.created_at).toLocaleDateString('zh-CN',{year:'numeric',month:'numeric',day:'numeric'})} 创建</div>}
                     {item.done_at&&<div style={{marginTop:4,fontSize:10,color:'#bbb'}}>{new Date(item.done_at).toLocaleDateString('zh-CN',{year:'numeric',month:'numeric',day:'numeric'})} 完成</div>}
                     {(item.nudge||0)>0&&<div style={{marginTop:4,fontSize:11,color:'var(--accent)',fontWeight:500}}>被催了{item.nudge}次</div>}
                     {item.comment&&<div style={{marginTop:4,padding:'6px 10px',background:'rgba(0,0,0,0.03)',borderRadius:8,fontSize:12,color:'#666',lineHeight:'1.4'}}>{clTab==='yy'?'kk':'厌厌'}说: {item.comment}</div>}
