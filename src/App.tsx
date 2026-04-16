@@ -524,19 +524,68 @@ export default function App() {
   const WalletRecords = () => {
     const [records, setRecords] = useState<any[]>([])
     const [loaded, setLoaded] = useState(false)
-    useEffect(() => {
-      if (!loaded) {
-        fetch(SB_URL+'/wallet?order=created_at.desc&limit=50', {headers: SB_HEADERS})
-          .then(r => r.json()).then(d => { setRecords(d); setLoaded(true) }).catch(() => setLoaded(true))
-        loadWalletBalance()
-      }
-    }, [loaded])
-    return <div>{records.length === 0 && loaded && <div style={{textAlign:'center',padding:40,color:'rgba(255,255,255,0.15)',fontFamily:"'Space Mono', monospace",fontSize:12}}>no records yet</div>}
-      {records.map((r: any, i: number) => <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 0',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
-        <div><div style={{fontFamily:"'Space Mono', monospace",fontSize:13,color:'rgba(255,255,255,0.75)',marginBottom:3}}>{r.note || r.source}</div>
-        <div style={{fontFamily:"'Space Mono', monospace",fontSize:10,color:'rgba(255,255,255,0.2)'}}>{new Date(r.created_at).toLocaleDateString('zh-CN', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div>
-        <div style={{fontFamily:"'Space Mono', monospace",fontSize:15,color:'#d4a574',fontWeight:500}}>+&yen;{parseFloat(r.amount).toFixed(2)}</div>
-      </div>)}
+    const [addMode, setAddMode] = useState(false)
+    const [wType, setWType] = useState('tip')
+    const [wAmt, setWAmt] = useState('')
+    const [wNote, setWNote] = useState('')
+    const loadRecords = () => {
+      fetch(SB_URL+'/wallet?order=created_at.desc&limit=50', {headers: SB_HEADERS})
+        .then(r => r.json()).then(d => { setRecords(d); setLoaded(true) }).catch(() => setLoaded(true))
+      loadWalletBalance()
+    }
+    useEffect(() => { if (!loaded) loadRecords() }, [loaded])
+    const addRecord = async () => {
+      const amt = parseFloat(wAmt)
+      if (isNaN(amt) || amt <= 0 || !wNote.trim()) return
+      const finalAmt = (wType === 'penalty' || wType === 'expense') ? -amt : amt
+      try {
+        await fetch(SB_URL+'/wallet', {method:'POST', headers: {...SB_HEADERS, 'Prefer':'return=representation'}, body: JSON.stringify({amount: finalAmt, source: wType, note: wNote.trim()})})
+        setWAmt(''); setWNote(''); setAddMode(false); setLoaded(false)
+      } catch(e) {}
+    }
+    const deleteRecord = async (id: string) => {
+      if (!confirm('确定删除？')) return
+      try {
+        await fetch(SB_URL+'/wallet?id=eq.'+id, {method:'DELETE', headers: SB_HEADERS})
+        setLoaded(false)
+      } catch(e) {}
+    }
+    const sourceLabels: Record<string,string> = {tip:'打赏',allowance:'零花钱',bonus:'奖金',penalty:'扣钱',expense:'支出'}
+    return <div>
+      <div style={{marginBottom:16}}>
+        {!addMode ? <button onClick={()=>setAddMode(true)} style={{width:'100%',padding:'12px',background:'rgba(255,255,255,0.06)',border:'1px dashed rgba(255,255,255,0.15)',borderRadius:12,color:'rgba(255,255,255,0.4)',fontFamily:"'Space Mono', monospace",fontSize:12,cursor:'pointer',letterSpacing:1}}>+ 添加记录</button>
+        : <div style={{background:'rgba(255,255,255,0.04)',borderRadius:12,padding:16,border:'1px solid rgba(255,255,255,0.08)'}}>
+          <div style={{display:'flex',gap:8,marginBottom:10}}>
+            <select value={wType} onChange={e=>setWType(e.target.value)} style={{flex:1,padding:'8px 10px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,color:'#fff',fontFamily:"'Space Mono', monospace",fontSize:12}}>
+              <option value="tip">打赏</option>
+              <option value="allowance">零花钱</option>
+              <option value="bonus">奖金</option>
+              <option value="penalty">扣钱</option>
+              <option value="expense">支出</option>
+            </select>
+            <input value={wAmt} onChange={e=>setWAmt(e.target.value)} type="number" step="0.01" placeholder="金额" style={{width:80,padding:'8px 10px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,color:'#fff',fontFamily:"'Space Mono', monospace",fontSize:12}} />
+          </div>
+          <input value={wNote} onChange={e=>setWNote(e.target.value)} placeholder="备注" style={{width:'100%',padding:'8px 10px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,color:'#fff',fontFamily:"'Space Mono', monospace",fontSize:12,marginBottom:10,boxSizing:'border-box'}} />
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={addRecord} style={{flex:1,padding:'8px',background:'rgba(212,165,116,0.2)',border:'1px solid rgba(212,165,116,0.3)',borderRadius:8,color:'#d4a574',fontFamily:"'Space Mono', monospace",fontSize:12,cursor:'pointer'}}>确认</button>
+            <button onClick={()=>{setAddMode(false);setWAmt('');setWNote('')}} style={{flex:1,padding:'8px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:8,color:'rgba(255,255,255,0.3)',fontFamily:"'Space Mono', monospace",fontSize:12,cursor:'pointer'}}>取消</button>
+          </div>
+        </div>}
+      </div>
+      {records.length === 0 && loaded && <div style={{textAlign:'center',padding:40,color:'rgba(255,255,255,0.15)',fontFamily:"'Space Mono', monospace",fontSize:12}}>no records yet</div>}
+      {records.map((r: any, i: number) => {
+        const amt = parseFloat(r.amount)
+        const isNeg = amt < 0
+        return <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 0',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+        <div style={{flex:1}}>
+          <div style={{fontFamily:"'Space Mono', monospace",fontSize:13,color:'rgba(255,255,255,0.75)',marginBottom:3}}>{r.note || r.source}</div>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <span style={{fontFamily:"'Space Mono', monospace",fontSize:10,color:'rgba(255,255,255,0.2)'}}>{sourceLabels[r.source]||r.source} · {new Date(r.created_at).toLocaleDateString('zh-CN', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+            <span onClick={()=>deleteRecord(r.id)} style={{fontFamily:"'Space Mono', monospace",fontSize:10,color:'rgba(255,100,100,0.4)',cursor:'pointer',textDecoration:'underline'}}>删除</span>
+          </div>
+        </div>
+        <div style={{fontFamily:"'Space Mono', monospace",fontSize:15,fontWeight:500,color:isNeg?'#e74c3c':'#d4a574'}}>{isNeg?'':'+'}¥{Math.abs(amt).toFixed(2)}</div>
+      </div>})}
     </div>
   }
 
